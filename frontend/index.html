@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Chess Trainer</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-3fhDOAaaj0Hn4mBJEvYBqfa9+H0hZGtQDQprx3yRk0A=" crossorigin="anonymous"></script>
+    <script src="assets/js/app.js" defer></script>
+</head>
+<body data-api-base="../backend/public/api">
+    <header class="app-header">
+        <div>
+            <h1>Solo Chess</h1>
+            <p>Play both sides, focus on the fundamentals.</p>
+        </div>
+        <div class="status-chip" id="activeColor">Loading...</div>
+    </header>
+
+    <main class="app-shell">
+        <section class="board-panel">
+            <div class="board-meta">
+                <span>Active move:</span>
+                <strong id="activeMoveLabel">--</strong>
+            </div>
+            <div id="chessBoard" class="chess-board" role="grid" aria-label="Chess board"></div>
+        </section>
+
+        <aside class="sidebar">
+            <section class="panel">
+                <h2>Controls</h2>
+                <div class="button-row">
+                    <button id="refreshButton">Refresh</button>
+                    <button id="resetButton" class="danger">Reset</button>
+                </div>
+                <form id="fenForm">
+                    <label for="fenInput">Load FEN (stub)</label>
+                    <textarea id="fenInput" name="fen" rows="3" placeholder="Paste FEN here"></textarea>
+                    <button type="submit">Submit FEN</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>Move History</h2>
+                <ol id="moveHistory" class="move-history"></ol>
+            </section>
+
+            <section class="panel">
+                <h2>Status</h2>
+                <p id="statusMessage">Waiting for server...</p>
+            </section>
+        </aside>
+    </main>
+</body>
+</html>
