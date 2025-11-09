@@ -12,6 +12,9 @@
         init() {
             this.cacheDom();
             this.bindEvents();
+            this.handleResize = this.handleResize.bind(this);
+            this.handleResize();
+            this.$window.on('resize', this.handleResize);
             this.loadState();
         },
         cacheDom() {
@@ -24,6 +27,8 @@
             this.$reset = $('#resetButton');
             this.$fenForm = $('#fenForm');
             this.$fenInput = $('#fenInput');
+            this.$window = $(window);
+            this.$header = $('.app-header');
         },
         bindEvents() {
             this.$refresh.on('click', () => this.loadState());
@@ -163,8 +168,33 @@
                         $square.addClass('selected');
                     }
 
-                    const label = cell ? (PIECE_SYMBOLS[cell] || cell.toUpperCase()) : '';
-                    $square.text(label);
+                    if (cell) {
+                        const pieceColor = cell.startsWith('w') ? 'white' : 'black';
+                        const glyph = PIECE_SYMBOLS[cell] || cell.toUpperCase();
+                        const $piece = $('<span>', {
+                            class: `piece piece-${pieceColor}`,
+                            text: glyph,
+                        });
+                        $square.append($piece);
+                    }
+
+                    if (rowIndex === 7) {
+                        $square.append(
+                            $('<span>', {
+                                class: 'coord file-label',
+                                text: String.fromCharCode(97 + colIndex),
+                            })
+                        );
+                    }
+
+                    if (colIndex === 7) {
+                        $square.append(
+                            $('<span>', {
+                                class: 'coord rank-label',
+                                text: 8 - rowIndex,
+                            })
+                        );
+                    }
 
                     $square.on('click keypress', (event) => {
                         if (event.type === 'click' || event.key === 'Enter' || event.key === ' ') {
@@ -176,6 +206,7 @@
                     this.$board.append($square);
                 });
             });
+            this.handleResize();
         },
         renderHistory(moves) {
             this.$history.empty();
@@ -212,6 +243,19 @@
                 row: 8 - rank,
                 col: file,
             };
+        },
+        handleResize() {
+            if (!this.$board) {
+                return;
+            }
+            const headerHeight = this.$header?.outerHeight(true) || 0;
+            const availableHeight = Math.max(260, this.$window.height() - headerHeight - 120);
+            const panelWidth = this.$board.closest('.board-panel').width() || this.$board.width();
+            const boardSize = Math.max(240, Math.min(panelWidth, availableHeight));
+            this.$board.css({
+                width: boardSize,
+                height: boardSize,
+            });
         },
     };
 
