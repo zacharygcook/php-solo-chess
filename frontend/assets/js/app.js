@@ -92,15 +92,17 @@
             const piece = this.getPieceAt(coord);
 
             if (!this.selection.from) {
-                if (!piece) {
-                    this.flashSelectionError('Select a square with a piece.');
-                    return;
-                }
+                // if (!piece) {
+                //     this.flashSelectionError('Select a square with a piece.');
+                //     return;
+                // }
+                console.log("From coordinate: ", coord);
                 this.selection.from = coord;
             } else if (this.selection.from && !this.selection.to) {
                 if (this.selection.from === coord) {
                     this.selection.from = null;
                 } else {
+                    console.log("To coordinate: ", coord);
                     this.selection.to = coord;
                     this.submitMove();
                 }

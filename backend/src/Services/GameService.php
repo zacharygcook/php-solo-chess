@@ -33,6 +33,34 @@ final class GameService
     {
         $state = $this->getSessionState();
 
+        $from = $payload['from'] ?? null;
+        if (!$from) {
+            $state['lastMessage'] = "Couldn't find a 'from' coordinate";
+            $state['isValidMove'] = false;
+            // $this->store->saveState($state); # if we decide we want to persist the error state
+            return $state;
+        } elseif (strlen($from) !== 2 || !preg_match('/^[a-h][1-8]$/', $from)) {
+            $state['lastMessage'] = "Not a valid 'from' option";
+            $state['isValidMove'] = false;
+            return $state;
+        }
+
+        // Convert to indices
+        /*
+        *  Basically making from column letter into an integer 0->7
+        *  Then converting row digit from its correct chess number, to the correct index in our nested array
+        *  See how the board is setup from buildStartingBoard()
+        */
+        $fromCol = ord($from[0]) - ord('a');
+        $fromRow = 8 - (int)$from[1];
+        $piece = $state['board'][$fromRow][$fromCol] ?? null;
+
+        if (!$piece) {
+            $state['lastMessage'] = "No piece at 'from' coordinate";
+            $state['isValidMove'] = false;
+            return $state;
+        }
+
         $move = [
             'from' => $payload['from'] ?? null,
             'to' => $payload['to'] ?? null,

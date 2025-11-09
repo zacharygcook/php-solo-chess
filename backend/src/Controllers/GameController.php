@@ -33,9 +33,9 @@ final class GameController
         $state = $this->service->submitMove($input);
 
         JsonResponse::send([
-            'success' => true,
+            'success' => $state['isValidMove'] ?? true,
             'message' => $state['lastMessage'] ?? 'Move stored.',
-            'state' => $state,
+            'state' => array_diff_key($state, array_flip(['isValidMove'])),
         ]);
     }
 
