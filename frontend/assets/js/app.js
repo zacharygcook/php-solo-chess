@@ -1,9 +1,28 @@
 (function ($) {
     const API_BASE = $('body').data('api-base') || '/api';
 
-    const PIECE_SYMBOLS = {
-        wp: '♙', wr: '♖', wn: '♘', wb: '♗', wq: '♕', wk: '♔',
-        bp: '♟︎', br: '♜', bn: '♞', bb: '♝', bq: '♛', bk: '♚',
+    const PIECE_SPRITES = {
+        wp: 'white-pawn',
+        wr: 'white-rook',
+        wn: 'white-knight',
+        wb: 'white-bishop',
+        wq: 'white-queen',
+        wk: 'white-king',
+        bp: 'black-pawn',
+        br: 'black-rook',
+        bn: 'black-knight',
+        bb: 'black-bishop',
+        bq: 'black-queen',
+        bk: 'black-king',
+    };
+
+    const PIECE_NAMES = {
+        p: 'Pawn',
+        r: 'Rook',
+        n: 'Knight',
+        b: 'Bishop',
+        q: 'Queen',
+        k: 'King',
     };
 
     const SoloChessApp = {
@@ -171,13 +190,26 @@
                     }
 
                     if (cell) {
+                        const sprite = PIECE_SPRITES[cell];
                         const pieceColor = cell.startsWith('w') ? 'white' : 'black';
-                        const glyph = PIECE_SYMBOLS[cell] || cell.toUpperCase();
-                        const $piece = $('<span>', {
-                            class: `piece piece-${pieceColor}`,
-                            text: glyph,
-                        });
-                        $square.append($piece);
+                        const pieceName = PIECE_NAMES[cell[1]] || 'Piece';
+
+                        if (sprite) {
+                            const $piece = $('<img>', {
+                                class: 'piece',
+                                src: `assets/img/${sprite}.svg`,
+                                alt: `${pieceColor} ${pieceName}`,
+                                draggable: false,
+                            });
+                            $square.append($piece);
+                        } else {
+                            $square.append(
+                                $('<span>', {
+                                    class: `piece piece-${pieceColor}`,
+                                    text: cell.toUpperCase(),
+                                })
+                            );
+                        }
                     }
 
                     if (rowIndex === 7) {

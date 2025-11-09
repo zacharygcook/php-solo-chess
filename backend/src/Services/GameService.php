@@ -69,8 +69,7 @@ final class GameService
         }
 
         $move = [
-            'fromRow' => $fromRow,
-            'fromCol' => $fromCol,
+            'from' => $payload['from'] ?? null,
             'to' => $payload['to'] ?? null,
             'promotion' => $payload['promotion'] ?? null,
             'timestamp' => time(),
@@ -87,28 +86,56 @@ final class GameService
      */
     private function applyMove(array $state, array $move): array
     {
-        // TODO: Implement move application logic
-        $from = $payload['from'] ?? null;
+        $from = $move['from'] ?? null;
 
-        // Assume valid move for now, update board
-        $board = $state['board'];
+        // a) Get to and from column indices
+        $to = $move['to'] ?? null;
+        $toCol = ord($to[0]) - ord('a');
+        $toRow = 8 - (int)$to[1];
+        $fromCol = ord($from[0]) - ord('a');
+        $fromRow = 8 - (int)$from[1];
+        $piece = $state['board'][$fromRow][$fromCol];
+        
+        // TODO: Implement castling
+        if (substr($piece, 1, 1) == 'k') {
+            $castle = $this->castling($state, $move); # either returns information about the two squares to be updated, or false that its not castling
+        }
 
-        // Remove piece at square it started at
-        $fromCol = $move['fromCol'];
-        $fromRow = $move['fromRow'];
-        $whatsCurrentlyThere = $state['board'][$fromRow][$fromCol];
-        $state['board'][$fromRow][$fromCol] = null;
-        // xdebug_break();
+        // TODO: Check legality of the move - right now always returns true
+        $legalMove = $this->checkMoveLegality($state, $move); # placeholder function for now
 
-        // TODO: Add in putting piece in new location
-
-        $state['moveHistory'][] = $move;
-        $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
-        $state['lastMessage'] = 'Move successfully made, should have just removed from piece from board for now';
+        if ($legalMove) {
+            // b) Put piece in new location
+            $state['board'][$toRow][$toCol] = $state['board'][$fromRow][$fromCol];
+            // c) Remove piece at square it started at
+            $state['board'][$fromRow][$fromCol] = null;
+            $state['moveHistory'][] = $move;
+            $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
+            $state['lastMessage'] = 'Move successfully made, should have moved piece to new square';
+        } else {
+            $state['lastMessage'] = 'Illegal move.';
+            $state['isValidMove'] = false;
+            return $state;
+        }
 
         $this->store->saveState($state);
         
         return $state;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function castling(array $state, array $move): ?array
+    {
+        // TODO: Implement castling logic - right now returns null which means no castling detected
+        return null;
+    }
+
+    private function checkMoveLegality(array $state, array $move): bool
+    {
+        // TODO: Implement actual chess move legality checking
+        return true;
     }
 
     /**
