@@ -61,20 +61,53 @@ final class GameService
             return $state;
         }
 
+        $attemptingColor = substr($piece, 0, 1) === 'w' ? 'white' : 'black';
+        if ($attemptingColor !== $state['activeColor']) {
+            $state['lastMessage'] = "It's not {$attemptingColor}'s turn.";
+            $state['isValidMove'] = false;
+            return $state;
+        }
+
         $move = [
-            'from' => $payload['from'] ?? null,
+            'fromRow' => $fromRow,
+            'fromCol' => $fromCol,
             'to' => $payload['to'] ?? null,
             'promotion' => $payload['promotion'] ?? null,
             'timestamp' => time(),
             'note' => 'TODO: Replace with validated move + board mutation.',
         ];
 
+        $state = $this->applyMove($state, $move);
+
+        return $state;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function applyMove(array $state, array $move): array
+    {
+        // TODO: Implement move application logic
+        $from = $payload['from'] ?? null;
+
+        // Assume valid move for now, update board
+        $board = $state['board'];
+
+        // Remove piece at square it started at
+        $fromCol = $move['fromCol'];
+        $fromRow = $move['fromRow'];
+        $whatsCurrentlyThere = $state['board'][$fromRow][$fromCol];
+        $state['board'][$fromRow][$fromCol] = null;
+        // xdebug_break();
+
+        // TODO: Add in putting piece in new location
+
         $state['moveHistory'][] = $move;
         $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
-        $state['lastMessage'] = 'Move stored. Plug your chess logic into GameService::applyMove().';
+        $state['lastMessage'] = 'Move successfully made, should have just removed from piece from board for now';
 
         $this->store->saveState($state);
-
+        
         return $state;
     }
 
