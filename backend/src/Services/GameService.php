@@ -101,7 +101,7 @@ final class GameService
         $fromRow = $move['fromRow'];
         $piece = $move['piece'];
         
-        // TODO: Implement castling
+        // TODO: Implement castling v2
         if (substr($piece, 1, 1) == 'k') {
             $castle = $this->castling($state, $move); # either returns information about the two squares to be updated, or false that its not castling
             if ($castle !== null) {
@@ -154,7 +154,7 @@ final class GameService
      */
     private function castling(array $state, array $move): ?array
     {
-        // TODO: Implement castling logic v1 - right now returns null which means no castling detected
+        // TODO: Implement castling logic v2
         // Version 1: Implement simple legality checks (king and rook are in starting positions and no pieces in between)
         // Version 2: Implement full legality checks (king/rook haven't moved, not in check, squares not attacked, etc)
         $tryCastle = false;
@@ -233,6 +233,149 @@ final class GameService
     private function checkMoveLegality(array $state, array $move): bool
     {
         // TODO: Implement actual chess move legality checking - besides that of separate castling (has one legality checker)
+        // TODO: Pawn valid moves
+        if ($move['piece'][1] === 'p') {
+            // Basic pawn move forward by 1
+            $direction = $state['activeColor'] === 'white' ? -1 : 1;
+            if ($move['toCol'] === $move['fromCol'] && $move['toRow'] === $move['fromRow'] + $direction && $state['board'][$move['toRow']][$move['toCol']] === null) {
+                return true;
+            }
+            // Initial double move
+            if (($state['activeColor'] === 'white' && $move['fromRow'] === 6) || ($state['activeColor'] === 'black' && $move['fromRow'] === 1)) {
+                if ($move['toCol'] === $move['fromCol'] && $move['toRow'] === $move['fromRow'] + 2 * $direction && $state['board'][$move['fromRow'] + $direction][$move['toCol']] === null && $state['board'][$move['toRow']][$move['toCol']] === null) {
+                    return true;
+                }
+            }
+            // Captures
+            if (abs($move['toCol'] - $move['fromCol']) === 1 && $move['toRow'] === $move['fromRow'] + $direction) {
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece !== null && substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: Bishop valid moves
+        if ($move['piece'][1] === 'b') {
+            $colDiff = abs($move['toCol'] - $move['fromCol']);
+            $rowDiff = abs($move['toRow'] - $move['fromRow']);
+            if ($colDiff === $rowDiff) {
+                // Check for obstructions
+                $colStep = ($move['toCol'] - $move['fromCol']) / $colDiff;
+                $rowStep = ($move['toRow'] - $move['fromRow']) / $rowDiff;
+                for ($i = 1; $i < $colDiff; $i++) {
+                    $intermediateCol = $move['fromCol'] + $i * $colStep;
+                    $intermediateRow = $move['fromRow'] + $i * $rowStep;
+                    if ($state['board'][$intermediateRow][$intermediateCol] !== null) {
+                        return false; // Obstruction found
+                    }
+                }
+                // Check destination square
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece === null || substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: Knight valid moves
+        if ($move['piece'][1] === 'n') {
+            $colDiff = abs($move['toCol'] - $move['fromCol']);
+            $rowDiff = abs($move['toRow'] - $move['fromRow']);
+            if (($colDiff === 2 && $rowDiff === 1) || ($colDiff === 1 && $rowDiff === 2)) {
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece === null || substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: Rook valid moves
+        if ($move['piece'][1] === 'r') {
+            $colDiff = abs($move['toCol'] - $move['fromCol']);
+            $rowDiff = abs($move['toRow'] - $move['fromRow']);
+            if ($colDiff === 0 || $rowDiff === 0) {
+                // Check for obstructions
+                if ($colDiff !== 0) {
+                    $step = ($move['toCol'] - $move['fromCol']) / $colDiff;
+                    for ($i = 1; $i < $colDiff; $i++) {
+                        if ($state['board'][$move['fromRow']][$move['fromCol'] + $i * $step] !== null) {
+                            return false; // Obstruction found
+                        }
+                    }
+                } else {
+                    $step = ($move['toRow'] - $move['fromRow']) / $rowDiff;
+                    for ($i = 1; $i < $rowDiff; $i++) {
+                        if ($state['board'][$move['fromRow'] + $i * $step][$move['fromCol']] !== null) {
+                            return false; // Obstruction found
+                        }
+                    }
+                }
+                // Check destination square
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece === null || substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO: Queen valid moves
+        if ($move['piece'][1] === 'q') {
+            $colDiff = abs($move['toCol'] - $move['fromCol']);
+            $rowDiff = abs($move['toRow'] - $move['fromRow']);
+            if ($colDiff === $rowDiff || $colDiff === 0 || $rowDiff === 0) {
+                // Check for obstructions
+                if ($colDiff === $rowDiff) {
+                    $colStep = ($move['toCol'] - $move['fromCol']) / $colDiff;
+                    $rowStep = ($move['toRow'] - $move['fromRow']) / $rowDiff;
+                    for ($i = 1; $i < $colDiff; $i++) {
+                        $intermediateCol = $move['fromCol'] + $i * $colStep;
+                        $intermediateRow = $move['fromRow'] + $i * $rowStep;
+                        if ($state['board'][$intermediateRow][$intermediateCol] !== null) {
+                            return false; // Obstruction found
+                        }
+                    }
+                } else {
+                    if ($colDiff !== 0) {
+                        $step = ($move['toCol'] - $move['fromCol']) / $colDiff;
+                        for ($i = 1; $i < $colDiff; $i++) {
+                            if ($state['board'][$move['fromRow']][$move['fromCol'] + $i * $step] !== null) {
+                                return false; // Obstruction found
+                            }
+                        }
+                    } else {
+                        $step = ($move['toRow'] - $move['fromRow']) / $rowDiff;
+                        for ($i = 1; $i < $rowDiff; $i++) {
+                            if ($state['board'][$move['fromRow'] + $i * $step][$move['fromCol']] !== null) {
+                                return false; // Obstruction found
+                            }
+                        }
+                    }
+                }
+                // Check destination square
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece === null || substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        // TODO: King valid moves (besides castling)
+        if ($move['piece'][1] === 'k') {
+            $colDiff = abs($move['toCol'] - $move['fromCol']);
+            $rowDiff = abs($move['toRow'] - $move['fromRow']);
+            if ($colDiff <= 1 && $rowDiff <= 1) {
+                $targetPiece = $state['board'][$move['toRow']][$move['toCol']];
+                if ($targetPiece === null || substr($targetPiece, 0, 1) !== substr($move['piece'], 0, 1)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         return true;
     }
 
