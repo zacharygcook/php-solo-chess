@@ -94,7 +94,7 @@ final class GameService
      */
     private function applyMove(array $state, array $move): array
     {
-        // a) Get starting data organized
+        // Get starting data organized
         $toCol = $move['toCol'];
         $toRow = $move['toRow'];
         $fromCol = $move['fromCol'];
@@ -127,7 +127,6 @@ final class GameService
             }
         }
 
-        // TODO: Check legality of the move - right now always returns true
         $legalMove = $this->checkMoveLegality($state, $move); # placeholder function for now
 
         if ($legalMove) {
@@ -136,13 +135,25 @@ final class GameService
             // c) Remove piece at square it started at
             $state['board'][$fromRow][$fromCol] = null;
             $state['moveHistory'][] = $move;
-            $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
-            $state['lastMessage'] = 'Move successfully made, should have moved piece to new square';
         } else {
             $state['lastMessage'] = 'Illegal move.';
             $state['isValidMove'] = false;
             return $state;
         }
+
+        $checkStatus = $this->calculateCheckStatus($state, $move); // 'check', 'checkmate', 'stalemate', or null
+        if ($checkStatus === 'check') {
+            $state['lastMessage'] = 'Check!';
+            $state['kingInCheck'] = $state['activeColor'] === 'white' ? 'black' : 'white';
+        } elseif ($checkStatus === 'checkmate') {
+            $state['lastMessage'] = 'Checkmate!';
+        } elseif ($checkStatus === 'stalemate') {
+            $state['lastMessage'] = 'Stalemate!';
+        } else {
+            $state['lastMessage'] = 'Move successfully made.';
+        }
+
+        $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
 
         $this->store->saveState($state);
         
@@ -232,8 +243,7 @@ final class GameService
 
     private function checkMoveLegality(array $state, array $move): bool
     {
-        // TODO: Implement actual chess move legality checking - besides that of separate castling (has one legality checker)
-        // TODO: Pawn valid moves
+        // Legality checking besides that of separate legality checking for castling and if king is in check
         if ($move['piece'][1] === 'p') {
             // Basic pawn move forward by 1
             $direction = $state['activeColor'] === 'white' ? -1 : 1;
@@ -256,7 +266,6 @@ final class GameService
             return false;
         }
 
-        // TODO: Bishop valid moves
         if ($move['piece'][1] === 'b') {
             $colDiff = abs($move['toCol'] - $move['fromCol']);
             $rowDiff = abs($move['toRow'] - $move['fromRow']);
@@ -280,7 +289,6 @@ final class GameService
             return false;
         }
 
-        // TODO: Knight valid moves
         if ($move['piece'][1] === 'n') {
             $colDiff = abs($move['toCol'] - $move['fromCol']);
             $rowDiff = abs($move['toRow'] - $move['fromRow']);
@@ -293,7 +301,6 @@ final class GameService
             return false;
         }
 
-        // TODO: Rook valid moves
         if ($move['piece'][1] === 'r') {
             $colDiff = abs($move['toCol'] - $move['fromCol']);
             $rowDiff = abs($move['toRow'] - $move['fromRow']);
@@ -323,7 +330,6 @@ final class GameService
             return false;
         }
 
-        // TODO: Queen valid moves
         if ($move['piece'][1] === 'q') {
             $colDiff = abs($move['toCol'] - $move['fromCol']);
             $rowDiff = abs($move['toRow'] - $move['fromRow']);
@@ -364,7 +370,7 @@ final class GameService
             }
             return false;
         }
-        // TODO: King valid moves (besides castling)
+
         if ($move['piece'][1] === 'k') {
             $colDiff = abs($move['toCol'] - $move['fromCol']);
             $rowDiff = abs($move['toRow'] - $move['fromRow']);
@@ -377,6 +383,110 @@ final class GameService
             return false;
         }
         return true;
+    }
+
+    private function calculateCheckStatus(array $state, array $move): ?string
+    {
+        // TODO: Implement logic to check if the move puts the opponent's king in check
+        // Return values 'check', 'checkmate', 'stalemate', or null
+
+        // Easiest to check per piece type against king position
+        // First get enemy king position
+        $enemyKing = $state['activeColor'] === 'white' ? 'bk' : 'wk';
+        $enemyKingPosition = null;
+        for ($row = 0; $row < 8; $row++) {
+            for ($col = 0; $col < 8; $col++) {
+                if ($state['board'][$row][$col] === $enemyKing) {
+                    $enemyKingPosition = ['row' => $row, 'col' => $col];
+                    break 2;
+                }
+            }
+        }
+
+        if ($move['piece'][1] === 'k') {
+            // If king moved, no need to check for check
+            return null;
+        } elseif ($move['piece'][1] === 'q') {
+            // Check if queen can attack king position
+            $sameDiagonalAsEnemyKing = ($move['fromRow'] - $move['fromCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
+            $sameRowAsEnemyKing = $move['fromRow'] === $enemyKingPosition['row'];
+            $sameColAsEnemyKing = $move['fromCol'] === $enemyKingPosition['col'];
+            if ($sameDiagonalAsEnemyKing || $sameRowAsEnemyKing || $sameColAsEnemyKing) {
+                // See if any pieces in between
+                $pieceBetween = false;
+                // Beginning of logic to check for pieces in between
+
+                $checkMate = $this->determineCheckmate($state, $move);
+                return $checkMate ? 'checkmate' : 'check';
+            } else {
+                return null;
+            }
+        } elseif ($move['piece'][1] === 'r') {
+            // Check if rook can attack king position
+            $sameRowAsEnemyKing = $move['fromRow'] === $enemyKingPosition['row'];
+            $sameColAsEnemyKing = $move['fromCol'] === $enemyKingPosition['col'];
+            if ($sameRowAsEnemyKing || $sameColAsEnemyKing) {
+                // See if any pieces in between
+                $pieceBetween = false;
+                // Beginning of logic to check for pieces in between
+
+                $checkMate = $this->determineCheckmate($state, $move);
+                return $checkMate ? 'checkmate' : 'check';
+            } else {
+                return null;
+            }
+        } elseif ($move['piece'][1] === 'b') {
+            // Check if bishop can attack king position
+            $sameDiagonalAsEnemyKing = ($move['fromRow'] - $move['fromCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
+            if ($sameDiagonalAsEnemyKing) {
+                // See if any pieces in between
+                $pieceBetween = false;
+                // Beginning of logic to check for pieces in between
+
+                $checkMate = $this->determineCheckmate($state, $move);
+                return $checkMate ? 'checkmate' : 'check';
+            } else {
+                return null;
+            }
+        } elseif ($move['piece'][1] === 'n') {
+            // Check if knight can attack king position
+            $knightMoves = [
+                [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+                [1, -2], [1, 2], [2, -1], [2, 1]
+            ];
+            foreach ($knightMoves as $moveOffset) {
+                $knightRow = $move['fromRow'] + $moveOffset[0];
+                $knightCol = $move['fromCol'] + $moveOffset[1];
+                if ($knightRow === $enemyKingPosition['row'] && $knightCol === $enemyKingPosition['col']) {
+                    // Knight can attack king
+                    $checkMate = $this->determineCheckmate($state, $move);
+                    return $checkMate ? 'checkmate' : 'check';
+                }
+            }
+            return null;
+        } elseif ($move['piece'][1] === 'p') {
+            // Check if pawn can attack king position
+            $direction = $state['activeColor'] === 'white' ? -1 : 1;
+            $pawnAttackPositions = [
+                ['row' => $move['fromRow'] + $direction, 'col' => $move['fromCol'] - 1],
+                ['row' => $move['fromRow'] + $direction, 'col' => $move['fromCol'] + 1],
+            ];
+            foreach ($pawnAttackPositions as $pos) {
+                if ($pos['row'] === $enemyKingPosition['row'] && $pos['col'] === $enemyKingPosition['col']) {
+                    // Pawn can attack king
+                    $checkMate = $this->determineCheckmate($state, $move);
+                    return $checkMate ? 'checkmate' : 'check';
+                }
+            }
+            return null;
+        }
+        return null;
+    }
+
+    private function determineCheckmate(array $state, array $move): bool
+    {
+        // TODO: Implement logic to determine if the move results in checkmate
+        return false;
     }
 
     /**
