@@ -142,6 +142,7 @@ final class GameService
         }
 
         $checkStatus = $this->calculateCheckStatus($state, $move); // 'check', 'checkmate', 'stalemate', or null
+        // xdebug_break();
         if ($checkStatus === 'check') {
             $state['lastMessage'] = 'Check!';
             $state['kingInCheck'] = $state['activeColor'] === 'white' ? 'black' : 'white';
@@ -408,9 +409,9 @@ final class GameService
             return null;
         } elseif ($move['piece'][1] === 'q') {
             // Check if queen can attack king position
-            $sameDiagonalAsEnemyKing = ($move['fromRow'] - $move['fromCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
-            $sameRowAsEnemyKing = $move['fromRow'] === $enemyKingPosition['row'];
-            $sameColAsEnemyKing = $move['fromCol'] === $enemyKingPosition['col'];
+            $sameDiagonalAsEnemyKing = ($move['toRow'] - $move['toCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
+            $sameRowAsEnemyKing = $move['toRow'] === $enemyKingPosition['row'];
+            $sameColAsEnemyKing = $move['toCol'] === $enemyKingPosition['col'];
             if ($sameDiagonalAsEnemyKing || $sameRowAsEnemyKing || $sameColAsEnemyKing) {
                 // See if any pieces in between
                 $pieceBetween = false;
@@ -423,8 +424,8 @@ final class GameService
             }
         } elseif ($move['piece'][1] === 'r') {
             // Check if rook can attack king position
-            $sameRowAsEnemyKing = $move['fromRow'] === $enemyKingPosition['row'];
-            $sameColAsEnemyKing = $move['fromCol'] === $enemyKingPosition['col'];
+            $sameRowAsEnemyKing = $move['toRow'] === $enemyKingPosition['row'];
+            $sameColAsEnemyKing = $move['toCol'] === $enemyKingPosition['col'];
             if ($sameRowAsEnemyKing || $sameColAsEnemyKing) {
                 // See if any pieces in between
                 $pieceBetween = false;
@@ -437,7 +438,7 @@ final class GameService
             }
         } elseif ($move['piece'][1] === 'b') {
             // Check if bishop can attack king position
-            $sameDiagonalAsEnemyKing = ($move['fromRow'] - $move['fromCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
+            $sameDiagonalAsEnemyKing = ($move['toRow'] - $move['toCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
             if ($sameDiagonalAsEnemyKing) {
                 // See if any pieces in between
                 $pieceBetween = false;
@@ -455,8 +456,8 @@ final class GameService
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
             foreach ($knightMoves as $moveOffset) {
-                $knightRow = $move['fromRow'] + $moveOffset[0];
-                $knightCol = $move['fromCol'] + $moveOffset[1];
+                $knightRow = $move['toRow'] + $moveOffset[0];
+                $knightCol = $move['toCol'] + $moveOffset[1];
                 if ($knightRow === $enemyKingPosition['row'] && $knightCol === $enemyKingPosition['col']) {
                     // Knight can attack king
                     $checkMate = $this->determineCheckmate($state, $move);
@@ -468,8 +469,8 @@ final class GameService
             // Check if pawn can attack king position
             $direction = $state['activeColor'] === 'white' ? -1 : 1;
             $pawnAttackPositions = [
-                ['row' => $move['fromRow'] + $direction, 'col' => $move['fromCol'] - 1],
-                ['row' => $move['fromRow'] + $direction, 'col' => $move['fromCol'] + 1],
+                ['row' => $move['toRow'] + $direction, 'col' => $move['toCol'] - 1],
+                ['row' => $move['toRow'] + $direction, 'col' => $move['toCol'] + 1],
             ];
             foreach ($pawnAttackPositions as $pos) {
                 if ($pos['row'] === $enemyKingPosition['row'] && $pos['col'] === $enemyKingPosition['col']) {
@@ -521,6 +522,7 @@ final class GameService
             'board' => $this->buildStartingBoard(),
             'moveHistory' => [],
             'activeColor' => 'white',
+            'kingInCheck' => null,
             'capturedWhite' => [],
             'capturedBlack' => [],
             'lastMessage' => 'Session ready. Implement chess logic inside GameService.'
