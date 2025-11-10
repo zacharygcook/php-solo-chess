@@ -28,6 +28,9 @@ final class GameController
         ]);
     }
 
+    /*
+    * Where all the move logic starts - submitMove
+    */
     public function submitMove(array $input): void
     {
         $state = $this->service->submitMove($input);
