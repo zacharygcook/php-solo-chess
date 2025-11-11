@@ -46,9 +46,204 @@ final class GameService
             return $state;
         }
 
+        // See if in 'check' -> if so need to go down an entire other branch of logic
+        if ($state['kingInCheck'] === $state['activeColor']) {
+            // Acting color that's submitting a move is in check, see if its a legal move
+            $checkingPieces = [];
+            
+            /*
+            *  Because of the amazing possibility of double checks, this process will be a bit complicated
+            *  We need to go out along every diagonal/rank/file from the king, until side of board or a piece is hit
+            *    - If its an enemy piece it hits and it can "see" that way, log that as a checking piece
+            *    - If it hits a friendly piece, block that direction
+            *    - Then check all possible knight moves from the king, see if any enemy knights are there
+            *
+            *  NOTE: We might move all/most of this logic to the end of previous ply 
+            *      -> since there might be same/similar calculations done to see if the move is checkmate
+            */
+            $ourKing = $state['activeColor'] === 'white' ? 'wk' : 'bk';
+            $ourKingPosition = null;
+            for ($row = 0; $row < 8; $row++) {
+                for ($col = 0; $col < 8; $col++) {
+                    if ($state['board'][$row][$col] == $ourKing) {
+                        $ourKingPosition = ['row' => $row, 'col' => $col]; # where it is in the board array
+                        break 2;
+                    }
+                }
+            }
+
+            if ($ourKingPosition === null) {
+                // This should never happen, but just in case
+                $state['lastMessage'] = "Internal error: couldn't find our king on the board.";
+                $state['isValidMove'] = false;
+                return $state;
+            }
+
+            // Search for a checking knight 
+            $knightCode = $state['activeColor'] === 'white' ? 'wn' : 'bn';
+            $diffRowColToCheck = [
+                [-2, 1],
+                [-2, -1],
+                [-1, 2],
+                [-1, -2],
+                [1, 2],
+                [1, -2],
+                [2, 1],
+                [2, -1]
+            ];
+            $potentialKnightSquares = []; # put intermediate values here
+
+            foreach($diffRowColToCheck as $offset) {
+                $row = $ourKingPosition['row'] + $offset[0];
+                $col = $ourKingPosition['col'] + $offset[1];
+                if (($row < 0 || $row > 7) || ($col < 0 || $col > 7)) {
+                    // off the board
+                } else {
+                    $potentialKnightSquares[] = [$row, $col];
+                }
+            }
+
+            foreach($potentialKnightSquares as $square) {
+                if ($state['board'][$square[0]][$square[1]] === $knightCode) {
+                    $checkingPieces[] = [
+                        'piece' => 'knight',
+                        'pieceCode' => $knightCode,
+                        'boardLocation' => [$square[0], $square[1]]
+                    ];
+                    break;
+                }
+            }
+
+            // Search for checking piece on a diagonal (bishop, queen or pawn)
+            $oponnentDiagonalPieceCodes = [];
+            if ($state['activeColor'] === 'white') {
+                $enemyDiagonalPieceCodes = ['bb', 'bq', 'bp'];
+            } else {
+                $enemyDiagonalPieceCodes = ['wb', 'wq', 'wp'];
+            }
+            $diagonalVectors = [
+                [-1, -1],
+                [-1, 1],
+                [1, -1],
+                [1, 1]
+            ];
+
+            foreach($diagonalVectors as $vector) {
+                $startingSquare = [$ourKingPosition['row'], $ourKingPosition['col']];
+                for ($i=1; $i < 9; $i++) {
+                    $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
+                    $squareToCheckCol = $startingSquare[1] + $vector[1] * $i;
+                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
+                        continue; # off the board
+                    } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] !== null) {
+                        # checking piece detected, make note if on 1st iteration it could be a pawn
+                        $pieceCode = $state['board'][$squareToCheckRow][$squareToCheckCol];
+                        if (in_array($pieceCode, $enemyDiagonalPieceCodes)) {
+                            if ($pieceCode[1] === 'p' && $i === 1) {
+                                if ($state['activeColor'] === 'white') {
+                                    # check if down one row, might be enemy pawn putting you in check
+                                    if ($vector[1] === -1) {
+                                        # enemy pawn is checking!
+                                        $checkingPieces[] = [
+                                            'piece' => 'pawn',
+                                            'pieceCode' => $pieceCode,
+                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                        ];
+                                        break 2;
+                                    }
+                                } else { # must be black active
+                                    if ($vector[1] === 1) {
+                                        $checkingPieces[] = [
+                                            'piece' => 'pawn',
+                                            'pieceCode' => $pieceCode,
+                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                        ];
+                                    }
+                                    break 2;
+                                }
+                            } elseif ($pieceCode[1] === 'b') {
+                                $checkingPieces[] = [
+                                    'piece' => 'bishop',
+                                    'pieceCode' => $pieceCode,
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                ];
+                                break 2;
+                            } else {
+                                // Must be queen
+                                $checkingPieces[] = [
+                                    'piece' => 'queen',
+                                    'pieceCode' => $pieceCode,
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                ];
+                                break 2;
+                            }
+                        } else {
+                            # Ran into one of our own pieces, stop checking on this diagonal, go to next diagonal vector if available
+                            # NOTE: This or something like it is the step missing in checking for checks from queen - CURRENT BUG as of 11/10/2025
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Search for a checking piece on a rank / file
+            $oponnentDiagonalPieceCodes = [];
+            if ($state['activeColor'] === 'white') {
+                $enemyRankFileCodes = ['br', 'bq'];
+            } else {
+                $enemyRankFileCodes = ['wr', 'wq'];
+            }
+            $rankFileVectors = [
+                [0, 1],
+                [0, -1],
+                [1, 0],
+                [-1, 0]
+            ];
+            
+            foreach($rankFileVectors as $vector) {
+                $startingSquare = [$ourKingPosition['row'], $ourKingPosition['col']];
+                for ($i=1; $i < 9; $i++) {
+                    $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
+                    $squareToCheckCol = $startingSquare[1] + $vector[0] * $i;
+                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
+                        continue; # off the board
+                    } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] !== null) {
+                        $pieceCode = $state['board'][$squareToCheckRow][$squareToCheckCol];
+                        if (in_array($pieceCode, $enemyRankFileCodes)) {
+                            if ($pieceCode[1] === 'r') {
+                                $checkingPieces[] = [
+                                    'piece' => 'rook',
+                                    'pieceCode' => $pieceCode,
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                ];
+                                break 2;
+                            } else {
+                                $checkingPieces[] = [
+                                    'piece' => 'queen',
+                                    'pieceCode' => $pieceCode,
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                ];
+                                break 2;   
+                            }
+                        } else {
+                            # ran into a friendly piece, stop checking along this rank / file
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Should have any checking pieces collected -> can move on to validate if their move successfully deals with the check
+
+            $state['lastMessage'] = "You're in check from a " . $checkingPieces[0]['piece'] . " and your king in our array is at row "
+                 . $ourKingPosition['row'] . " and column " . $ourKingPosition['col'];
+                
+            return $state;
+        }
+
         // Convert to indices
         /*
-        *  Basically making from column letter into an integer 0->7
+        *  Basically making from column letter into an integer 0 -> 7
         *  Then converting row digit from its correct chess number, to the correct index in our nested array
         *  See how the board is setup from buildStartingBoard()
         */
@@ -80,8 +275,7 @@ final class GameService
             'toRow' => $toRow ?? null,
             'piece' => $piece ?? null,
             'promotion' => $payload['promotion'] ?? null,
-            'timestamp' => time(),
-            'note' => 'TODO: Replace with validated move + board mutation.',
+            'timestamp' => time()
         ];
 
         $state = $this->applyMove($state, $move, $piece);
@@ -90,6 +284,7 @@ final class GameService
     }
 
     /**
+     * @param array<string, mixed> $state, @param array<string, mixed> $move
      * @return array<mixed>
      */
     private function applyMove(array $state, array $move): array
@@ -162,6 +357,7 @@ final class GameService
     }
 
     /**
+     * @param array<string, mixed> $state
      * @return array<mixed>
      */
     private function castling(array $state, array $move): ?array
@@ -388,7 +584,7 @@ final class GameService
 
     private function calculateCheckStatus(array $state, array $move): ?string
     {
-        // TODO: Implement logic to check if the move puts the opponent's king in check
+        // TODO: Implement logic to check if the move puts the enemy's king in check
         // Return values 'check', 'checkmate', 'stalemate', or null
 
         // Easiest to check per piece type against king position

@@ -33,7 +33,7 @@ final class GameController
     */
     public function submitMove(array $input): void
     {
-        $state = $this->service->submitMove($input);
+        $state = $this->service->submitMove($input); #this enters into a whole series of logic checks and updates
 
         JsonResponse::send([
             'success' => $state['isValidMove'] ?? true,
