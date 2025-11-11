@@ -134,7 +134,7 @@ final class GameService
                     $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
                     $squareToCheckCol = $startingSquare[1] + $vector[1] * $i;
                     if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
-                        continue; # off the board
+                        break; # off the board, stop checking that direction
                     } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] !== null) {
                         # checking piece detected, make note if on 1st iteration it could be a pawn
                         $pieceCode = $state['board'][$squareToCheckRow][$squareToCheckCol];
@@ -182,6 +182,8 @@ final class GameService
                             # NOTE: This or something like it is the step missing in checking for checks from queen - CURRENT BUG as of 11/10/2025
                             break;
                         }
+                    } else {
+                        continue; # was just a blank space on the board here, keep going
                     }
                 }
             }
@@ -584,7 +586,7 @@ final class GameService
 
     private function calculateCheckStatus(array $state, array $move): ?string
     {
-        // TODO: Implement logic to check if the move puts the enemy's king in check
+        // TODO: Implement logic to go into more detail if the move puts the enemy's king in check
         // Return values 'check', 'checkmate', 'stalemate', or null
 
         // Easiest to check per piece type against king position
@@ -605,14 +607,9 @@ final class GameService
             return null;
         } elseif ($move['piece'][1] === 'q') {
             // Check if queen can attack king position
-            $sameDiagonalAsEnemyKing = ($move['toRow'] - $move['toCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
-            $sameRowAsEnemyKing = $move['toRow'] === $enemyKingPosition['row'];
-            $sameColAsEnemyKing = $move['toCol'] === $enemyKingPosition['col'];
-            if ($sameDiagonalAsEnemyKing || $sameRowAsEnemyKing || $sameColAsEnemyKing) {
-                // See if any pieces in between
-                $pieceBetween = false;
-                // Beginning of logic to check for pieces in between
-
+            $attackingKingDiagonally = $this->attackingEnemyKingDiagonally($state, $move, $enemyKingPosition);
+            $attackingKingRankFile = $this->attackingEnemyKingRankFile($state, $move, $enemyKingPosition);
+            if ($attackingKingDiagonally || $attackingKingRankFile) {
                 $checkMate = $this->determineCheckmate($state, $move);
                 return $checkMate ? 'checkmate' : 'check';
             } else {
@@ -620,13 +617,8 @@ final class GameService
             }
         } elseif ($move['piece'][1] === 'r') {
             // Check if rook can attack king position
-            $sameRowAsEnemyKing = $move['toRow'] === $enemyKingPosition['row'];
-            $sameColAsEnemyKing = $move['toCol'] === $enemyKingPosition['col'];
-            if ($sameRowAsEnemyKing || $sameColAsEnemyKing) {
-                // See if any pieces in between
-                $pieceBetween = false;
-                // Beginning of logic to check for pieces in between
-
+            $attackingKingRankFile = $this->attackingEnemyKingRankFile($state, $move, $enemyKingPosition);
+            if ($attackingKingRankFile) {
                 $checkMate = $this->determineCheckmate($state, $move);
                 return $checkMate ? 'checkmate' : 'check';
             } else {
@@ -634,12 +626,8 @@ final class GameService
             }
         } elseif ($move['piece'][1] === 'b') {
             // Check if bishop can attack king position
-            $sameDiagonalAsEnemyKing = ($move['toRow'] - $move['toCol']) === ($enemyKingPosition['row'] - $enemyKingPosition['col']);
-            if ($sameDiagonalAsEnemyKing) {
-                // See if any pieces in between
-                $pieceBetween = false;
-                // Beginning of logic to check for pieces in between
-
+            $attackingKingDiagonally = $this->attackingEnemyKingDiagonally($state, $move, $enemyKingPosition);
+            if ($attackingKingDiagonally) {
                 $checkMate = $this->determineCheckmate($state, $move);
                 return $checkMate ? 'checkmate' : 'check';
             } else {
@@ -684,6 +672,159 @@ final class GameService
     {
         // TODO: Implement logic to determine if the move results in checkmate
         return false;
+    }
+
+    private function attackingEnemyKingDiagonally(array $state, array $move, array $enemyKingPosition): bool
+    {
+        if ($enemyKingPosition['row'] > $move['toRow'] && $enemyKingPosition['col'] > $move['toCol']) {
+            $checkingVector = [1, 1];
+            $startingSquare = [$move['toRow'], $move['toCol']];
+            for ($i=1; $i < 9; $i++) {
+                $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
+                $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
+                if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
+                    break;
+                } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] == null) {
+                    continue; # just an empty square on the board, keep going along this vector
+                } elseif ($squareToCheckRow === $enemyKingPosition['row'] && $squareToCheckCol === $enemyKingPosition['col']) {
+                    // Hit the enemy king! Check!
+                    return true;
+                } else {
+                    return false; # hit a piece in the way, no diagonal check
+                }
+            }            
+        } elseif ($enemyKingPosition['row'] > $move['toRow'] && $enemyKingPosition['col'] < $move['toCol']) {
+            $checkingVector = [1, -1];
+            $startingSquare = [$move['toRow'], $move['toCol']];
+            for ($i=1; $i < 9; $i++) {
+                $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
+                $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
+                if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
+                    break;
+                } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] == null) {
+                    continue; # just an empty square on the board, keep going along this vector
+                } elseif ($squareToCheckRow === $enemyKingPosition['row'] && $squareToCheckCol === $enemyKingPosition['col']) {
+                    // Hit the enemy king! Check!
+                    return true;
+                } else {
+                    return false; # hit a piece in the way, no diagonal check
+                }
+            }
+        } elseif ($enemyKingPosition['row'] < $move['toRow'] && $enemyKingPosition['col'] > $move['toCol']) {
+            $checkingVector = [-1, 1];
+            $startingSquare = [$move['toRow'], $move['toCol']];
+            for ($i=1; $i < 9; $i++) {
+                $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
+                $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
+                if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
+                    break;
+                } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] == null) {
+                    continue; # just an empty square on the board, keep going along this vector
+                } elseif ($squareToCheckRow === $enemyKingPosition['row'] && $squareToCheckCol === $enemyKingPosition['col']) {
+                    // Hit the enemy king! Check!
+                    return true;
+                } else {
+                    return false; # hit a piece in the way, no diagonal check
+                }
+            }
+        } elseif ($enemyKingPosition['row'] < $move['toRow'] && $enemyKingPosition['col'] < $move['toCol']) {
+            $checkingVector = [-1, -1];
+            $startingSquare = [$move['toRow'], $move['toCol']];
+            for ($i=1; $i < 9; $i++) {
+                $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
+                $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
+                if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
+                    break;
+                } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] == null) {
+                    continue; # just an empty square on the board, keep going along this vector
+                } elseif ($squareToCheckRow === $enemyKingPosition['row'] && $squareToCheckCol === $enemyKingPosition['col']) {
+                    // Hit the enemy king! Check!
+                    return true;
+                } else {
+                    return false; # hit a piece in the way, no diagonal check
+                }
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private function attackingEnemyKingRankFile(array $state, array $move, array $enemyKingPosition): bool
+    {
+        if ($enemyKingPosition['row'] === $move['toRow']) {
+            // Determine direction and check details
+            if ($enemyKingPosition['col'] > $move['toCol']) {
+                $squaresAway = $enemyKingPosition['col'] - $move['toCol'];
+                for ($i=1; $i<=$squaresAway;$i++) {
+                    $colToCheck = $move['toCol'] + $i;
+                    if ($colToCheck < 0 || $colToCheck > 7) {
+                        break; # ran off the board
+                    } elseif ($state['board'][$move['toRow']][$colToCheck] == null) {
+                        continue; # empty square, keep going along this vector
+                    } elseif ($move['toRow'] === $enemyKingPosition['row'] && $colToCheck === $enemyKingPosition['col']) {
+                        // Hit the enemy king, check!
+                        return true;
+                    } else {
+                        // Hit another type of piece
+                        return false;
+                    }
+                }
+            } else {
+                $squaresAway = $move['toCol'] - $enemyKingPosition['col'];
+                for ($i=1; $i<=$squaresAway;$i++) {
+                    $colToCheck = $move['toCol'] + ($i * -1);
+                    if ($colToCheck < 0 || $colToCheck > 7) {
+                        break; # ran off the board
+                    } elseif ($state['board'][$move['toRow']][$colToCheck] == null) {
+                        continue; # empty square, keep going along this vector
+                    } elseif ($move['toRow'] === $enemyKingPosition['row'] && $colToCheck === $enemyKingPosition['col']) {
+                        // Hit the enemy king, check!
+                        return true;
+                    } else {
+                        // Hit another type of piece
+                        return false;
+                    }
+                }
+            }
+        } elseif ($enemyKingPosition['col'] === $move['toCol']) {
+            // Determine direction and check details
+            if ($enemyKingPosition['row'] > $move['toRow']) {
+                $squaresAway = $enemyKingPosition['row'] - $move['toRow'];
+                for ($i=1; $i<=$squaresAway;$i++) {
+                    $rowToCheck = $move['toRow'] + $i;
+                    if ($rowToCheck < 0 || $rowToCheck > 7) {
+                        break; # ran off the board
+                    } elseif ($state['board'][$rowToCheck][$move['toCol']] == null) {
+                        continue; # empty square, keep going along this vector
+                    } elseif ($rowToCheck === $enemyKingPosition['row'] && $move['toCol'] === $enemyKingPosition['col']) {
+                        // Hit the enemy king, check!
+                        return true;
+                    } else {
+                        // Hit another type of piece
+                        return false;
+                    }
+                }
+            } else {
+                $squaresAway = $move['toRow'] - $enemyKingPosition['row'];
+                for ($i=1; $i<=$squaresAway;$i++) {
+                    $rowToCheck = $move['toRow'] + ($i * -1);
+                    if ($rowToCheck < 0 || $rowToCheck > 7) {
+                        break; # ran off the board
+                    } elseif ($state['board'][$rowToCheck][$move['toCol']] == null) {
+                        continue; # empty square, keep going along this vector
+                    } elseif ($rowToCheck === $enemyKingPosition['row'] && $move['toCol'] === $enemyKingPosition['col']) {
+                        // Hit the enemy king, check!
+                        return true;
+                    } else {
+                        // Hit another type of piece
+                        return false;
+                    }
+                }
+            }
+        } else {
+            # neither on same rank or file!
+            return false;
+        }
     }
 
     /**
