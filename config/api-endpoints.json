@@ -1,0 +1,30 @@
+{
+  "endpoints": [
+    {
+      "path": "/backend/public/api/session.php",
+      "method": "get",
+      "summary": "Load or create the current game session",
+      "success_status": 200
+    },
+    {
+      "path": "/backend/public/api/move.php",
+      "method": "post",
+      "summary": "Submit one move for the active player",
+      "success_status": 200,
+      "request_schema": "MoveRequest"
+    },
+    {
+      "path": "/backend/public/api/reset.php",
+      "method": "post",
+      "summary": "Reset the current session to the initial position",
+      "success_status": 200
+    },
+    {
+      "path": "/backend/public/api/setup.php",
+      "method": "post",
+      "summary": "Request loading a position from FEN (currently a placeholder)",
+      "success_status": 202,
+      "request_schema": "FenRequest"
+    }
+  ]
+}

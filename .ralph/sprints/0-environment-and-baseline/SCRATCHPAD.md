@@ -73,3 +73,6 @@
 - Added a readable local security assessment covering locked-package advisories, abandoned packages,
   secret scanning, API method guards, JSON responses, cookie hardening, and CDN integrity. HIGH
   findings block; lower findings remain explicit rather than being score-washed.
+- Added a checked API endpoint manifest that generates OpenAPI 3.1 JSON and a human reference. The
+  generator verifies PHP entry-point existence and declared HTTP methods, and the local check blocks
+  stale derived documentation.

@@ -10,6 +10,9 @@ required_files=(
   RALPH_DOGFOOD_SCORECARD.md
   docs/ARCHITECTURE.md
   docs/RUNBOOKS.md
+  docs/API.md
+  docs/openapi.json
+  config/api-endpoints.json
   .ralph/sprints/0-environment-and-baseline/SCRATCHPAD.md
   .github/CODEOWNERS
   .github/ISSUE_TEMPLATE/bug_report.md

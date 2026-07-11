@@ -116,5 +116,7 @@ Multiplayer and themed animation work are later milestones.
 Ralph workflow quality is tracked visibly in [`RALPH_DOGFOOD_SCORECARD.md`](RALPH_DOGFOOD_SCORECARD.md).
 The runtime request flow and component boundaries are documented in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+The JSON API is generated into [`docs/API.md`](docs/API.md) and
+[`docs/openapi.json`](docs/openapi.json) from the checked endpoint manifest.
 For startup, session, validation, and local security failures, use
 [`docs/RUNBOOKS.md`](docs/RUNBOOKS.md).

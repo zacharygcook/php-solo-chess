@@ -1,0 +1,278 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "PHP Solo Chess API",
+        "version": "0.1.0",
+        "description": "Same-origin local session API. Send the PHP session cookie on every request."
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8080"
+        }
+    ],
+    "paths": {
+        "/backend/public/api/move.php": {
+            "post": {
+                "summary": "Submit one move for the active player",
+                "operationId": "postMove",
+                "responses": {
+                    "200": {
+                        "description": "JSON result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResponse"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MoveRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/backend/public/api/reset.php": {
+            "post": {
+                "summary": "Reset the current session to the initial position",
+                "operationId": "postReset",
+                "responses": {
+                    "200": {
+                        "description": "JSON result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResponse"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/backend/public/api/session.php": {
+            "get": {
+                "summary": "Load or create the current game session",
+                "operationId": "getSession",
+                "responses": {
+                    "200": {
+                        "description": "JSON result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResponse"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/backend/public/api/setup.php": {
+            "post": {
+                "summary": "Request loading a position from FEN (currently a placeholder)",
+                "operationId": "postSetup",
+                "responses": {
+                    "202": {
+                        "description": "JSON result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResponse"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FenRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "MoveRequest": {
+                "type": "object",
+                "required": [
+                    "from",
+                    "to"
+                ],
+                "properties": {
+                    "from": {
+                        "type": "string",
+                        "pattern": "^[a-h][1-8]$",
+                        "example": "e2"
+                    },
+                    "to": {
+                        "type": "string",
+                        "pattern": "^[a-h][1-8]$",
+                        "example": "e4"
+                    },
+                    "promotion": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "q",
+                            "r",
+                            "b",
+                            "n",
+                            null
+                        ]
+                    }
+                },
+                "additionalProperties": false
+            },
+            "FenRequest": {
+                "type": "object",
+                "required": [
+                    "fen"
+                ],
+                "properties": {
+                    "fen": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "additionalProperties": false
+            },
+            "GameState": {
+                "type": "object",
+                "required": [
+                    "board",
+                    "moveHistory",
+                    "activeColor"
+                ],
+                "properties": {
+                    "board": {
+                        "type": "array",
+                        "minItems": 8,
+                        "maxItems": 8,
+                        "items": {
+                            "type": "array"
+                        }
+                    },
+                    "moveHistory": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "activeColor": {
+                        "type": "string",
+                        "enum": [
+                            "white",
+                            "black"
+                        ]
+                    },
+                    "kingInCheck": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "white",
+                            "black",
+                            null
+                        ]
+                    }
+                },
+                "additionalProperties": true
+            },
+            "GameResponse": {
+                "type": "object",
+                "required": [
+                    "success",
+                    "message",
+                    "state"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/GameState"
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "required": [
+                    "success",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "const": false
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
