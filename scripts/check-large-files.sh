@@ -10,7 +10,7 @@ case "$MAX_FILE_BYTES" in
   0) echo "MAX_FILE_BYTES must be greater than zero." >&2; exit 12 ;;
 esac
 
-if [[ ! -d "$ROOT/.git" ]]; then
+if ! git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Not a Git repository: $ROOT" >&2
   exit 12
 fi

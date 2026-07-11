@@ -100,3 +100,6 @@
   Http/Services, Services only on Services, and Http only on Http. New inward layer violations block.
 - Added dependency-weight attribution and budgets: three direct Composer tools, 42 locked packages,
   at most 40 packages in any direct tool's transitive closure, and a 100 KB jQuery runtime ceiling.
+- Isolated readiness work exposed that `check-large-files.sh` rejected linked Git worktrees because
+  it assumed `.git` was a directory. Switched repository validation to `git rev-parse --git-dir` and
+  recorded the workflow friction in the root scorecard.
