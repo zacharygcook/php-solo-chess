@@ -29,3 +29,12 @@ If a real credential enters the repository:
 4. Coordinate any history rewrite explicitly with the owner; agents must not rewrite history on
    their own.
 5. Re-run the local secret scan, canonical check, and repository-host secret scan.
+
+## Local request logs
+
+API requests emit one JSON completion record to PHP's local error log and return the same safe
+`X-Request-ID` for correlation. The schema is allowlist-only: timestamp, severity, event, request ID,
+method, URL path without its query string, status, duration, and fatal-error location when present.
+Never add bodies, query strings, cookies, session IDs, authorization headers, or arbitrary request
+headers. The local DAST gate sends a sentinel in both an authorization header and JSON body and fails
+if that value appears in the server log.

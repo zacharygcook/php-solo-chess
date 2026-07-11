@@ -116,3 +116,5 @@
   generated notes, SHA-256 checksums, and a machine-readable manifest; publication remains manual.
 - Added deterministic local pull-request review output with risk classification and actionable
   checks for missing tests, API contracts, dependency policy, security probes, and frontend evidence.
+- Added allowlist-only JSON request completion logs and response request IDs. DAST proves correlation
+  fields exist and a sentinel in authorization/body data never reaches the local server log.

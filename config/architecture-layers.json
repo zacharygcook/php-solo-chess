@@ -3,6 +3,7 @@
     "Api": ["Controllers", "Http"],
     "Controllers": ["Http", "Services"],
     "Services": ["Services"],
-    "Http": ["Http"]
+    "Http": ["Http"],
+    "Observability": ["Observability"]
   }
 }

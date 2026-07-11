@@ -48,9 +48,22 @@ done
 curl -fsS -D "$TEMP_DIR/headers" -o "$TEMP_DIR/session.json" "$base/backend/public/api/session.php"
 jq -e '.success == true and (.state.board | length) == 8' "$TEMP_DIR/session.json" >/dev/null
 grep -Eiq '^Content-Type: application/json' "$TEMP_DIR/headers"
+grep -Eiq '^X-Request-ID: [A-Za-z0-9-]{8,64}' "$TEMP_DIR/headers"
 
 curl -sS -o "$TEMP_DIR/error.json" -H 'Content-Type: application/json' \
   -d '{not-json' "$base/backend/public/api/move.php" >/dev/null
 jq -e '.success == false' "$TEMP_DIR/error.json" >/dev/null
+
+sentinel='readiness-secret-must-not-be-logged'
+curl -sS -o /dev/null -H "Authorization: Bearer $sentinel" -H 'Content-Type: application/json' \
+  -d "{\"from\":\"z9\",\"to\":\"e4\",\"token\":\"$sentinel\"}" \
+  "$base/backend/public/api/move.php"
+sleep 1
+grep -Fq '"event":"http.request.completed"' "$TEMP_DIR/server.log"
+grep -Eq '"request_id":"[A-Za-z0-9-]{8,64}"' "$TEMP_DIR/server.log"
+if grep -Fq "$sentinel" "$TEMP_DIR/server.log"; then
+  echo "Sensitive request data entered structured logs." >&2
+  exit 1
+fi
 
 echo "Local dynamic security probes passed."

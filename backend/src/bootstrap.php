@@ -31,3 +31,7 @@ spl_autoload_register(function (string $class): void {
         require $file;
     }
 });
+
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    SoloChess\Observability\RequestLogger::start();
+}

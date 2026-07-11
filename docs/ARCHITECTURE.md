@@ -73,3 +73,7 @@ committed.
 The sole external runtime resource is pinned jQuery from `code.jquery.com`. The application has no
 accounts, analytics, hosted persistence, paid services, or CI. Losing internet access prevents the
 current frontend script from loading, but does not affect backend rules tests.
+
+Every API request receives a safe request ID. `RequestLogger` returns it as `X-Request-ID` and emits
+an allowlist-only JSON completion record to PHP's local error log so a failed response can be matched
+to its duration and endpoint without recording request content.
