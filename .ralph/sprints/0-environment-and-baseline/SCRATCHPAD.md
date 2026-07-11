@@ -17,3 +17,12 @@
 - The original baseline check missed this by requesting only `/frontend/` and not verifying CSS/JavaScript responses.
 - Frontend asset and API URLs are now root-absolute; baseline QA covers both route forms and both local assets.
 - This counts as one product regression escaping Phase 0 validation, not a Ralph runtime defect.
+
+## 2026-07-11 — Agent-readiness baseline
+
+- The evidence-backed 82-criterion baseline is Level 1 at 16.42% owned readiness: 11 passes, 56
+  failures, and 15 inapplicable criteria.
+- Readiness work must remain free and local. The owner explicitly prohibits CI and GitHub Actions,
+  so improvements must be runnable through repository scripts on a developer or agent workstation.
+- The numerical target is at least 80%. Under rubric 1.0 that is Level 5, even though the request
+  described the desired milestone as “Level 4 / 80%.”
