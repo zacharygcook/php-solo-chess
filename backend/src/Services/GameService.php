@@ -7,6 +7,7 @@ namespace SoloChess\Services;
 use SoloChess\Services\Chess\CastlingResolver;
 use SoloChess\Services\Chess\Coordinate;
 use SoloChess\Services\Chess\GameStateFactory;
+use SoloChess\Services\Chess\LegalMoveGenerator;
 use SoloChess\Services\Chess\Move;
 use SoloChess\Services\Chess\PieceMovement;
 use SoloChess\Services\Chess\PositionAnalyzer;
@@ -17,6 +18,7 @@ final class GameService
     private PieceMovement $movement;
     private PositionAnalyzer $positionAnalyzer;
     private CastlingResolver $castlingResolver;
+    private LegalMoveGenerator $legalMoveGenerator;
 
     public function __construct(private SessionStore $store)
     {
@@ -24,6 +26,7 @@ final class GameService
         $this->movement = new PieceMovement();
         $this->positionAnalyzer = new PositionAnalyzer($this->movement);
         $this->castlingResolver = new CastlingResolver();
+        $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer);
     }
 
     /** @return array<string, mixed> */
@@ -31,6 +34,7 @@ final class GameService
     {
         $storedState = $this->store->getState();
         $state = $this->stateFactory->normalize($storedState);
+        $state = $this->withLegalMoves($state);
         if ($storedState !== $state) {
             $this->store->saveState($state);
         }
@@ -79,6 +83,7 @@ final class GameService
     public function resetGame(): array
     {
         $state = $this->stateFactory->create();
+        $state = $this->withLegalMoves($state);
         $this->store->saveState($state);
 
         return $state;
@@ -120,6 +125,7 @@ final class GameService
         $inCheck = $this->positionAnalyzer->isKingInCheck($candidate, $state['activeColor']);
         $state['kingInCheck'] = $inCheck ? $state['activeColor'] : null;
         $state['lastMessage'] = $inCheck ? 'Check!' : ($castle === null ? 'Move successfully made.' : 'Castling move successfully made.');
+        $state = $this->withLegalMoves($state);
         unset($state['isValidMove']);
         $this->store->saveState($state);
 
@@ -217,6 +223,17 @@ final class GameService
     {
         $state['lastMessage'] = $message;
         $state['isValidMove'] = false;
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function withLegalMoves(array $state): array
+    {
+        $state['legalMoves'] = $this->legalMoveGenerator->generate($state['board'], $state['activeColor']);
 
         return $state;
     }

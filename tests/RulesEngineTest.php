@@ -33,7 +33,88 @@ function gameWithBoard(array $board, string $activeColor = 'white', ?string $kin
     return new GameService(new SessionStore());
 }
 
+/** @return list<string> */
+function legalMovesFrom(array $state, string $from): array
+{
+    return $state['legalMoves'][$from] ?? [];
+}
+
 return static function (TestHarness $tests): void {
+    $tests->test('initial position generates deterministic ordinary pawn and knight moves only', function () use ($tests): void {
+        $state = freshGame()->getSessionState();
+
+        $tests->assertSame(['e4', 'e3'], legalMovesFrom($state, 'e2'));
+        $tests->assertSame(['a3', 'c3'], legalMovesFrom($state, 'b1'));
+        $tests->assertSame(['f3', 'h3'], legalMovesFrom($state, 'g1'));
+        $tests->assertSame([], legalMovesFrom($state, 'a1'));
+        $tests->assertSame([], legalMovesFrom($state, 'c1'));
+        $tests->assertSame([], legalMovesFrom($state, 'e1'));
+        $tests->assertSame(10, count($state['legalMoves']));
+    });
+
+    $tests->test('legal move generation includes captures and excludes blocked sliding destinations', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[7][4] = null;
+        $board[7][0] = 'wk';
+        $board[4][3] = 'wq'; // d4
+        $board[4][6] = 'wn'; // g4 blocks east
+        $board[2][3] = 'bn'; // d6 is capturable north
+        $board[2][5] = 'bp'; // f6 is capturable diagonal
+        $state = gameWithBoard($board)->getSessionState();
+
+        $tests->assertSame([
+            'a7',
+            'b6',
+            'd6',
+            'f6',
+            'c5',
+            'd5',
+            'e5',
+            'a4',
+            'b4',
+            'c4',
+            'e4',
+            'f4',
+            'c3',
+            'd3',
+            'e3',
+            'b2',
+            'd2',
+            'f2',
+            'd1',
+            'g1',
+        ], legalMovesFrom($state, 'd4'));
+        $tests->assertSame(false, in_array('g4', legalMovesFrom($state, 'd4'), true));
+        $tests->assertSame(false, in_array('h4', legalMovesFrom($state, 'd4'), true));
+        $tests->assertSame(false, in_array('d7', legalMovesFrom($state, 'd4'), true));
+    });
+
+    $tests->test('legal move generation lists only the active side pieces', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[6][4] = 'wp';
+        $board[1][4] = 'bp';
+        $state = gameWithBoard($board, 'black')->getSessionState();
+
+        $tests->assertSame([], legalMovesFrom($state, 'e2'));
+        $tests->assertSame(['e6', 'e5'], legalMovesFrom($state, 'e7'));
+    });
+
+    $tests->test('legal move generation filters self-check and keeps check evasions', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[0][4] = 'br'; // e8 attacks the white king down the e-file
+        $board[0][0] = 'bk';
+        $board[6][4] = 'wr'; // e2 shields the white king
+        $pinned = gameWithBoard($board)->getSessionState();
+
+        $tests->assertSame(['e8', 'e7', 'e6', 'e5', 'e4', 'e3'], legalMovesFrom($pinned, 'e2'));
+        $tests->assertSame(false, in_array('f2', legalMovesFrom($pinned, 'e2'), true));
+
+        $board[6][4] = null;
+        $checked = gameWithBoard($board, 'white', 'white')->getSessionState();
+
+        $tests->assertSame(['d2', 'f2', 'd1', 'f1'], legalMovesFrom($checked, 'e1'));
+    });
+
     $tests->test('invalid destination coordinate is rejected without mutation', function () use ($tests): void {
         $game = freshGame();
         $before = $game->getSessionState();
@@ -87,6 +168,22 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(false, $friendly['isValidMove']);
         $tests->assertSame('wb', $friendly['board'][4][2]);
         $tests->assertSame('wn', $friendly['board'][2][4]);
+    });
+
+    $tests->test('ordinary moves never capture the opponent king', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[7][4] = null;
+        $board[7][0] = 'wk';
+        $board[6][4] = 'wr'; // e2 attacks e8 geometrically
+        $state = gameWithBoard($board)->getSessionState();
+
+        $tests->assertSame(false, in_array('e8', legalMovesFrom($state, 'e2'), true));
+
+        $after = gameWithBoard($board)->submitMove(['from' => 'e2', 'to' => 'e8']);
+        $tests->assertSame(false, $after['isValidMove']);
+        $tests->assertSame('wr', $after['board'][6][4]);
+        $tests->assertSame('bk', $after['board'][0][4]);
+        $tests->assertSame([], $after['moveHistory']);
     });
 
     $tests->test('pawns capture diagonally but cannot capture straight ahead', function () use ($tests): void {

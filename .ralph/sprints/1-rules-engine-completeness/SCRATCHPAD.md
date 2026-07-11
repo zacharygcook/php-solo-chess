@@ -33,3 +33,26 @@
   and full `./scripts/check.sh` all passed.
 - Next handoff: start chunk 2 by generating deterministic legal ordinary moves with king-safety
   filtering from the explicit state; keep HTTP/session/rendering code out of rules decisions.
+
+## 2026-07-11 — Chunk 2 complete
+
+- Completed chunk 2 only: added `LegalMoveGenerator` under the chess-domain services and refreshed
+  derived `legalMoves` from `GameService` on state load, reset, and accepted moves.
+- Decision: expose generated legal moves as `array<string, list<string>>` keyed by source algebraic
+  square, with row-major destination ordering. The generator uses existing `PieceMovement` geometry
+  and `PositionAnalyzer` king-safety filtering instead of adding an HTTP/session-specific path.
+- Decision: special moves remain out of the generator for chunk 2; castling, en-passant, and
+  promotion eligibility are still chunk 3 work.
+- Bug found and fixed: ordinary movement could treat the opponent king as capturable. Added a
+  regression proving generated moves omit king captures and submitted king captures are rejected
+  without mutating board or history.
+- Failed approaches: initial test expectations assumed human-friendly destination ordering and
+  missed valid queen retreat squares; corrected the tests to lock the implemented row-major contract
+  after the generator exposed the deterministic list.
+- Validation evidence: pre-edit baseline `./scripts/check.sh` passed. Focused red tests failed on
+  missing `legalMoves` as expected. After implementation, `composer format:check`,
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`,
+  `./scripts/test-flakiness.sh`, and full `./scripts/check.sh` all passed.
+- Next handoff: start chunk 3 by consuming explicit eligibility state in special moves, especially
+  complete castling rights/check-through-square enforcement, en-passant immediacy, and promotion
+  choices with behavior-first tests.

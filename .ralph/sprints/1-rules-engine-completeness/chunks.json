@@ -19,7 +19,7 @@
     {
       "id": 2,
       "title": "Generate legal orthodox moves with king safety",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Every ordinary piece's moves and captures are generated deterministically from explicit state",
         "Legal-move filtering rejects self-check, wrong-side moves, friendly captures, blocked paths, and terminal-state moves without mutation",

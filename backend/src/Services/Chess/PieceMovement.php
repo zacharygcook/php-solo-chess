@@ -17,6 +17,9 @@ final class PieceMovement
         if ($target !== null && $target[0] === $move->piece[0]) {
             return false;
         }
+        if ($target !== null && $target[1] === 'k') {
+            return false;
+        }
 
         return match ($move->piece[1]) {
             'p' => $this->isLegalPawnMove($board, $move),
