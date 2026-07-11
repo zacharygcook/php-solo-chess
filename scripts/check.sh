@@ -27,49 +27,52 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/17] Validating agent documentation"
+echo "[1/18] Validating agent documentation"
 "$ROOT/scripts/check-agent-docs.sh"
 
-echo "[2/17] Rejecting oversized repository files"
+echo "[2/18] Rejecting oversized repository files"
 "$ROOT/scripts/check-large-files.sh"
 
-echo "[3/17] Checking technical-debt tracking"
+echo "[3/18] Checking technical-debt tracking"
 "$ROOT/scripts/check-tech-debt.sh"
 
-echo "[4/17] Scanning for committed secrets"
+echo "[4/18] Scanning for committed secrets"
 "$ROOT/scripts/check-secrets.sh"
 
-echo "[5/17] Checking dependency policy"
+echo "[5/18] Checking dependency policy"
 php "$ROOT/scripts/check-dependencies.php"
 
-echo "[6/17] Generating local security review"
+echo "[6/18] Generating local security review"
 "$ROOT/scripts/security-review.sh" "$TEMP_DIR/security-review.md"
 
-echo "[7/17] Validating generated API documentation"
+echo "[7/18] Validating generated API documentation"
 php "$ROOT/scripts/generate-api-docs.php" --check
 
-echo "[8/17] Generating release notes from Git history"
+echo "[8/18] Generating release notes from Git history"
 php "$ROOT/scripts/generate-release-notes.php" --to=HEAD --output="$TEMP_DIR/release-notes.md"
 
-echo "[9/17] Linting PHP and JavaScript source"
+echo "[9/18] Linting PHP and JavaScript source"
 "$ROOT/scripts/lint.sh"
 
-echo "[10/17] Enforcing source naming conventions"
+echo "[10/18] Enforcing source naming conventions"
 php "$ROOT/scripts/check-naming.php"
 
-echo "[11/17] Enforcing cyclomatic-complexity budget"
+echo "[11/18] Enforcing cyclomatic-complexity budget"
 "$ROOT/scripts/check-complexity.sh"
 
-echo "[12/17] Checking deterministic formatting"
+echo "[12/18] Enforcing duplicate-code budget"
+php "$ROOT/scripts/check-duplication.php" --check
+
+echo "[13/18] Checking deterministic formatting"
 "$ROOT/scripts/format.sh" --check
 
-echo "[13/17] Type-checking PHP"
+echo "[14/18] Type-checking PHP"
 composer --working-dir="$ROOT" typecheck
 
-echo "[14/17] Running rules-engine unit tests"
+echo "[15/18] Running rules-engine unit tests"
 "$ROOT/scripts/test.sh"
 
-echo "[15/17] Starting isolated server"
+echo "[16/18] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -90,13 +93,13 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[16/17] Loading both frontend URL forms and browser assets"
+echo "[17/18] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
 
-echo "[17/17] Playing e2 to e4 through the API"
+echo "[18/18] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null

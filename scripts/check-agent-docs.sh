@@ -29,6 +29,8 @@ required_files=(
   phpmd.xml
   DEPENDENCY_POLICY.md
   config/dependency-policy.json
+  config/quality-budgets.json
+  scripts/check-duplication.php
   SECURITY.md
   .env.example
   .devcontainer/Dockerfile

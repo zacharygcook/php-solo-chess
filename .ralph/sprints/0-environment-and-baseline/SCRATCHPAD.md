@@ -93,3 +93,6 @@
 - PHPMD measured `GameService` overall cyclomatic complexity at 248 and the worst method at 60.
   Added an explicit method ceiling of 60 (report level 61), a debt item for test-backed extraction,
   and a local non-regression gate. The high legacy baseline remains visible and must only decrease.
+- Significant-line duplicate analysis measured 360 of 1,091 backend/JavaScript lines (33%) across
+  83 repeated six-line windows, concentrated in `GameService`. Added an exact non-regression budget
+  and hotspot output; the ceiling must decrease with extraction, never increase.
