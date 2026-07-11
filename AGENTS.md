@@ -2,6 +2,7 @@
 
 Read `README.md` and `RALPH_DOGFOOD_SCORECARD.md` before changing the project. The MVP is a correct,
 test-backed local chess game; multiplayer and elaborate animation are outside the current milestone.
+Use `docs/ARCHITECTURE.md` for request flow, state ownership, and component boundaries.
 
 Run `./scripts/check.sh` before and after relevant changes. Add focused rules-engine tests before
 expanding chess behavior. Do not treat a visually successful move as proof of chess correctness.

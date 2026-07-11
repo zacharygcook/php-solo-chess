@@ -34,3 +34,5 @@
 - The canonical local check now rejects tracked or unignored files over one megabyte before running
   other validation. It also includes the fast unit suite so the single handoff command covers both
   characterization tests and the existing end-to-end smoke path.
+- Added an architecture guide for the same-origin request flow, component responsibilities, PHP
+  session lifecycle, validation boundaries, and sole external runtime dependency.
