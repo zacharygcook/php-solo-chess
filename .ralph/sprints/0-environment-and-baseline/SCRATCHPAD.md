@@ -112,3 +112,5 @@
   and content-type probes; direct root serving without the router is now explicitly prohibited.
 - Added a generated code-quality snapshot so coverage, duplication, and complexity measurements are
   available together instead of only appearing as separate pass/fail checks.
+- Added clean-tree local release packaging with the full validation gate, exact-commit archive,
+  generated notes, SHA-256 checksums, and a machine-readable manifest; publication remains manual.

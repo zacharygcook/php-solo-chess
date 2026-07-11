@@ -155,3 +155,5 @@ For startup, session, validation, and local security failures, use
 [`docs/RUNBOOKS.md`](docs/RUNBOOKS.md).
 Milestone release validation and generated Git-history notes are documented in
 [`docs/RELEASING.md`](docs/RELEASING.md).
+`./scripts/package-release.sh <version>` creates a validated local archive, notes, checksums, and
+manifest under ignored `dist/`; it never tags, pushes, uploads, or invokes CI.
