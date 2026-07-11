@@ -76,3 +76,6 @@
 - Added a checked API endpoint manifest that generates OpenAPI 3.1 JSON and a human reference. The
   generator verifies PHP entry-point existence and declared HTTP methods, and the local check blocks
   stale derived documentation.
+- Added deterministic Git-history release notes grouped into fixes, improvements, documentation/
+  workflow, and other changes. The documented cadence is after every completed Ralph sprint and
+  before any manual milestone tag; generation never publishes or mutates external state.

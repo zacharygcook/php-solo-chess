@@ -120,3 +120,5 @@ The JSON API is generated into [`docs/API.md`](docs/API.md) and
 [`docs/openapi.json`](docs/openapi.json) from the checked endpoint manifest.
 For startup, session, validation, and local security failures, use
 [`docs/RUNBOOKS.md`](docs/RUNBOOKS.md).
+Milestone release validation and generated Git-history notes are documented in
+[`docs/RELEASING.md`](docs/RELEASING.md).

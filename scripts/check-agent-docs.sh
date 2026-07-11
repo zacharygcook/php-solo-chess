@@ -12,6 +12,7 @@ required_files=(
   docs/RUNBOOKS.md
   docs/API.md
   docs/openapi.json
+  docs/RELEASING.md
   config/api-endpoints.json
   .ralph/sprints/0-environment-and-baseline/SCRATCHPAD.md
   .github/CODEOWNERS

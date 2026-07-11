@@ -27,40 +27,43 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/14] Validating agent documentation"
+echo "[1/15] Validating agent documentation"
 "$ROOT/scripts/check-agent-docs.sh"
 
-echo "[2/14] Rejecting oversized repository files"
+echo "[2/15] Rejecting oversized repository files"
 "$ROOT/scripts/check-large-files.sh"
 
-echo "[3/14] Checking technical-debt tracking"
+echo "[3/15] Checking technical-debt tracking"
 "$ROOT/scripts/check-tech-debt.sh"
 
-echo "[4/14] Scanning for committed secrets"
+echo "[4/15] Scanning for committed secrets"
 "$ROOT/scripts/check-secrets.sh"
 
-echo "[5/14] Checking dependency policy"
+echo "[5/15] Checking dependency policy"
 php "$ROOT/scripts/check-dependencies.php"
 
-echo "[6/14] Generating local security review"
+echo "[6/15] Generating local security review"
 "$ROOT/scripts/security-review.sh" "$TEMP_DIR/security-review.md"
 
-echo "[7/14] Validating generated API documentation"
+echo "[7/15] Validating generated API documentation"
 php "$ROOT/scripts/generate-api-docs.php" --check
 
-echo "[8/14] Linting PHP and JavaScript source"
+echo "[8/15] Generating release notes from Git history"
+php "$ROOT/scripts/generate-release-notes.php" --to=HEAD --output="$TEMP_DIR/release-notes.md"
+
+echo "[9/15] Linting PHP and JavaScript source"
 "$ROOT/scripts/lint.sh"
 
-echo "[9/14] Checking deterministic formatting"
+echo "[10/15] Checking deterministic formatting"
 "$ROOT/scripts/format.sh" --check
 
-echo "[10/14] Type-checking PHP"
+echo "[11/15] Type-checking PHP"
 composer --working-dir="$ROOT" typecheck
 
-echo "[11/14] Running rules-engine unit tests"
+echo "[12/15] Running rules-engine unit tests"
 "$ROOT/scripts/test.sh"
 
-echo "[12/14] Starting isolated server"
+echo "[13/15] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -81,13 +84,13 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[13/14] Loading both frontend URL forms and browser assets"
+echo "[14/15] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
 
-echo "[14/14] Playing e2 to e4 through the API"
+echo "[15/15] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null
