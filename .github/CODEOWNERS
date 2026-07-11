@@ -1,0 +1,13 @@
+# Root fallback keeps new paths owned until a more specific rule is justified.
+* @zacharygcook
+
+# Product and rules engine
+/backend/ @zacharygcook
+/frontend/ @zacharygcook
+/tests/ @zacharygcook
+
+# Developer and agent workflow
+/scripts/ @zacharygcook
+/docs/ @zacharygcook
+/.ralph/ @zacharygcook
+/.githooks/ @zacharygcook

@@ -11,6 +11,7 @@ required_files=(
   docs/ARCHITECTURE.md
   docs/RUNBOOKS.md
   .ralph/sprints/0-environment-and-baseline/SCRATCHPAD.md
+  .github/CODEOWNERS
 )
 
 required_commands=(
@@ -25,6 +26,11 @@ for relative_path in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+if ! grep -Eq '^\* +@zacharygcook$' "$ROOT/.github/CODEOWNERS"; then
+  echo "CODEOWNERS must retain a root fallback owner." >&2
+  exit 1
+fi
 
 for relative_path in "${required_commands[@]}"; do
   if [[ ! -x "$ROOT/$relative_path" ]]; then

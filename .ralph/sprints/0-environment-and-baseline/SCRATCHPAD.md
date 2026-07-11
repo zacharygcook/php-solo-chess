@@ -52,3 +52,5 @@
   instructed commands must be executable and shell-valid, and key AGENTS.md references cannot drift.
 - Added local runbooks for server/port failures, same-origin asset/API problems, session recovery,
   validation and flakiness failures, missing hooks, and security/privacy response.
+- Added CODEOWNERS with a root fallback and explicit product, test, validation, documentation, and
+  Ralph path ownership; the agent-documentation contract verifies the fallback remains valid.
