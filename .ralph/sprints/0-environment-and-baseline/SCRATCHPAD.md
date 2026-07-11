@@ -25,4 +25,7 @@
 - Readiness work must remain free and local. The owner explicitly prohibits CI and GitHub Actions,
   so improvements must be runnable through repository scripts on a developer or agent workstation.
 - The numerical target is at least 80%. Under rubric 1.0 that is Level 5, even though the request
-  described the desired milestone as “Level 4 / 80%.”
+  described the desired milestone as “Level 4 / 80%."
+- Added a dependency-free unit harness and initial `GameService` characterization tests before any
+  further chess-rules expansion. The separate `./scripts/test.sh` command keeps fast logic tests
+  distinct from the HTTP smoke check.

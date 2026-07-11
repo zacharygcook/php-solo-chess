@@ -29,6 +29,12 @@ share one origin. Both `/frontend` and `/frontend/` are supported.
 
 ## Quick QA
 
+Run the focused rules-engine unit tests:
+
+```bash
+./scripts/test.sh
+```
+
 Run the repeatable baseline check before and after changes:
 
 ```bash
