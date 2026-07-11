@@ -58,3 +58,5 @@
   acceptance criteria, regression coverage, MVP alignment, and the no-cost/no-CI constraint.
 - Added a pull-request template covering scope, rules/API impact, exact validation, manual QA,
   operational/security context, deferred debt, unrelated changes, and the no-cost/no-CI policy.
+- Consolidated PHP/JavaScript syntax checks into `scripts/lint.sh`, added repository-wide rejection
+  of common committed debug calls, and removed the frontend's coordinate console logging.
