@@ -70,10 +70,10 @@ Run the repeatable baseline check before and after changes:
 ./scripts/check.sh
 ```
 
-It rejects repository files larger than one megabyte, lints every PHP file, checks the frontend
-JavaScript syntax, verifies that source debt annotations appear in [`TECH_DEBT.md`](TECH_DEBT.md),
-runs the unit suite, starts an isolated local server, loads a session, and plays `e2` to `e4`
-through the real API.
+It validates the agent-documentation contract, rejects repository files larger than one megabyte,
+lints every PHP file, checks the frontend JavaScript syntax, verifies that source debt annotations
+appear in [`TECH_DEBT.md`](TECH_DEBT.md), runs the unit suite, starts an isolated local server, loads
+a session, and plays `e2` to `e4` through the real API.
 
 For a short manual pass:
 

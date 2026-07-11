@@ -48,3 +48,5 @@
   the exact replay command. It defaults to 20 runs and remains separate from the fast handoff check.
 - Added a committed pre-commit hook and idempotent local installer. This clone uses
   `core.hooksPath=.githooks`, so scoped commits now prove the canonical check passes.
+- The canonical check now validates the agent-guide contract: referenced docs must be non-empty,
+  instructed commands must be executable and shell-valid, and key AGENTS.md references cannot drift.
