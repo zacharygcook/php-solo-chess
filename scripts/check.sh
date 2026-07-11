@@ -116,6 +116,7 @@ curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
+curl -fsS "http://127.0.0.1:$PORT/frontend/assets/img/black-king.svg" >/dev/null
 
 echo "[24/24] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
