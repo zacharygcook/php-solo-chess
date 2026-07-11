@@ -4,13 +4,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 https://pmd.sf.net/ruleset_xml_schema.xsd">
     <description>
-        Local non-regression budgets for the legacy rules engine. Tighten thresholds as focused
-        characterization tests make safe extraction possible; never raise them to hide a failure.
+        Maintainability budget for the extracted rules engine. Keep methods below double-digit
+        cyclomatic complexity and never raise the threshold to hide a regression.
     </description>
 
     <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
         <properties>
-            <property name="reportLevel" value="61" />
+            <property name="reportLevel" value="10" />
             <property name="showClassesComplexity" value="false" />
             <property name="showMethodsComplexity" value="true" />
         </properties>

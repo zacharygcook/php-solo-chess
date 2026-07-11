@@ -21,7 +21,12 @@ GameController
   v
 GameService  <---->  SessionStore  <---->  PHP session file
   |
-  | owns board state and chess-rule decisions
+  | coordinates explicit chess-domain services
+  v
+Services/Chess/{Coordinate, Move, PieceMovement, PositionAnalyzer,
+                CastlingResolver, GameStateFactory}
+  |
+  | returns canonical board and game-state decisions
   v
 JsonResponse -> browser state render
 ```
@@ -38,8 +43,20 @@ preserves this layout; serving only `frontend/` breaks the API paths.
   input where needed, and delegates immediately.
 - `backend/src/Controllers/GameController.php` translates service results into the stable JSON
   response envelope: `success`, `message`, and `state`.
-- `backend/src/Services/GameService.php` owns initial state, move validation, board mutation, turn
-  changes, history, check state, and reset behavior. Rules changes require focused unit tests.
+- `backend/src/Services/GameService.php` is the application-level game orchestrator. It translates
+  submitted coordinates into a move, coordinates validation and board mutation, updates turn/history,
+  and persists accepted state through `SessionStore`.
+- `backend/src/Services/Chess/Coordinate.php` is the algebraic-coordinate parsing boundary.
+- `backend/src/Services/Chess/Move.php` carries one typed move and converts it to the existing history
+  record contract.
+- `backend/src/Services/Chess/PieceMovement.php` owns piece geometry, path clearance, captures, and
+  attack geometry. Piece-specific decisions are intentionally separated into small methods.
+- `backend/src/Services/Chess/PositionAnalyzer.php` finds kings and determines whether the opposing
+  pieces attack their squares. `GameService` uses it both before accepting self-exposing moves and
+  after moves to report check.
+- `backend/src/Services/Chess/CastlingResolver.php` isolates the currently supported castling board
+  transformation. Complete castling eligibility remains tracked in `DEBT-001`.
+- `backend/src/Services/Chess/GameStateFactory.php` owns the initial board and stable state shape.
 - `backend/src/Services/SessionStore.php` is the persistence boundary. It reads and writes one
   namespaced value in PHP's session.
 - `backend/src/Http/JsonResponse.php` owns status codes, JSON content type, serialization, and
@@ -61,7 +78,8 @@ committed.
 ## Validation boundaries
 
 - `./scripts/test.sh` calls `GameService` directly with isolated session arrays. Use it for chess
-  rules and state-transition characterization.
+  rules and state-transition characterization. Tests exercise the public service while its domain
+  collaborators remain implementation details.
 - `./scripts/check.sh` adds repository policy, syntax checks, a real PHP server, cookie-backed API
   state, frontend delivery, and an `e2` to `e4` integration path.
 - A visually successful browser move is not proof of chess correctness; rules belong in unit tests.

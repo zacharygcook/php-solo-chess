@@ -30,6 +30,7 @@ product work itself ultimately succeeds.
 | --- | --- | --- | --- | --- | --- |
 | 2026-07-11 | Phase 0 | Info | The app had no canonical startup, validation command, or package manifest. | Project setup | Added `dev.sh`, stateful `check.sh`, and operator documentation. |
 | 2026-07-11 | Phase 0 | Medium | Opening `/frontend` without a trailing slash loaded HTML but resolved CSS and JavaScript under missing `/assets/` paths. The baseline tested only `/frontend/`. | Project setup | Made browser asset/API paths root-absolute and added both URL forms plus assets to `check.sh`. |
+| 2026-07-11 | Pre-Ralph readiness | High | `GameService` was 887 lines with class complexity 248, one method at 60, NPath above 11 million, and 33% measured duplication. The initial five rules tests could not safely support autonomous edits. | Project setup | Added behavior-first coverage, extracted six chess-domain boundaries, reduced `GameService` to 165 lines, capped methods at complexity 9, and reduced duplication below 7%. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.
