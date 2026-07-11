@@ -65,3 +65,6 @@
   runtime remains dependency-free, and all formatting stays local.
 - Added pinned, development-only PHPStan at enforced level 5 across backend entry points, services,
   controllers, HTTP response code, and tests; it is part of the local check only.
+- Added a 30-day direct-dependency adoption policy with recorded upstream publication/eligibility
+  times and local enforcement for Composer tools and the jQuery CDN pin. Security exceptions require
+  explicit advisory and risk documentation.

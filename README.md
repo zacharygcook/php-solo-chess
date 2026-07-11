@@ -36,6 +36,9 @@ in `composer.lock` and does not enter the application runtime.
 Run static type analysis with `composer typecheck`. PHPStan is pinned, free, local-only, covers the
 backend and unit tests at enforced level 5, and uses no hosted service.
 
+Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
+and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.
+
 ```bash
 ./scripts/dev.sh
 ```

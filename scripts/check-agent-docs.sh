@@ -21,6 +21,8 @@ required_files=(
   composer.json
   composer.lock
   phpstan.neon
+  DEPENDENCY_POLICY.md
+  config/dependency-policy.json
 )
 
 required_commands=(
