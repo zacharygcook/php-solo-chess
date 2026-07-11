@@ -31,3 +31,6 @@
   distinct from the HTTP smoke check.
 - Expanded `.gitignore` around the actual PHP/JavaScript workflow: local secrets, runtime state,
   dependencies, generated reports, coverage/build output, caches, editors, and OS metadata.
+- The canonical local check now rejects tracked or unignored files over one megabyte before running
+  other validation. It also includes the fast unit suite so the single handoff command covers both
+  characterization tests and the existing end-to-end smoke path.

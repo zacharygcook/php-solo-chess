@@ -27,15 +27,21 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/5] Linting PHP"
+echo "[1/7] Rejecting oversized repository files"
+"$ROOT/scripts/check-large-files.sh"
+
+echo "[2/7] Linting PHP"
 while IFS= read -r -d '' file; do
   php -l "$file" >/dev/null
 done < <(find "$ROOT/backend" -name '*.php' -type f -print0)
 
-echo "[2/5] Checking frontend JavaScript syntax"
+echo "[3/7] Checking frontend JavaScript syntax"
 node --check "$ROOT/frontend/assets/js/app.js"
 
-echo "[3/5] Starting isolated server"
+echo "[4/7] Running rules-engine unit tests"
+"$ROOT/scripts/test.sh"
+
+echo "[5/7] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -56,13 +62,13 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[4/5] Loading both frontend URL forms and browser assets"
+echo "[6/7] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
 
-echo "[5/5] Playing e2 to e4 through the API"
+echo "[7/7] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null

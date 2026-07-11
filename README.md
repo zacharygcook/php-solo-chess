@@ -41,8 +41,9 @@ Run the repeatable baseline check before and after changes:
 ./scripts/check.sh
 ```
 
-It lints every PHP file, checks the frontend JavaScript syntax, starts an isolated local server,
-loads a session, and plays `e2` to `e4` through the real API.
+It rejects repository files larger than one megabyte, lints every PHP file, checks the frontend
+JavaScript syntax, runs the unit suite, starts an isolated local server, loads a session, and plays
+`e2` to `e4` through the real API.
 
 For a short manual pass:
 
