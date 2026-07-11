@@ -36,6 +36,7 @@ final class TestHarness
 
     public function run(): int
     {
+        $startedAt = hrtime(true);
         $failures = 0;
 
         foreach ($this->tests as $name => $test) {
@@ -49,8 +50,39 @@ final class TestHarness
         }
 
         $count = count($this->tests);
-        fwrite(STDOUT, sprintf("%d tests, %d failures\n", $count, $failures));
+        $durationMs = (hrtime(true) - $startedAt) / 1_000_000;
+        $budgetMs = self::testTimeBudgetMs();
+        $withinBudget = $durationMs <= $budgetMs;
 
-        return $failures === 0 ? 0 : 1;
+        fwrite(STDOUT, sprintf(
+            "%d tests, %d failures, %.2f ms (budget: %d ms)\n",
+            $count,
+            $failures,
+            $durationMs,
+            $budgetMs
+        ));
+
+        if (!$withinBudget) {
+            fwrite(STDERR, sprintf(
+                "FAIL  test suite exceeded its %d ms performance budget\n",
+                $budgetMs
+            ));
+        }
+
+        return $failures === 0 && $withinBudget ? 0 : 1;
+    }
+
+    private static function testTimeBudgetMs(): int
+    {
+        $configured = getenv('TEST_TIME_BUDGET_MS');
+        if ($configured === false || $configured === '') {
+            return 2_000;
+        }
+
+        if (!ctype_digit($configured) || (int) $configured < 1) {
+            throw new RuntimeException('TEST_TIME_BUDGET_MS must be a positive integer.');
+        }
+
+        return (int) $configured;
     }
 }

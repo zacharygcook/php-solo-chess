@@ -38,3 +38,5 @@
   session lifecycle, validation boundaries, and sole external runtime dependency.
 - Replaced anonymous chess-rules TODOs with stable debt IDs and a ledger containing impact and
   completion conditions. The local check now rejects untracked TODO/FIXME/HACK annotations.
+- The unit harness now reports monotonic elapsed time and blocks when the suite exceeds its
+  two-second default budget; `TEST_TIME_BUDGET_MS` supports explicit diagnostic overrides.

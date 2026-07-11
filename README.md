@@ -35,6 +35,10 @@ Run the focused rules-engine unit tests:
 ./scripts/test.sh
 ```
 
+The suite reports elapsed time and enforces a two-second local budget. Override the budget for a
+diagnostic run with `TEST_TIME_BUDGET_MS=500 ./scripts/test.sh`; do not raise the committed default
+without documenting why the test workload legitimately changed.
+
 Run the repeatable baseline check before and after changes:
 
 ```bash
