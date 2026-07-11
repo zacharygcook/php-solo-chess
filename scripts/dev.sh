@@ -16,6 +16,11 @@ esac
 
 mkdir -p "$ROOT/backend/storage/sessions"
 
-echo "PHP Solo Chess is running at http://127.0.0.1:$PORT/frontend/"
-echo "Press Ctrl-C to stop."
+echo ""
+echo "============================================================"
+echo "  PHP Solo Chess"
+echo "  OPEN THIS URL: http://127.0.0.1:$PORT/frontend/"
+echo "  Press Ctrl-C to stop the server."
+echo "============================================================"
+echo ""
 exec php -S "127.0.0.1:$PORT" -t "$ROOT"

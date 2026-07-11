@@ -16,7 +16,7 @@ product work itself ultimately succeeds.
 | Human interventions | 0 | As few as safely possible |
 | False completion signals caught | 0 | Catch all |
 | Runtime defects discovered | 0 | Record and repair every defect |
-| Product regressions escaping validation | 0 | 0 |
+| Product regressions escaping validation | 1 | 0 |
 
 ## Sprint scorecard
 
@@ -29,6 +29,7 @@ product work itself ultimately succeeds.
 | Date | Sprint | Severity | Observation | Classification | Resolution |
 | --- | --- | --- | --- | --- | --- |
 | 2026-07-11 | Phase 0 | Info | The app had no canonical startup, validation command, or package manifest. | Project setup | Added `dev.sh`, stateful `check.sh`, and operator documentation. |
+| 2026-07-11 | Phase 0 | Medium | Opening `/frontend` without a trailing slash loaded HTML but resolved CSS and JavaScript under missing `/assets/` paths. The baseline tested only `/frontend/`. | Project setup | Made browser asset/API paths root-absolute and added both URL forms plus assets to `check.sh`. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.

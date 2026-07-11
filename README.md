@@ -24,8 +24,8 @@ press `Ctrl-C` to stop the server. To use another port, pass it as the first arg
 ./scripts/dev.sh 8090
 ```
 
-The PHP development server must use the repository root as its document root. Serving only
-`frontend/` will make its `../backend/public/api` requests fail.
+The PHP development server must use the repository root as its document root so the frontend and API
+share one origin. Both `/frontend` and `/frontend/` are supported.
 
 ## Quick QA
 

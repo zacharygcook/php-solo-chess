@@ -10,3 +10,10 @@
 - jQuery is fetched from a public CDN, so fully offline use is not yet supported.
 - Runtime v0.4.0 was installed in monorepo mode and remains deliberately disarmed.
 - Phase 1 should establish characterization tests around chess rules before refactoring `GameService.php`.
+
+## 2026-07-11 — First human QA finding
+
+- Opening `/frontend` without the trailing slash exposed unstyled HTML because relative asset URLs resolved from `/`.
+- The original baseline check missed this by requesting only `/frontend/` and not verifying CSS/JavaScript responses.
+- Frontend asset and API URLs are now root-absolute; baseline QA covers both route forms and both local assets.
+- This counts as one product regression escaping Phase 0 validation, not a Ralph runtime defect.
