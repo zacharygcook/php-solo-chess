@@ -35,7 +35,7 @@
     {
       "id": 3,
       "title": "Implement complete special-move eligibility",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Castling enforces unmoved pieces, clear path, no check on traversed squares, and correct rook movement",
         "En passant is permitted only immediately after the qualifying double pawn move and records canonical state",

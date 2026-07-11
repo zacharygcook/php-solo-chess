@@ -56,3 +56,33 @@
 - Next handoff: start chunk 3 by consuming explicit eligibility state in special moves, especially
   complete castling rights/check-through-square enforcement, en-passant immediacy, and promotion
   choices with behavior-first tests.
+
+## 2026-07-11 — Chunk 3 complete
+
+- Completed chunk 3 only: special moves now consume explicit rules state through the domain services
+  and accepted move path. Castling uses castling rights, rook presence, clear paths, and king
+  traversal safety; en passant uses the immediate target, capture direction, and captured-pawn
+  removal; promotion requires one of queen, rook, bishop, or knight and applies the selected piece.
+- Decision: keep promotion input as full lowercase names (`queen`, `rook`, `bishop`, `knight`) and
+  store that input in the existing move-history `promotion` field while preserving two-character
+  board piece codes.
+- Decision: legal-move generation now receives full normalized rules state so generated castling and
+  en-passant destinations use the same eligibility data as submitted moves. HTTP, session, and
+  rendering code remain outside the rule decisions.
+- Bug found and fixed: en passant initially accepted a pawn moving diagonally in the wrong direction
+  when the target square matched. Added a regression and direction check in both the submitted-move
+  path and legal-move generator.
+- Debt update: `DEBT-001` is resolved because focused tests now cover legal king- and queen-side
+  castling, moved-piece rights, blocked paths, castling while in check, castling through check, and
+  exact rook/king board mutation.
+- Failed approaches: one early test over-specified the complete king legal-move list when only
+  castling destinations mattered; it was narrowed to assert the castling destinations directly.
+- Validation evidence: pre-edit baseline `./scripts/check.sh` passed. Focused special-move tests
+  failed first on missing promotion application, en-passant capture, castling rights/check traversal,
+  and generated castling destinations. After implementation, `composer format:check`,
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`,
+  `./scripts/test-flakiness.sh`, and full `./scripts/check.sh` all passed. The exact fast gate used
+  test seed `100426456` and ran 38 tests with 0 failures.
+- Next handoff: start chunk 4 by computing immutable terminal outcomes from generated legal moves:
+  distinguish checkmate from stalemate, represent draw conditions and claim-required draw actions,
+  and reject all move/clock transitions once a game is finished.

@@ -20,12 +20,15 @@ untracked annotations and IDs missing from this file.
 
 ## DEBT-001 — Replace incomplete castling logic
 
-- Status: open
+- Status: resolved 2026-07-11
 - Area: chess rules
-- Impact: castling behavior is split between legacy and placeholder paths and is not yet safe to
-  extend without characterization tests.
-- Completion: cover legal and illegal king- and queen-side castling, check-through-square rules,
-  moved-piece state, and board mutation with focused unit tests; remove the placeholder branches.
+- Original impact: castling behavior was split between legacy and placeholder paths and was not safe
+  to extend without characterization tests.
+- Resolution: `CastlingResolver` now consumes explicit castling rights, verifies the required rook,
+  clear path, and attacked king traversal squares, and moves the rook through the same domain move
+  application path. Focused rules tests cover accepted king- and queen-side castling, moved-piece
+  rights loss, blocked paths, castling while in check, castling through check, and exact board
+  mutation.
 
 ## DEBT-002 — Finish post-move check analysis
 

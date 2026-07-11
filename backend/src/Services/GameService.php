@@ -25,8 +25,8 @@ final class GameService
         $this->stateFactory = new GameStateFactory();
         $this->movement = new PieceMovement();
         $this->positionAnalyzer = new PositionAnalyzer($this->movement);
-        $this->castlingResolver = new CastlingResolver();
-        $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer);
+        $this->castlingResolver = new CastlingResolver($this->positionAnalyzer);
+        $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer, $this->castlingResolver);
     }
 
     /** @return array<string, mixed> */
@@ -106,14 +106,20 @@ final class GameService
     private function applyMove(array $state, Move $move): array
     {
         $board = $state['board'];
-        $castle = $this->castlingResolver->resolve($board, $move, $state['activeColor']);
-        if ($castle === null && !$this->movement->isLegal($board, $move)) {
+        $movingColor = $state['activeColor'];
+        $castle = $this->castlingResolver->resolve($board, $move, $movingColor, $state['castlingRights']);
+        $enPassantCapturedSquare = $this->enPassantCapturedSquare($state, $move);
+        if (!$this->isMoveShapeLegal($board, $move, $castle, $enPassantCapturedSquare)) {
             return $this->reject($state, 'Illegal move.');
         }
 
-        $capturedPiece = $board[$move->to->row][$move->to->col];
-        $candidate = $this->movePiece($board, $move, $castle);
-        $movingColor = $state['activeColor'];
+        $promotionPiece = $this->promotionPiece($move, $movingColor);
+        if ($this->isPromotionMove($move) && $promotionPiece === null) {
+            return $this->reject($state, 'Promotion requires queen, rook, bishop, or knight.');
+        }
+
+        $capturedPiece = $this->capturedPiece($board, $move, $enPassantCapturedSquare);
+        $candidate = $this->movePiece($board, $move, $castle, $enPassantCapturedSquare, $promotionPiece);
         if ($this->positionAnalyzer->isKingInCheck($candidate, $movingColor)) {
             return $this->reject($state, "Move would leave {$movingColor} in check.");
         }
@@ -135,12 +141,28 @@ final class GameService
     /**
      * @param array<int, array<int, string|null>> $board
      * @param array{rookFrom: array{int, int}, rookTo: array{int, int}}|null $castle
+     * @param array{int, int}|null $enPassantCapturedSquare
+     */
+    private function isMoveShapeLegal(array $board, Move $move, ?array $castle, ?array $enPassantCapturedSquare): bool
+    {
+        return $castle !== null
+            || $enPassantCapturedSquare !== null
+            || $this->movement->isLegal($board, $move);
+    }
+
+    /**
+     * @param array<int, array<int, string|null>> $board
+     * @param array{rookFrom: array{int, int}, rookTo: array{int, int}}|null $castle
+     * @param array{int, int}|null $enPassantCapturedSquare
      * @return array<int, array<int, string|null>>
      */
-    private function movePiece(array $board, Move $move, ?array $castle): array
+    private function movePiece(array $board, Move $move, ?array $castle, ?array $enPassantCapturedSquare, ?string $promotionPiece): array
     {
-        $board[$move->to->row][$move->to->col] = $move->piece;
+        $board[$move->to->row][$move->to->col] = $promotionPiece ?? $move->piece;
         $board[$move->from->row][$move->from->col] = null;
+        if ($enPassantCapturedSquare !== null) {
+            $board[$enPassantCapturedSquare[0]][$enPassantCapturedSquare[1]] = null;
+        }
         if ($castle !== null) {
             $board[$castle['rookTo'][0]][$castle['rookTo'][1]] = $board[$castle['rookFrom'][0]][$castle['rookFrom'][1]];
             $board[$castle['rookFrom'][0]][$castle['rookFrom'][1]] = null;
@@ -215,6 +237,69 @@ final class GameService
         return self::squareName(($move->from->row + $move->to->row) / 2, $move->from->col);
     }
 
+    /** @param array<string, mixed> $state */
+    private function enPassantCapturedSquare(array $state, Move $move): ?array
+    {
+        if ($move->piece[1] !== 'p' || $move->to->algebraic !== ($state['enPassantTarget'] ?? null)) {
+            return null;
+        }
+        if (!$this->isEnPassantDiagonal($state, $move)) {
+            return null;
+        }
+
+        $captured = $state['board'][$move->from->row][$move->to->col] ?? null;
+        if (!is_string($captured) || $captured[1] !== 'p' || $captured[0] === $move->piece[0]) {
+            return null;
+        }
+
+        return [$move->from->row, $move->to->col];
+    }
+
+    /** @param array<string, mixed> $state */
+    private function isEnPassantDiagonal(array $state, Move $move): bool
+    {
+        $direction = $move->piece[0] === 'w' ? -1 : 1;
+
+        return $move->to->row - $move->from->row === $direction
+            && abs($move->to->col - $move->from->col) === 1
+            && $state['board'][$move->to->row][$move->to->col] === null;
+    }
+
+    /**
+     * @param array<int, array<int, string|null>> $board
+     * @param array{int, int}|null $enPassantCapturedSquare
+     */
+    private function capturedPiece(array $board, Move $move, ?array $enPassantCapturedSquare): ?string
+    {
+        if ($enPassantCapturedSquare !== null) {
+            return $board[$enPassantCapturedSquare[0]][$enPassantCapturedSquare[1]];
+        }
+
+        return $board[$move->to->row][$move->to->col];
+    }
+
+    private function isPromotionMove(Move $move): bool
+    {
+        return $move->piece[1] === 'p' && ($move->to->row === 0 || $move->to->row === 7);
+    }
+
+    private function promotionPiece(Move $move, string $movingColor): ?string
+    {
+        if (!$this->isPromotionMove($move)) {
+            return null;
+        }
+
+        $piece = match ($move->promotion) {
+            'queen' => 'q',
+            'rook' => 'r',
+            'bishop' => 'b',
+            'knight' => 'n',
+            default => null,
+        };
+
+        return $piece === null ? null : ($movingColor === 'white' ? 'w' : 'b') . $piece;
+    }
+
     /**
      * @param array<string, mixed> $state
      * @return array<string, mixed>
@@ -233,7 +318,7 @@ final class GameService
      */
     private function withLegalMoves(array $state): array
     {
-        $state['legalMoves'] = $this->legalMoveGenerator->generate($state['board'], $state['activeColor']);
+        $state['legalMoves'] = $this->legalMoveGenerator->generate($state);
 
         return $state;
     }

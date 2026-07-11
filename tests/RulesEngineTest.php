@@ -33,6 +33,27 @@ function gameWithBoard(array $board, string $activeColor = 'white', ?string $kin
     return new GameService(new SessionStore());
 }
 
+/**
+ * @param array<int, array<int, string|null>> $board
+ * @param array<string, mixed> $overrides
+ */
+function gameWithState(array $board, array $overrides = []): GameService
+{
+    $_SESSION = [
+        'solo_chess_state' => array_merge([
+            'board' => $board,
+            'moveHistory' => [],
+            'activeColor' => 'white',
+            'kingInCheck' => null,
+            'capturedWhite' => [],
+            'capturedBlack' => [],
+            'lastMessage' => 'Fixture ready.',
+        ], $overrides),
+    ];
+
+    return new GameService(new SessionStore());
+}
+
 /** @return list<string> */
 function legalMovesFrom(array $state, string $from): array
 {
@@ -235,6 +256,19 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(['kingSide' => false, 'queenSide' => false], $state['castlingRights']['white']);
     });
 
+    $tests->test('queen-side castling moves the rook across the king for black', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[0][0] = 'br';
+        $state = gameWithState($board, ['activeColor' => 'black'])->submitMove(['from' => 'e8', 'to' => 'c8']);
+
+        $tests->assertSame('bk', $state['board'][0][2]);
+        $tests->assertSame('br', $state['board'][0][3]);
+        $tests->assertSame(null, $state['board'][0][4]);
+        $tests->assertSame(null, $state['board'][0][0]);
+        $tests->assertSame('white', $state['activeColor']);
+        $tests->assertSame(['kingSide' => false, 'queenSide' => false], $state['castlingRights']['black']);
+    });
+
     $tests->test('rook movement and captures update castling eligibility state', function () use ($tests): void {
         $board = emptyBoardWithKings();
         $board[7][0] = 'wr';
@@ -261,6 +295,133 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(false, $state['isValidMove']);
         $tests->assertSame('wk', $state['board'][7][4]);
         $tests->assertSame('wr', $state['board'][7][7]);
+    });
+
+    $tests->test('castling consumes eligibility rights and rejects moved-piece rights', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[7][0] = 'wr';
+        $board[7][7] = 'wr';
+
+        $allowed = gameWithState($board)->getSessionState();
+        $tests->assertSame(true, in_array('c1', legalMovesFrom($allowed, 'e1'), true));
+        $tests->assertSame(true, in_array('g1', legalMovesFrom($allowed, 'e1'), true));
+
+        $state = gameWithState($board, [
+            'castlingRights' => [
+                'white' => ['kingSide' => false, 'queenSide' => true],
+                'black' => ['kingSide' => true, 'queenSide' => true],
+            ],
+        ])->submitMove(['from' => 'e1', 'to' => 'g1']);
+
+        $tests->assertSame(false, $state['isValidMove']);
+        $tests->assertSame('wk', $state['board'][7][4]);
+        $tests->assertSame('wr', $state['board'][7][7]);
+        $tests->assertSame([], $state['moveHistory']);
+    });
+
+    $tests->test('castling is rejected through check or while already checked', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[7][7] = 'wr';
+        $board[0][5] = 'br'; // attacks f1, the traversed square
+        $throughCheck = gameWithState($board)->submitMove(['from' => 'e1', 'to' => 'g1']);
+
+        $tests->assertSame(false, $throughCheck['isValidMove']);
+        $tests->assertSame('wk', $throughCheck['board'][7][4]);
+        $tests->assertSame('wr', $throughCheck['board'][7][7]);
+
+        $board = emptyBoardWithKings();
+        $board[7][7] = 'wr';
+        $board[0][4] = 'br'; // attacks e1 before castling starts
+        $whileChecked = gameWithState($board, ['kingInCheck' => 'white'])->submitMove(['from' => 'e1', 'to' => 'g1']);
+
+        $tests->assertSame(false, $whileChecked['isValidMove']);
+        $tests->assertSame('wk', $whileChecked['board'][7][4]);
+        $tests->assertSame([], $whileChecked['moveHistory']);
+    });
+
+    $tests->test('en passant is immediate and removes the captured pawn', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[3][4] = 'wp'; // e5
+        $board[3][3] = 'bp'; // d5
+        $state = gameWithState($board, [
+            'enPassantTarget' => 'd6',
+        ])->submitMove(['from' => 'e5', 'to' => 'd6']);
+
+        $tests->assertSame('wp', $state['board'][2][3]);
+        $tests->assertSame(null, $state['board'][3][4]);
+        $tests->assertSame(null, $state['board'][3][3]);
+        $tests->assertSame(null, $state['enPassantTarget']);
+        $tests->assertSame(0, $state['halfmoveClock']);
+        $tests->assertSame('e5', $state['moveHistory'][0]['from']);
+        $tests->assertSame('d6', $state['moveHistory'][0]['to']);
+        $tests->assertSame('black', $state['activeColor']);
+    });
+
+    $tests->test('en passant is rejected after any intervening move clears the target', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[3][4] = 'wp'; // e5
+        $board[3][3] = 'bp'; // d5
+        $state = gameWithState($board)->submitMove(['from' => 'e5', 'to' => 'd6']);
+
+        $tests->assertSame(false, $state['isValidMove']);
+        $tests->assertSame('wp', $state['board'][3][4]);
+        $tests->assertSame('bp', $state['board'][3][3]);
+        $tests->assertSame([], $state['moveHistory']);
+    });
+
+    $tests->test('en passant must follow the capturing pawn direction', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[3][4] = 'wp'; // e5
+        $board[3][3] = 'bp'; // d5
+        $state = gameWithState($board, [
+            'enPassantTarget' => 'd4',
+        ])->submitMove(['from' => 'e5', 'to' => 'd4']);
+
+        $tests->assertSame(false, $state['isValidMove']);
+        $tests->assertSame('wp', $state['board'][3][4]);
+        $tests->assertSame('bp', $state['board'][3][3]);
+        $tests->assertSame([], $state['moveHistory']);
+    });
+
+    $tests->test('promotion requires an explicit orthodox piece choice', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[1][0] = 'wp'; // a7
+
+        $missing = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'a8']);
+        $tests->assertSame(false, $missing['isValidMove']);
+        $tests->assertSame('wp', $missing['board'][1][0]);
+        $tests->assertSame(null, $missing['board'][0][0]);
+        $tests->assertSame([], $missing['moveHistory']);
+
+        $invalid = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'a8', 'promotion' => 'king']);
+        $tests->assertSame(false, $invalid['isValidMove']);
+        $tests->assertSame('wp', $invalid['board'][1][0]);
+        $tests->assertSame(null, $invalid['board'][0][0]);
+        $tests->assertSame([], $invalid['moveHistory']);
+    });
+
+    $tests->test('promotion applies queen rook bishop and knight choices', function () use ($tests): void {
+        foreach (['queen' => 'wq', 'rook' => 'wr', 'bishop' => 'wb', 'knight' => 'wn'] as $choice => $piece) {
+            $board = emptyBoardWithKings();
+            $board[1][0] = 'wp'; // a7
+            $state = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'a8', 'promotion' => $choice]);
+
+            $tests->assertSame($piece, $state['board'][0][0], "Promotion to {$choice} should use {$piece}.");
+            $tests->assertSame(null, $state['board'][1][0]);
+            $tests->assertSame($choice, $state['moveHistory'][0]['promotion']);
+            $tests->assertSame('black', $state['activeColor']);
+        }
+    });
+
+    $tests->test('promotion can capture on the final rank', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[1][0] = 'wp'; // a7
+        $board[0][1] = 'bn'; // b8
+        $state = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'b8', 'promotion' => 'knight']);
+
+        $tests->assertSame('wn', $state['board'][0][1]);
+        $tests->assertSame(null, $state['board'][1][0]);
+        $tests->assertSame(0, $state['halfmoveClock']);
     });
 
     $tests->test('a move exposing the active king is rejected', function () use ($tests): void {
