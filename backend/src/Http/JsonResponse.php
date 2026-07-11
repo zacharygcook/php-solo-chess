@@ -10,6 +10,8 @@ final class JsonResponse
     {
         http_response_code($statusCode);
         header('Content-Type: application/json');
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: no-store');
         echo json_encode($payload);
         exit;
     }

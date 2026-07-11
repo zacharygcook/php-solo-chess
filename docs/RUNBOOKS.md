@@ -19,7 +19,8 @@ Symptoms: `./scripts/dev.sh` exits, PHP reports an address conflict, or the brow
 
 Symptoms: an unstyled board, asset 404s, or “Failed to reach backend session endpoint.”
 
-1. Start through `./scripts/dev.sh`; do not serve `frontend/` as the document root.
+1. Start through `./scripts/dev.sh`; do not serve `frontend/` as the document root and do not start
+   the repository-root server without `scripts/router.php`.
 2. Confirm the browser URL and API share one origin. The repository root must be PHP's document root.
 3. Request `/frontend/assets/css/styles.css` and `/backend/public/api/session.php` on that origin.
 4. Run `./scripts/check.sh`, which verifies both frontend URL forms, assets, cookies, and a move.

@@ -124,6 +124,8 @@ It validates the agent-documentation contract, rejects repository files larger t
 lints all PHP and frontend JavaScript (including committed debug calls), verifies that source debt annotations
 appear in [`TECH_DEBT.md`](TECH_DEBT.md), runs the unit suite, starts an isolated local server, loads
 a session, and plays `e2` to `e4` through the real API.
+It also probes HTTP method abuse, malformed JSON, response content types, and sensitive repository
+paths against the allowlist router.
 
 For a short manual pass:
 

@@ -28,7 +28,9 @@ JsonResponse -> browser state render
 
 The repository root must be the PHP server document root. The frontend and `/backend/public/api/`
 then share an origin, so PHP's session cookie is sent with every API request. `scripts/dev.sh`
-preserves this layout; serving only `frontend/` breaks the API paths.
+preserves this layout through `scripts/router.php`; the router exposes only frontend files and API
+entry points while denying repository source/configuration. Serving only `frontend/` breaks the API
+paths, while serving the root without the router exposes sensitive project files.
 
 ## Component responsibilities
 

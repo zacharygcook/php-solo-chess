@@ -31,6 +31,7 @@ product work itself ultimately succeeds.
 | 2026-07-11 | Phase 0 | Info | The app had no canonical startup, validation command, or package manifest. | Project setup | Added `dev.sh`, stateful `check.sh`, and operator documentation. |
 | 2026-07-11 | Phase 0 | Medium | Opening `/frontend` without a trailing slash loaded HTML but resolved CSS and JavaScript under missing `/assets/` paths. The baseline tested only `/frontend/`. | Project setup | Made browser asset/API paths root-absolute and added both URL forms plus assets to `check.sh`. |
 | 2026-07-11 | Readiness | Medium | The large-file validator rejected a valid linked Git worktree because it required `.git` to be a directory. | Project setup | Validate repository identity with `git rev-parse --git-dir`, which supports normal clones and linked worktrees. |
+| 2026-07-11 | Readiness | High | The root document-server layout exposed repository source and configuration paths over local HTTP. | Product setup | Added an allowlist router and blocking dynamic probes for sensitive paths and method/input abuse. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.

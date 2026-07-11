@@ -35,6 +35,7 @@ required_files=(
   config/dependency-usage.json
   scripts/check-dependency-weight.php
   scripts/check-unused-dependencies.php
+  scripts/router.php
   tests/coverage.php
   scripts/check-architecture.php
   scripts/check-duplication.php
@@ -54,6 +55,7 @@ required_commands=(
   scripts/format.sh
   scripts/check-secrets.sh
   scripts/security-review.sh
+  scripts/dast.sh
   scripts/dependency-updates.sh
   scripts/check-complexity.sh
   scripts/check-dependency-weight.sh

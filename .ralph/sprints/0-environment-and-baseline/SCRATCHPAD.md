@@ -107,3 +107,6 @@
   rejects unregistered direct dependencies or tools/assets whose required usage evidence disappears.
 - Xdebug measured 112 of 532 executable backend lines (21.05%) and `GameService` at 20.42%. Added a
   21.00% blocking ratchet with per-file evidence and pinned Xdebug 3.5.3 in the devcontainer.
+- Dynamic probes exposed that using the repository root as PHP's document root also served source,
+  lock, and config files. Added an allowlist router plus method-abuse, malformed-JSON, sensitive-path,
+  and content-type probes; direct root serving without the router is now explicitly prohibited.
