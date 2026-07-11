@@ -40,8 +40,11 @@ untracked annotations and IDs missing from this file.
 
 ## DEBT-003 — Implement checkmate and stalemate outcomes
 
-- Status: open
+- Status: resolved 2026-07-11
 - Area: chess rules
-- Impact: the game cannot reliably terminate or distinguish checkmate from stalemate.
-- Completion: enumerate every legal response, distinguish checkmate and stalemate, prevent moves
-  after termination, and add rules-engine plus API integration coverage.
+- Original impact: the game could not reliably terminate or distinguish checkmate from stalemate.
+- Resolution: accepted moves now regenerate all legal replies, classify no-reply positions as
+  checkmate or stalemate, persist `gameStatus`, `result`, and `terminationReason`, clear legal moves
+  for finished games, and reject later move submissions without mutating board, turn, move history,
+  or position history. Focused tests cover Fool's mate, stalemate, automatic dead-position draw,
+  claim-required draw actions, and terminal immutability.

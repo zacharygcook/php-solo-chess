@@ -23,6 +23,11 @@ final class GameStateFactory
             'halfmoveClock' => 0,
             'fullmoveNumber' => 1,
             'positionHistory' => [$this->positionKey($board, 'white', $this->startingCastlingRights(), null)],
+            'gameStatus' => 'active',
+            'result' => null,
+            'terminationReason' => null,
+            'drawClaims' => [],
+            'availableActions' => [],
             'lastMessage' => 'Session ready. Implement chess logic inside GameService.',
         ];
     }
@@ -46,6 +51,21 @@ final class GameStateFactory
         $state['positionHistory'] = is_array($state['positionHistory'] ?? null) && $state['positionHistory'] !== []
             ? $state['positionHistory']
             : [$this->positionKey($state['board'], $state['activeColor'], $state['castlingRights'], $state['enPassantTarget'])];
+
+        return $this->withTerminalDefaults($state);
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function withTerminalDefaults(array $state): array
+    {
+        $state['gameStatus'] = is_string($state['gameStatus'] ?? null) ? $state['gameStatus'] : 'active';
+        $state['result'] = is_string($state['result'] ?? null) ? $state['result'] : null;
+        $state['terminationReason'] = is_string($state['terminationReason'] ?? null) ? $state['terminationReason'] : null;
+        $state['drawClaims'] = is_array($state['drawClaims'] ?? null) ? $state['drawClaims'] : [];
+        $state['availableActions'] = is_array($state['availableActions'] ?? null) ? $state['availableActions'] : [];
 
         return $state;
     }

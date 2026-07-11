@@ -41,6 +41,11 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(0, $state['halfmoveClock']);
         $tests->assertSame(1, $state['fullmoveNumber']);
         $tests->assertSame(1, count($state['positionHistory']));
+        $tests->assertSame('active', $state['gameStatus']);
+        $tests->assertSame(null, $state['result']);
+        $tests->assertSame(null, $state['terminationReason']);
+        $tests->assertSame([], $state['drawClaims']);
+        $tests->assertSame([], $state['availableActions']);
         $tests->assertSame($state, unserialize(serialize($state)));
     });
 

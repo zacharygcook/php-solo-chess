@@ -11,6 +11,7 @@ use SoloChess\Services\Chess\LegalMoveGenerator;
 use SoloChess\Services\Chess\Move;
 use SoloChess\Services\Chess\PieceMovement;
 use SoloChess\Services\Chess\PositionAnalyzer;
+use SoloChess\Services\Chess\TerminalStateResolver;
 
 final class GameService
 {
@@ -19,6 +20,7 @@ final class GameService
     private PositionAnalyzer $positionAnalyzer;
     private CastlingResolver $castlingResolver;
     private LegalMoveGenerator $legalMoveGenerator;
+    private TerminalStateResolver $terminalStateResolver;
 
     public function __construct(private SessionStore $store)
     {
@@ -27,6 +29,7 @@ final class GameService
         $this->positionAnalyzer = new PositionAnalyzer($this->movement);
         $this->castlingResolver = new CastlingResolver($this->positionAnalyzer);
         $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer, $this->castlingResolver);
+        $this->terminalStateResolver = new TerminalStateResolver();
     }
 
     /** @return array<string, mixed> */
@@ -105,6 +108,10 @@ final class GameService
      */
     private function applyMove(array $state, Move $move): array
     {
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->reject($state, 'Game is already finished.');
+        }
+
         $board = $state['board'];
         $movingColor = $state['activeColor'];
         $castle = $this->castlingResolver->resolve($board, $move, $movingColor, $state['castlingRights']);
@@ -132,6 +139,7 @@ final class GameService
         $state['kingInCheck'] = $inCheck ? $state['activeColor'] : null;
         $state['lastMessage'] = $inCheck ? 'Check!' : ($castle === null ? 'Move successfully made.' : 'Castling move successfully made.');
         $state = $this->withLegalMoves($state);
+        $state = $this->terminalStateResolver->resolveAfterMove($state);
         unset($state['isValidMove']);
         $this->store->saveState($state);
 

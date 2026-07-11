@@ -77,6 +77,14 @@ the active color, appends history, and saves the whole state. Reset deletes the 
 creates a fresh game. Local session files live in `backend/storage/sessions/` and must never be
 committed.
 
+Rules-owned terminal state is explicit in the saved game state: `gameStatus`, `result`,
+`terminationReason`, `drawClaims`, and `availableActions`. Board-derived endings such as checkmate,
+stalemate, and dead-position draws are resolved by the chess domain immediately after an accepted
+move. Claim-required draw rules leave the game active and expose `claimDraw` as an available action.
+Resignation, agreed draws, and clock timeouts are application-level transitions for the future
+controls/clocks work; those paths must set the same terminal fields and then rely on the existing
+finished-game guard to reject later moves.
+
 ## Validation boundaries
 
 - `./scripts/test.sh` calls `GameService` directly with isolated session arrays. Use it for chess

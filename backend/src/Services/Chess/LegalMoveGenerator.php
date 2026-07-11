@@ -18,6 +18,10 @@ final class LegalMoveGenerator
      */
     public function generate(array $state): array
     {
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return [];
+        }
+
         $board = $state['board'];
         $activeColor = $state['activeColor'];
         $legalMoves = [];

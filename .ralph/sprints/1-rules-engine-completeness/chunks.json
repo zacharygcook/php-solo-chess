@@ -52,7 +52,7 @@
     {
       "id": 4,
       "title": "Resolve terminal states and draws immutably",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Checkmate and stalemate are distinguished from ordinary check using legal-move availability",
         "Repetition, move-count, dead-position, resignation, agreed-draw, and timeout result rules have explicit state/result representations or documented application boundaries",

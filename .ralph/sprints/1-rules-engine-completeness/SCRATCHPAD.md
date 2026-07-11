@@ -86,3 +86,33 @@
 - Next handoff: start chunk 4 by computing immutable terminal outcomes from generated legal moves:
   distinguish checkmate from stalemate, represent draw conditions and claim-required draw actions,
   and reject all move/clock transitions once a game is finished.
+
+## 2026-07-11 — Chunk 4 complete
+
+- Completed chunk 4 only: accepted moves now resolve terminal board outcomes through
+  `TerminalStateResolver`, persist `gameStatus`, `result`, `terminationReason`, `drawClaims`, and
+  `availableActions`, clear legal moves for finished games, and reject later move submissions without
+  mutating board, turn, move history, or position history.
+- Decision: terminal evaluation runs after accepted moves, using the regenerated legal replies from
+  the domain generator. This keeps existing reduced-board behavior tests isolated while ensuring
+  positions reached through the authoritative move path are saved with immutable outcomes.
+- Decision: threefold repetition and the fifty-move rule remain claim-required in this chunk: the
+  game stays active and exposes `claimDraw` rather than ending automatically. Dead positions,
+  checkmate, and stalemate finish immediately.
+- Decision: resignation, agreed draw, and timeout are documented as future application-level
+  transitions for the controls/clocks chunks; they must set the same terminal fields and then rely on
+  the finished-game guard.
+- Debt update: `DEBT-003` is resolved because focused tests now cover checkmate, stalemate,
+  automatic dead-position draw, claim-required draw actions, and terminal immutability.
+- Failed approaches: first implementation read the typed dead-position piece records with numeric
+  offsets instead of the `piece` key; focused tests exposed the warning and it was fixed. The first
+  repetition fixture repeated a placeholder key instead of the post-move position key; it was
+  corrected to compute the exact repeated key through `GameStateFactory`.
+- Validation evidence: pre-edit baseline `./scripts/check.sh` passed. Focused terminal tests failed
+  first on missing terminal fields and missing classifications. After implementation,
+  `composer format:check`, exact fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`,
+  `./scripts/test-flakiness.sh`, and full `./scripts/check.sh` all passed. The exact fast gate used
+  test seed `704628621` and ran 42 tests with 0 failures.
+- Next handoff: start chunk 5 by generating canonical SAN plus FEN/coordinate interchange from the
+  explicit domain state, preserving the existing controller response envelope and browser smoke path.

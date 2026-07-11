@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use SoloChess\Services\Chess\GameStateFactory;
 use SoloChess\Services\GameService;
 use SoloChess\Services\SessionStore;
 
@@ -466,10 +467,89 @@ return static function (TestHarness $tests): void {
         $board = emptyBoardWithKings();
         $board[7][4] = null;
         $board[7][0] = 'wk';
+        $board[7][7] = 'wr';
         $board[3][3] = 'wn'; // d5
         $state = gameWithBoard($board)->submitMove(['from' => 'd5', 'to' => 'f6']);
 
         $tests->assertSame('black', $state['kingInCheck']);
         $tests->assertSame('Check!', $state['lastMessage']);
+    });
+
+    $tests->test('fools mate ends as immutable checkmate', function () use ($tests): void {
+        $game = freshGame();
+        $game->submitMove(['from' => 'f2', 'to' => 'f3']);
+        $game->submitMove(['from' => 'e7', 'to' => 'e5']);
+        $game->submitMove(['from' => 'g2', 'to' => 'g4']);
+        $mate = $game->submitMove(['from' => 'd8', 'to' => 'h4']);
+
+        $tests->assertSame('finished', $mate['gameStatus']);
+        $tests->assertSame('0-1', $mate['result']);
+        $tests->assertSame('checkmate', $mate['terminationReason']);
+        $tests->assertSame('white', $mate['kingInCheck']);
+        $tests->assertSame([], $mate['legalMoves']);
+        $tests->assertSame('Checkmate. Black wins.', $mate['lastMessage']);
+
+        $after = $game->submitMove(['from' => 'e2', 'to' => 'e4']);
+        $tests->assertSame(false, $after['isValidMove']);
+        $tests->assertSame('Game is already finished.', $after['lastMessage']);
+        $tests->assertSame($mate['board'], $after['board']);
+        $tests->assertSame($mate['activeColor'], $after['activeColor']);
+        $tests->assertSame($mate['moveHistory'], $after['moveHistory']);
+        $tests->assertSame($mate['positionHistory'], $after['positionHistory']);
+    });
+
+    $tests->test('a legal move can end the game by stalemate', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[0][4] = null;
+        $board[0][7] = 'bk'; // h8
+        $board[7][4] = null;
+        $board[1][5] = 'wk'; // f7
+        $board[3][6] = 'wq'; // g5
+        $state = gameWithState($board)->submitMove(['from' => 'g5', 'to' => 'g6']);
+
+        $tests->assertSame('finished', $state['gameStatus']);
+        $tests->assertSame('1/2-1/2', $state['result']);
+        $tests->assertSame('stalemate', $state['terminationReason']);
+        $tests->assertSame(null, $state['kingInCheck']);
+        $tests->assertSame([], $state['legalMoves']);
+        $tests->assertSame('Stalemate.', $state['lastMessage']);
+    });
+
+    $tests->test('dead positions end automatically after an accepted move', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[6][2] = 'wn'; // c2
+        $board[4][1] = 'bn'; // b4
+        $state = gameWithState($board)->submitMove(['from' => 'c2', 'to' => 'b4']);
+
+        $tests->assertSame('finished', $state['gameStatus']);
+        $tests->assertSame('1/2-1/2', $state['result']);
+        $tests->assertSame('deadPosition', $state['terminationReason']);
+        $tests->assertSame([], $state['legalMoves']);
+        $tests->assertSame('Draw by dead position.', $state['lastMessage']);
+    });
+
+    $tests->test('claim-required draws expose claim actions without ending automatically', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[0][7] = 'br'; // h8 keeps the position winnable.
+        $board[7][0] = 'wr'; // a1 keeps the position winnable.
+        $board[6][6] = 'wn'; // g2
+        $afterBoard = $board;
+        $afterBoard[6][6] = null;
+        $afterBoard[4][5] = 'wn'; // f4
+        $repeatKey = (new GameStateFactory())->positionKey($afterBoard, 'black', [
+            'white' => ['kingSide' => true, 'queenSide' => true],
+            'black' => ['kingSide' => true, 'queenSide' => true],
+        ], null);
+        $state = gameWithState($board, [
+            'halfmoveClock' => 99,
+            'positionHistory' => [$repeatKey, $repeatKey],
+        ])->submitMove(['from' => 'g2', 'to' => 'f4']);
+
+        $tests->assertSame('active', $state['gameStatus']);
+        $tests->assertSame(null, $state['result']);
+        $tests->assertSame(null, $state['terminationReason']);
+        $tests->assertSame(['fiftyMoveRule', 'threefoldRepetition'], $state['drawClaims']);
+        $tests->assertSame(['claimDraw'], $state['availableActions']);
+        $tests->assertTrue($state['legalMoves'] !== [], 'Claim-required draws must not clear legal moves.');
     });
 };
