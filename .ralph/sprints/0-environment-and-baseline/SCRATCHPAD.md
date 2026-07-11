@@ -42,3 +42,5 @@
   two-second default budget; `TEST_TIME_BUDGET_MS` supports explicit diagnostic overrides.
 - Test discovery now operationally enforces the `tests/*Test.php` file convention, deterministic
   file ordering, behavior-oriented test names, and a non-empty suite.
+- The test harness now shuffles cases and prints a replayable `TEST_SEED`; every GameService case
+  constructs fresh session state, so hidden order dependencies become observable.

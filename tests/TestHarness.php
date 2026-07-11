@@ -38,8 +38,15 @@ final class TestHarness
     {
         $startedAt = hrtime(true);
         $failures = 0;
+        $seed = self::testSeed();
+        $testNames = array_keys($this->tests);
+        mt_srand($seed);
+        shuffle($testNames);
 
-        foreach ($this->tests as $name => $test) {
+        fwrite(STDOUT, "Test order seed: {$seed}\n");
+
+        foreach ($testNames as $name) {
+            $test = $this->tests[$name];
             try {
                 $test();
                 fwrite(STDOUT, "PASS  {$name}\n");
@@ -86,6 +93,20 @@ final class TestHarness
 
         if (!ctype_digit($configured) || (int) $configured < 1) {
             throw new RuntimeException('TEST_TIME_BUDGET_MS must be a positive integer.');
+        }
+
+        return (int) $configured;
+    }
+
+    private static function testSeed(): int
+    {
+        $configured = getenv('TEST_SEED');
+        if ($configured === false || $configured === '') {
+            return random_int(1, 2_147_483_647);
+        }
+
+        if (!ctype_digit($configured) || (int) $configured < 1) {
+            throw new RuntimeException('TEST_SEED must be a positive integer.');
         }
 
         return (int) $configured;

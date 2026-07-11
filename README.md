@@ -43,6 +43,9 @@ Test files live directly under `tests/`, must end in `Test.php`, and are discove
 Test names should describe observable behavior, such as `player cannot move twice in succession`.
 The runner fails when the naming convention discovers no tests.
 
+Every test must create its own game state rather than relying on a prior test. The harness randomizes
+execution order and prints the seed; replay a failure with `TEST_SEED=12345 ./scripts/test.sh`.
+
 Run the repeatable baseline check before and after changes:
 
 ```bash
