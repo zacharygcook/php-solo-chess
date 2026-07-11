@@ -1,0 +1,8 @@
+parameters:
+    level: 5
+    paths:
+        - backend/public
+        - backend/src
+        - tests
+    tmpDir: .cache/phpstan
+    reportUnmatchedIgnoredErrors: true

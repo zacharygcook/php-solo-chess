@@ -15,7 +15,11 @@ if ($testFiles === false) {
 
 sort($testFiles, SORT_STRING);
 foreach ($testFiles as $testFile) {
-    require $testFile;
+    $registerTests = require $testFile;
+    if (!$registerTests instanceof Closure) {
+        throw new RuntimeException("Test file must return a registration closure: {$testFile}");
+    }
+    $registerTests($tests);
 }
 
 if ($tests->count() === 0) {

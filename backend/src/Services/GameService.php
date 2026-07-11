@@ -131,7 +131,7 @@ final class GameService
                 for ($i = 1; $i < 9; $i++) {
                     $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
                     $squareToCheckCol = $startingSquare[1] + $vector[1] * $i;
-                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
+                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
                         break; # off the board, stop checking that direction
                     } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] !== null) {
                         # checking piece detected, make note if on 1st iteration it could be a pawn
@@ -204,8 +204,8 @@ final class GameService
                 $startingSquare = [$ourKingPosition['row'], $ourKingPosition['col']];
                 for ($i = 1; $i < 9; $i++) {
                     $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
-                    $squareToCheckCol = $startingSquare[1] + $vector[0] * $i;
-                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
+                    $squareToCheckCol = $startingSquare[1] + $vector[1] * $i;
+                    if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
                         continue; # off the board
                     } elseif ($state['board'][$squareToCheckRow][$squareToCheckCol] !== null) {
                         $pieceCode = $state['board'][$squareToCheckRow][$squareToCheckCol];
@@ -267,18 +267,18 @@ final class GameService
         }
 
         $move = [
-            'from' => $from ?? null,
-            'fromCol' => $fromCol ?? null,
-            'fromRow' => $fromRow ?? null,
-            'to' => $to ?? null,
-            'toCol' => $toCol ?? null,
-            'toRow' => $toRow ?? null,
-            'piece' => $piece ?? null,
+            'from' => $from,
+            'fromCol' => $fromCol,
+            'fromRow' => $fromRow,
+            'to' => $to,
+            'toCol' => $toCol,
+            'toRow' => $toRow,
+            'piece' => $piece,
             'promotion' => $payload['promotion'] ?? null,
             'timestamp' => time(),
         ];
 
-        $state = $this->applyMove($state, $move, $piece);
+        $state = $this->applyMove($state, $move);
 
         return $state;
     }
@@ -745,6 +745,8 @@ final class GameService
         } else {
             return false;
         }
+
+        return false;
     }
 
     private function attackingEnemyKingRankFile(array $state, array $move, array $enemyKingPosition): bool
@@ -823,6 +825,8 @@ final class GameService
             # neither on same rank or file!
             return false;
         }
+
+        return false;
     }
 
     /**

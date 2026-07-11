@@ -33,6 +33,9 @@ Apply deterministic PHP and frontend text formatting with `composer format`; ver
 writing through `composer format:check`. PHP CS Fixer is an MIT-licensed development-only tool pinned
 in `composer.lock` and does not enter the application runtime.
 
+Run static type analysis with `composer typecheck`. PHPStan is pinned, free, local-only, covers the
+backend and unit tests at enforced level 5, and uses no hosted service.
+
 ```bash
 ./scripts/dev.sh
 ```

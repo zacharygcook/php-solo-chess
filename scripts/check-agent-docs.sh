@@ -20,6 +20,7 @@ required_files=(
   .php-cs-fixer.dist.php
   composer.json
   composer.lock
+  phpstan.neon
 )
 
 required_commands=(

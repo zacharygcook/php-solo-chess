@@ -63,3 +63,5 @@
 - Added pinned, development-only PHP CS Fixer plus repository-owned frontend whitespace formatting.
   The concrete payoff is deterministic formatting of the large legacy rules engine and new tests;
   runtime remains dependency-free, and all formatting stays local.
+- Added pinned, development-only PHPStan at enforced level 5 across backend entry points, services,
+  controllers, HTTP response code, and tests; it is part of the local check only.
