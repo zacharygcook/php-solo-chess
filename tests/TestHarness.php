@@ -72,6 +72,11 @@ final class TestHarness
         return $failures === 0 && $withinBudget ? 0 : 1;
     }
 
+    public function count(): int
+    {
+        return count($this->tests);
+    }
+
     private static function testTimeBudgetMs(): int
     {
         $configured = getenv('TEST_TIME_BUDGET_MS');

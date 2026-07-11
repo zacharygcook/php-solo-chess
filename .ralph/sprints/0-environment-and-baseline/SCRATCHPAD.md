@@ -40,3 +40,5 @@
   completion conditions. The local check now rejects untracked TODO/FIXME/HACK annotations.
 - The unit harness now reports monotonic elapsed time and blocks when the suite exceeds its
   two-second default budget; `TEST_TIME_BUDGET_MS` supports explicit diagnostic overrides.
+- Test discovery now operationally enforces the `tests/*Test.php` file convention, deterministic
+  file ordering, behavior-oriented test names, and a non-empty suite.
