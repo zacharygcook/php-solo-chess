@@ -15,6 +15,7 @@ canonical check.
 - [ ] `./scripts/test.sh`
 - [ ] `./scripts/check.sh`
 - [ ] Relevant manual browser QA, or not applicable with reason
+- [ ] Local change review generated with `php scripts/review-change.php --base=<base-ref> --output=.agent-readiness/pr-review.md` and findings addressed
 
 ## Operational and security impact
 

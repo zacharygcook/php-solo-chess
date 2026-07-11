@@ -157,3 +157,6 @@ Milestone release validation and generated Git-history notes are documented in
 [`docs/RELEASING.md`](docs/RELEASING.md).
 `./scripts/package-release.sh <version>` creates a validated local archive, notes, checksums, and
 manifest under ignored `dist/`; it never tags, pushes, uploads, or invokes CI.
+Before opening or reviewing a pull request, generate a deterministic risk review with
+`php scripts/review-change.php --base=<base-ref> --output=.agent-readiness/pr-review.md`. It reports
+file-specific missing test, contract, dependency, security, and frontend evidence for human review.
