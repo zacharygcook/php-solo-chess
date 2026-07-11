@@ -29,3 +29,5 @@
 - Added a dependency-free unit harness and initial `GameService` characterization tests before any
   further chess-rules expansion. The separate `./scripts/test.sh` command keeps fast logic tests
   distinct from the HTTP smoke check.
+- Expanded `.gitignore` around the actual PHP/JavaScript workflow: local secrets, runtime state,
+  dependencies, generated reports, coverage/build output, caches, editors, and OS metadata.

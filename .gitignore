@@ -1,2 +1,31 @@
-backend/storage/sessions/
-.ralph/logs/
+# Runtime data and logs
+/backend/storage/sessions/
+/.ralph/logs/
+*.log
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Dependency and generated output directories
+/vendor/
+/node_modules/
+/build/
+/dist/
+/coverage/
+/.agent-readiness/
+/.phpunit.cache/
+
+# Tool caches and temporary files
+/.cache/
+*.tmp
+*.swp
+*~
+
+# Editors and operating systems
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
