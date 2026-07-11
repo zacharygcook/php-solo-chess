@@ -50,3 +50,5 @@
   `core.hooksPath=.githooks`, so scoped commits now prove the canonical check passes.
 - The canonical check now validates the agent-guide contract: referenced docs must be non-empty,
   instructed commands must be executable and shell-valid, and key AGENTS.md references cannot drift.
+- Added local runbooks for server/port failures, same-origin asset/API problems, session recovery,
+  validation and flakiness failures, missing hooks, and security/privacy response.

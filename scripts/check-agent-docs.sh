@@ -9,6 +9,7 @@ required_files=(
   README.md
   RALPH_DOGFOOD_SCORECARD.md
   docs/ARCHITECTURE.md
+  docs/RUNBOOKS.md
   .ralph/sprints/0-environment-and-baseline/SCRATCHPAD.md
 )
 
@@ -37,6 +38,7 @@ required_agent_references=(
   'README.md'
   'RALPH_DOGFOOD_SCORECARD.md'
   'docs/ARCHITECTURE.md'
+  'docs/RUNBOOKS.md'
   './scripts/check.sh'
   './scripts/install-hooks.sh'
   'SCRATCHPAD.md'
