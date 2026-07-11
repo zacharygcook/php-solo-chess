@@ -12,6 +12,9 @@ required_files=(
   docs/RUNBOOKS.md
   .ralph/sprints/0-environment-and-baseline/SCRATCHPAD.md
   .github/CODEOWNERS
+  .github/ISSUE_TEMPLATE/bug_report.md
+  .github/ISSUE_TEMPLATE/feature_request.md
+  .github/ISSUE_TEMPLATE/config.yml
 )
 
 required_commands=(

@@ -54,3 +54,5 @@
   validation and flakiness failures, missing hooks, and security/privacy response.
 - Added CODEOWNERS with a root fallback and explicit product, test, validation, documentation, and
   Ralph path ownership; the agent-documentation contract verifies the fallback remains valid.
+- Added structured bug and feature issue templates for reproduction, chess-rule expectations,
+  acceptance criteria, regression coverage, MVP alignment, and the no-cost/no-CI constraint.
