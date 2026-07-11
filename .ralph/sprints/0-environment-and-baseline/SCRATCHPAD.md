@@ -68,3 +68,5 @@
 - Added a 30-day direct-dependency adoption policy with recorded upstream publication/eligibility
   times and local enforcement for Composer tools and the jQuery CDN pin. Security exceptions require
   explicit advisory and risk documentation.
+- Documented the zero-secret baseline and future environment-variable workflow, added a safe empty
+  `.env.example`, and enforced a local scan for private keys and common token formats.

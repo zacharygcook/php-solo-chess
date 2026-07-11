@@ -23,6 +23,8 @@ required_files=(
   phpstan.neon
   DEPENDENCY_POLICY.md
   config/dependency-policy.json
+  SECURITY.md
+  .env.example
 )
 
 required_commands=(
@@ -30,6 +32,7 @@ required_commands=(
   scripts/test.sh
   scripts/install-hooks.sh
   scripts/format.sh
+  scripts/check-secrets.sh
 )
 
 for relative_path in "${required_files[@]}"; do
