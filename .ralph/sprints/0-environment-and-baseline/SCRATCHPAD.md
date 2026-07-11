@@ -96,3 +96,5 @@
 - Significant-line duplicate analysis measured 360 of 1,091 backend/JavaScript lines (33%) across
   83 repeated six-line windows, concentrated in `GameService`. Added an exact non-regression budget
   and hotspot output; the ceiling must decrease with extraction, never increase.
+- Made architecture boundaries executable: API may depend on Controllers/Http, Controllers on
+  Http/Services, Services only on Services, and Http only on Http. New inward layer violations block.

@@ -1,0 +1,8 @@
+{
+  "layers": {
+    "Api": ["Controllers", "Http"],
+    "Controllers": ["Http", "Services"],
+    "Services": ["Services"],
+    "Http": ["Http"]
+  }
+}

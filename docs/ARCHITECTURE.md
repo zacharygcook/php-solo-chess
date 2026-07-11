@@ -45,6 +45,11 @@ preserves this layout; serving only `frontend/` breaks the API paths.
 - `backend/src/Http/JsonResponse.php` owns status codes, JSON content type, serialization, and
   response termination.
 
+`config/architecture-layers.json` makes these boundaries executable. API entry points may depend on
+controllers and HTTP response code; controllers may coordinate HTTP and services; services may only
+depend on services; HTTP code may only depend on HTTP code. `scripts/check-architecture.php` rejects
+new inward dependency violations.
+
 ## State lifecycle
 
 The first session request creates the standard board and stores it under `solo_chess_state`. Later

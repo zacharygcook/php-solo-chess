@@ -30,6 +30,8 @@ required_files=(
   DEPENDENCY_POLICY.md
   config/dependency-policy.json
   config/quality-budgets.json
+  config/architecture-layers.json
+  scripts/check-architecture.php
   scripts/check-duplication.php
   SECURITY.md
   .env.example
