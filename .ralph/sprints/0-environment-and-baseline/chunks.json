@@ -1,0 +1,48 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Prove the existing local runtime",
+      "passes": true,
+      "acceptance_criteria": [
+        "All PHP files parse under the installed PHP runtime",
+        "The frontend and session API load from one local server",
+        "A stateful e2-to-e4 move succeeds through the API"
+      ],
+      "artifacts": [
+        "backend/",
+        "frontend/"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Create repeatable development and QA commands",
+      "passes": true,
+      "acceptance_criteria": [
+        "One command starts the local application",
+        "One command performs syntax and stateful API baseline checks",
+        "Temporary server and cookie state is cleaned after validation"
+      ],
+      "artifacts": [
+        "scripts/dev.sh",
+        "scripts/check.sh"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Document and initialize the dogfood workflow",
+      "passes": true,
+      "acceptance_criteria": [
+        "The README explains local startup and manual QA",
+        "The root scorecard exposes Ralph outcomes and friction",
+        "The Ralph runtime is installed disarmed and validates successfully"
+      ],
+      "artifacts": [
+        "README.md",
+        "AGENTS.md",
+        "RALPH_DOGFOOD_SCORECARD.md",
+        ".ralph/"
+      ]
+    }
+  ]
+}
