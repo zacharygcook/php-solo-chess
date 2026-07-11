@@ -20,6 +20,16 @@ composer install
 
 Runtime code still has no Composer or npm dependency.
 
+For an isolated free local environment, open the repository in a Dev Container or build it directly:
+
+```bash
+docker build -f .devcontainer/Dockerfile -t php-solo-chess-devcontainer .
+```
+
+The image pins PHP 8.4.19 and Composer 2.9.5 by digest and includes Node, curl, jq, and Git. The
+devcontainer installs locked development tools and local Git hooks after creation. It does not use a
+hosted codespace, CI runner, paid service, or external account.
+
 Install the repository's local Git hooks once per clone:
 
 ```bash

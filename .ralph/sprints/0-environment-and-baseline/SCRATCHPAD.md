@@ -84,3 +84,6 @@
   every candidate remains gated by the 30-day policy and full local validation.
 - Added an enforced naming contract for PHP classes/functions/constants, namespace-to-path mapping,
   API/test/shell filenames, and documented frontend/CSS/JSON conventions.
+- Added a local devcontainer pinned to PHP 8.4.19 and Composer 2.9.5 image digests, with Node, curl,
+  jq, Git, locked Composer install, hook setup, and port 8080 forwarding. Docker is available locally,
+  so the image and canonical check will be exercised rather than assuming config validity.

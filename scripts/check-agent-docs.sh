@@ -30,6 +30,9 @@ required_files=(
   config/dependency-policy.json
   SECURITY.md
   .env.example
+  .devcontainer/Dockerfile
+  .devcontainer/devcontainer.json
+  .dockerignore
 )
 
 required_commands=(

@@ -1,0 +1,8 @@
+.git
+.agent-readiness
+.cache
+.php-cs-fixer.cache
+.ralph/logs
+backend/storage/sessions
+node_modules
+vendor
