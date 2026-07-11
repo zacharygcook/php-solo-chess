@@ -27,58 +27,61 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/20] Validating agent documentation"
+echo "[1/21] Validating agent documentation"
 "$ROOT/scripts/check-agent-docs.sh"
 
-echo "[2/20] Rejecting oversized repository files"
+echo "[2/21] Rejecting oversized repository files"
 "$ROOT/scripts/check-large-files.sh"
 
-echo "[3/20] Checking technical-debt tracking"
+echo "[3/21] Checking technical-debt tracking"
 "$ROOT/scripts/check-tech-debt.sh"
 
-echo "[4/20] Scanning for committed secrets"
+echo "[4/21] Scanning for committed secrets"
 "$ROOT/scripts/check-secrets.sh"
 
-echo "[5/20] Checking dependency policy"
+echo "[5/21] Checking dependency policy"
 php "$ROOT/scripts/check-dependencies.php"
 
-echo "[6/20] Measuring dependency weight"
+echo "[6/21] Measuring dependency weight"
 "$ROOT/scripts/check-dependency-weight.sh"
 
-echo "[7/20] Generating local security review"
+echo "[7/21] Detecting unused direct dependencies"
+php "$ROOT/scripts/check-unused-dependencies.php"
+
+echo "[8/21] Generating local security review"
 "$ROOT/scripts/security-review.sh" "$TEMP_DIR/security-review.md"
 
-echo "[8/20] Validating generated API documentation"
+echo "[9/21] Validating generated API documentation"
 php "$ROOT/scripts/generate-api-docs.php" --check
 
-echo "[9/20] Generating release notes from Git history"
+echo "[10/21] Generating release notes from Git history"
 php "$ROOT/scripts/generate-release-notes.php" --to=HEAD --output="$TEMP_DIR/release-notes.md"
 
-echo "[10/20] Linting PHP and JavaScript source"
+echo "[11/21] Linting PHP and JavaScript source"
 "$ROOT/scripts/lint.sh"
 
-echo "[11/20] Enforcing source naming conventions"
+echo "[12/21] Enforcing source naming conventions"
 php "$ROOT/scripts/check-naming.php"
 
-echo "[12/20] Enforcing architecture layer boundaries"
+echo "[13/21] Enforcing architecture layer boundaries"
 php "$ROOT/scripts/check-architecture.php"
 
-echo "[13/20] Enforcing cyclomatic-complexity budget"
+echo "[14/21] Enforcing cyclomatic-complexity budget"
 "$ROOT/scripts/check-complexity.sh"
 
-echo "[14/20] Enforcing duplicate-code budget"
+echo "[15/21] Enforcing duplicate-code budget"
 php "$ROOT/scripts/check-duplication.php" --check
 
-echo "[15/20] Checking deterministic formatting"
+echo "[16/21] Checking deterministic formatting"
 "$ROOT/scripts/format.sh" --check
 
-echo "[16/20] Type-checking PHP"
+echo "[17/21] Type-checking PHP"
 composer --working-dir="$ROOT" typecheck
 
-echo "[17/20] Running rules-engine unit tests"
+echo "[18/21] Running rules-engine unit tests"
 "$ROOT/scripts/test.sh"
 
-echo "[18/20] Starting isolated server"
+echo "[19/21] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -99,13 +102,13 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[19/20] Loading both frontend URL forms and browser assets"
+echo "[20/21] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
 
-echo "[20/20] Playing e2 to e4 through the API"
+echo "[21/21] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null

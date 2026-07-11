@@ -103,3 +103,5 @@
 - Isolated readiness work exposed that `check-large-files.sh` rejected linked Git worktrees because
   it assumed `.git` was a directory. Switched repository validation to `git rev-parse --git-dir` and
   recorded the workflow friction in the root scorecard.
+- Added exact source-integration mappings for all direct Composer tools and jQuery. The local check
+  rejects unregistered direct dependencies or tools/assets whose required usage evidence disappears.

@@ -55,6 +55,8 @@ JavaScript. The current 33% duplicated-line ceiling exposes heavy legacy repetit
 increase; lower it alongside test-backed extraction.
 `./scripts/check-dependency-weight.sh` attributes transitive Composer package counts to each direct
 tool and measures the downloaded jQuery bytes against explicit budgets.
+`config/dependency-usage.json` maps every direct tool and runtime dependency to executable source
+evidence; the canonical check rejects unregistered or disconnected dependencies.
 
 Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.

@@ -32,7 +32,9 @@ required_files=(
   config/quality-budgets.json
   config/architecture-layers.json
   config/dependency-weight.json
+  config/dependency-usage.json
   scripts/check-dependency-weight.php
+  scripts/check-unused-dependencies.php
   scripts/check-architecture.php
   scripts/check-duplication.php
   SECURITY.md
