@@ -79,3 +79,6 @@
 - Added deterministic Git-history release notes grouped into fixes, improvements, documentation/
   workflow, and other changes. The documented cadence is after every completed Ralph sprint and
   before any manual milestone tag; generation never publishes or mutates external state.
+- Added a local dependency-update scout for direct Composer tools and the official jQuery release
+  feed. It generates proposals for monthly/milestone review but never edits manifests or opens PRs;
+  every candidate remains gated by the 30-day policy and full local validation.

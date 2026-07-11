@@ -38,6 +38,8 @@ backend and unit tests at enforced level 5, and uses no hosted service.
 
 Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.
+Run `./scripts/dependency-updates.sh` monthly during active work for a local proposal report covering
+Composer tools and the jQuery CDN pin; it never edits dependencies or opens automated PRs.
 The application currently needs no secrets; [`SECURITY.md`](SECURITY.md) documents local handling,
 reporting, and response, while `.env.example` is the safe inventory of required variable names.
 Generate a readable local assessment with `./scripts/security-review.sh`; reports stay ignored under

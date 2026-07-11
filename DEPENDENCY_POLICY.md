@@ -18,6 +18,10 @@ run `composer audit` before committing. Convenience and readiness score are not 
 Transitive Composer packages are controlled by `composer.lock` and may change only during an
 intentional direct-tool update. Review the complete lock diff and security audit during that update.
 
+Run `./scripts/dependency-updates.sh` at least monthly during active development and before a
+milestone release. It generates proposals under ignored `.agent-readiness/` notes; it never changes
+versions automatically. Every proposal remains subject to the minimum-age and validation rules.
+
 ## Approved direct dependencies
 
 - PHP CS Fixer 3.94.2: development-only deterministic PHP formatting; released 2026-02-20.

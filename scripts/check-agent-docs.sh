@@ -38,6 +38,7 @@ required_commands=(
   scripts/format.sh
   scripts/check-secrets.sh
   scripts/security-review.sh
+  scripts/dependency-updates.sh
 )
 
 for relative_path in "${required_files[@]}"; do
