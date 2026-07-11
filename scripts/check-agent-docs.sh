@@ -15,6 +15,7 @@ required_files=(
   .github/ISSUE_TEMPLATE/bug_report.md
   .github/ISSUE_TEMPLATE/feature_request.md
   .github/ISSUE_TEMPLATE/config.yml
+  .github/pull_request_template.md
 )
 
 required_commands=(
