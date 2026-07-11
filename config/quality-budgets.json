@@ -1,5 +1,5 @@
 {
   "duplicate_window_lines": 6,
-  "maximum_duplicated_line_percentage": 33.0,
-  "minimum_line_coverage_percentage": 21.0
+  "maximum_duplicated_line_percentage": 10.0,
+  "minimum_line_coverage_percentage": 75.0
 }

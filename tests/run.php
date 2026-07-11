@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/TestHarness.php';
-require_once dirname(__DIR__) . '/backend/src/Observability/RequestLogger.php';
-require_once dirname(__DIR__) . '/backend/src/Services/SessionStore.php';
-require_once dirname(__DIR__) . '/backend/src/Services/GameService.php';
+require_once dirname(__DIR__) . '/backend/src/bootstrap.php';
 
 $tests = new TestHarness();
 

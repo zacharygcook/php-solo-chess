@@ -12,4 +12,10 @@ fi
 php -d error_reporting=24575 "$ROOT/vendor/bin/phpmd" \
   "$ROOT/backend/src" text "$ROOT/phpmd.xml"
 
-echo "Cyclomatic-complexity budget passed (maximum allowed method complexity: 60)."
+REPORT_LEVEL=$(sed -n 's/.*name="reportLevel" value="\([0-9][0-9]*\)".*/\1/p' "$ROOT/phpmd.xml")
+if [[ -z "$REPORT_LEVEL" ]]; then
+  echo "Unable to read reportLevel from phpmd.xml" >&2
+  exit 14
+fi
+
+echo "Cyclomatic-complexity budget passed (maximum allowed method complexity: $((REPORT_LEVEL - 1)))."

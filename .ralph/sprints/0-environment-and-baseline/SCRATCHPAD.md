@@ -118,3 +118,5 @@
   checks for missing tests, API contracts, dependency policy, security probes, and frontend evidence.
 - Added allowlist-only JSON request completion logs and response request IDs. DAST proves correlation
   fields exist and a sentinel in authorization/body data never reaches the local server log.
+- Merging the rules-engine decomposition raised backend coverage from 23.02% to 76.95%; tightened the
+  blocking coverage ratchet to 75% instead of retaining the obsolete 21% readiness baseline.

@@ -33,6 +33,7 @@ product work itself ultimately succeeds.
 | 2026-07-11 | Readiness | Medium | The large-file validator rejected a valid linked Git worktree because it required `.git` to be a directory. | Project setup | Validate repository identity with `git rev-parse --git-dir`, which supports normal clones and linked worktrees. |
 | 2026-07-11 | Readiness | High | The root document-server layout exposed repository source and configuration paths over local HTTP. | Product setup | Added an allowlist router and blocking dynamic probes for sensitive paths and method/input abuse. |
 | 2026-07-11 | Readiness | Info | Coverage loads the backend bootstrap outside HTTP, where `http_response_code()` returns `false`. | Project setup | Start request telemetry only when a request method exists and retain a defensive status fallback. |
+| 2026-07-11 | Pre-Ralph readiness | High | `GameService` was 887 lines with class complexity 248, one method at 60, NPath above 11 million, and 33% measured duplication. The initial five rules tests could not safely support autonomous edits. | Project setup | Added behavior-first coverage, extracted six chess-domain boundaries, reduced `GameService` to 165 lines, capped methods at complexity 9, and reduced duplication below 7%. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.

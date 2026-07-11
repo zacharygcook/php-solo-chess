@@ -6,14 +6,17 @@ untracked annotations and IDs missing from this file.
 
 ## DEBT-004 — Reduce rules-engine complexity hotspots
 
-- Status: open
+- Status: resolved 2026-07-11
 - Area: chess rules architecture
-- Impact: `GameService` has overall cyclomatic complexity 248; `checkMoveLegality()` is 60 and the
-  largest NPath values exceed 11 million. Normalized duplicate analysis marks 33% of significant
-  backend/JavaScript lines as repeated. Small rule changes can affect distant branches.
-- Completion: add focused coverage around each extracted rule, move directional and piece-specific
-  decisions behind clear domain boundaries, lower `phpmd.xml` thresholds in the same commits, and
-  retain behavior through the full local suite.
+- Original impact: `GameService` had overall cyclomatic complexity 248; `checkMoveLegality()` was 60
+  and the largest NPath values exceeded 11 million. Normalized duplicate analysis marked 33% of
+  significant backend/JavaScript lines as repeated. Small rule changes affected distant branches.
+- Resolution: extracted typed coordinates and moves, piece movement, position attacks, castling
+  resolution, and initial-state creation behind focused service boundaries. `GameService` fell from
+  887 to 165 lines, the enforced per-method cyclomatic ceiling fell from 60 to 9, and measured
+  duplication fell below 7% under a new 10% ceiling. Public rules coverage grew from 5 to 18 isolated
+  tests and now protects every extracted movement family, blocking, captures, check reporting,
+  self-check, check escape, and the supported castling paths.
 
 ## DEBT-001 — Replace incomplete castling logic
 
