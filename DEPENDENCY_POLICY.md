@@ -29,3 +29,5 @@ versions automatically. Every proposal remains subject to the minimum-age and va
 - PHPMD 2.15.0: development-only complexity and maintainability analysis; released 2023-12-11.
 - jQuery 3.7.1: pinned browser runtime dependency inherited by the existing frontend; released
   2023-08-28. Removing this network dependency remains preferable to expanding it.
+- Xdebug 3.5.3: devcontainer-only line coverage engine; released 2026-06-08 and disabled except for
+  explicit coverage runs.

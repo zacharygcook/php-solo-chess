@@ -105,3 +105,5 @@
   recorded the workflow friction in the root scorecard.
 - Added exact source-integration mappings for all direct Composer tools and jQuery. The local check
   rejects unregistered direct dependencies or tools/assets whose required usage evidence disappears.
+- Xdebug measured 112 of 532 executable backend lines (21.05%) and `GameService` at 20.42%. Added a
+  21.00% blocking ratchet with per-file evidence and pinned Xdebug 3.5.3 in the devcontainer.

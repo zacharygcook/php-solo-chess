@@ -22,6 +22,7 @@
         "format": "./scripts/format.sh --write",
         "format:check": "./scripts/format.sh --check",
         "duplicate:check": "php scripts/check-duplication.php --check",
+        "coverage:check": "XDEBUG_MODE=coverage php tests/coverage.php --check",
         "mess:check": "./scripts/check-complexity.sh",
         "typecheck": "phpstan analyse --configuration=phpstan.neon"
     }

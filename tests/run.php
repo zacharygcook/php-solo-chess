@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/TestHarness.php';
-require dirname(__DIR__) . '/backend/src/Services/SessionStore.php';
-require dirname(__DIR__) . '/backend/src/Services/GameService.php';
+require_once __DIR__ . '/TestHarness.php';
+require_once dirname(__DIR__) . '/backend/src/Services/SessionStore.php';
+require_once dirname(__DIR__) . '/backend/src/Services/GameService.php';
 
 $tests = new TestHarness();
 
@@ -27,4 +27,9 @@ if ($tests->count() === 0) {
     exit(1);
 }
 
-exit($tests->run());
+$exitCode = $tests->run();
+if (defined('SOLO_CHESS_COVERAGE')) {
+    return $exitCode;
+}
+
+exit($exitCode);

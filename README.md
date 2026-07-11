@@ -93,6 +93,11 @@ The suite reports elapsed time and enforces a two-second local budget. Override 
 diagnostic run with `TEST_TIME_BUDGET_MS=500 ./scripts/test.sh`; do not raise the committed default
 without documenting why the test workload legitimately changed.
 
+Run `composer coverage:check` for Xdebug line coverage across all backend source. The current 21%
+minimum is an honest legacy ratchet, not a quality claim; raise it with each test-backed rules change
+and never lower it to clear a failure. The pinned devcontainer includes Xdebug with coverage disabled
+except during this explicit command.
+
 Test files live directly under `tests/`, must end in `Test.php`, and are discovered in sorted order.
 Test names should describe observable behavior, such as `player cannot move twice in succession`.
 The runner fails when the naming convention discovers no tests.

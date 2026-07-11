@@ -35,6 +35,7 @@ required_files=(
   config/dependency-usage.json
   scripts/check-dependency-weight.php
   scripts/check-unused-dependencies.php
+  tests/coverage.php
   scripts/check-architecture.php
   scripts/check-duplication.php
   SECURITY.md
