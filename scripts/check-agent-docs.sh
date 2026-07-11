@@ -31,6 +31,8 @@ required_files=(
   config/dependency-policy.json
   config/quality-budgets.json
   config/architecture-layers.json
+  config/dependency-weight.json
+  scripts/check-dependency-weight.php
   scripts/check-architecture.php
   scripts/check-duplication.php
   SECURITY.md
@@ -51,6 +53,7 @@ required_commands=(
   scripts/security-review.sh
   scripts/dependency-updates.sh
   scripts/check-complexity.sh
+  scripts/check-dependency-weight.sh
 )
 
 for relative_path in "${required_files[@]}"; do

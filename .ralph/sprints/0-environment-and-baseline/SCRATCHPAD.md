@@ -98,3 +98,5 @@
   and hotspot output; the ceiling must decrease with extraction, never increase.
 - Made architecture boundaries executable: API may depend on Controllers/Http, Controllers on
   Http/Services, Services only on Services, and Http only on Http. New inward layer violations block.
+- Added dependency-weight attribution and budgets: three direct Composer tools, 42 locked packages,
+  at most 40 packages in any direct tool's transitive closure, and a 100 KB jQuery runtime ceiling.

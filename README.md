@@ -53,6 +53,8 @@ never raise it merely to clear validation.
 `composer duplicate:check` measures normalized six-line windows across backend and frontend
 JavaScript. The current 33% duplicated-line ceiling exposes heavy legacy repetition and blocks any
 increase; lower it alongside test-backed extraction.
+`./scripts/check-dependency-weight.sh` attributes transitive Composer package counts to each direct
+tool and measures the downloaded jQuery bytes against explicit budgets.
 
 Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.

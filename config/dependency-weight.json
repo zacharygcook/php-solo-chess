@@ -1,0 +1,6 @@
+{
+  "maximum_direct_composer_packages": 3,
+  "maximum_locked_composer_packages": 42,
+  "maximum_transitive_packages_per_direct_dependency": 40,
+  "maximum_runtime_asset_bytes": 100000
+}
