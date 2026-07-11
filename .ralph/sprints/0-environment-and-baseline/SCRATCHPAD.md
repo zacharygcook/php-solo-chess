@@ -87,3 +87,6 @@
 - Added a local devcontainer pinned to PHP 8.4.19 and Composer 2.9.5 image digests, with Node, curl,
   jq, Git, locked Composer install, hook setup, and port 8080 forwarding. Docker is available locally,
   so the image and canonical check will be exercised rather than assuming config validity.
+- Added the repository-owned `$change-chess-rules` skill for characterization-first legality and
+  state changes, chess invariants, API-doc drift, local-only validation, Ralph handoff, and explicit
+  deferral. It has no bundled filler resources or external integration.

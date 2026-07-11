@@ -33,6 +33,8 @@ required_files=(
   .devcontainer/Dockerfile
   .devcontainer/devcontainer.json
   .dockerignore
+  .agents/skills/change-chess-rules/SKILL.md
+  .agents/skills/change-chess-rules/agents/openai.yaml
 )
 
 required_commands=(
@@ -73,6 +75,7 @@ required_agent_references=(
   './scripts/check.sh'
   './scripts/install-hooks.sh'
   'SCRATCHPAD.md'
+  '$change-chess-rules'
 )
 
 for reference in "${required_agent_references[@]}"; do

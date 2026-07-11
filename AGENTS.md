@@ -8,6 +8,7 @@ Use `docs/RUNBOOKS.md` for local startup, session, validation, and recovery proc
 Run `./scripts/check.sh` before and after relevant changes. Add focused rules-engine tests before
 expanding chess behavior. Do not treat a visually successful move as proof of chess correctness.
 Run `./scripts/install-hooks.sh` once per clone so the same check blocks invalid commits locally.
+Use the repository skill `$change-chess-rules` for chess legality or game-state changes.
 
 The runtime has no Composer or npm dependencies. Development tools are pinned in `composer.lock`;
 run `composer install` after cloning. Do not add a framework or dependency merely for convenience;

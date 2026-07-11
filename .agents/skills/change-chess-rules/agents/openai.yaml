@@ -1,0 +1,4 @@
+interface:
+  display_name: "Change Chess Rules Safely"
+  short_description: "Test-first Solo Chess rules workflow"
+  default_prompt: "Use $change-chess-rules to implement a chess-rule change safely with focused tests and local validation."
