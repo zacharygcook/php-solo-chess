@@ -82,3 +82,5 @@
 - Added a local dependency-update scout for direct Composer tools and the official jQuery release
   feed. It generates proposals for monthly/milestone review but never edits manifests or opens PRs;
   every candidate remains gated by the 30-day policy and full local validation.
+- Added an enforced naming contract for PHP classes/functions/constants, namespace-to-path mapping,
+  API/test/shell filenames, and documented frontend/CSS/JSON conventions.
