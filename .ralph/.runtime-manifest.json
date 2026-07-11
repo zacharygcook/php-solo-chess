@@ -1,6 +1,6 @@
 {
   "managed_files": {
-    "VERSION": "a7711142bc1fc55c16b9147a1503a4f2c4717be5c1e4437772a047f52ef81db2",
+    "VERSION": "ac3bf208eb88be6542e3fc750b511b112cf25bc40e46dca2a50819e43cf59096",
     "format-codex-stream.py": "972a610b4c15206cd5d7510fdbecea21f132edca4d08002ded69218567190964",
     "format-stream.py": "fce8466b6143fb7909976234d7d1aa7ad719991fa432d47109cb726a5b2d1b88",
     "hooks/document.sh": "1e0f8303557471b10a35e9dfc9f402f941bb76c99decf0dfe53d9c8a6f7b1321",
@@ -17,8 +17,8 @@
     "status.sh": "99ee30470a2459b2fdfd28814b6419331b0770a50833a7aaff3f20fbe3052f3f"
   },
   "mode": "monorepo",
-  "previous_runtime_version": "0.5.3",
+  "previous_runtime_version": "0.5.4",
   "repositories": [],
-  "runtime_version": "0.5.4",
+  "runtime_version": "0.5.5",
   "schema_version": "1.0"
 }
