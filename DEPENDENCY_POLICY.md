@@ -26,5 +26,6 @@ versions automatically. Every proposal remains subject to the minimum-age and va
 
 - PHP CS Fixer 3.94.2: development-only deterministic PHP formatting; released 2026-02-20.
 - PHPStan 2.2.2: development-only static type analysis; released 2026-06-05.
+- PHPMD 2.15.0: development-only complexity and maintainability analysis; released 2023-12-11.
 - jQuery 3.7.1: pinned browser runtime dependency inherited by the existing frontend; released
   2023-08-28. Removing this network dependency remains preferable to expanding it.

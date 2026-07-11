@@ -90,3 +90,6 @@
 - Added the repository-owned `$change-chess-rules` skill for characterization-first legality and
   state changes, chess invariants, API-doc drift, local-only validation, Ralph handoff, and explicit
   deferral. It has no bundled filler resources or external integration.
+- PHPMD measured `GameService` overall cyclomatic complexity at 248 and the worst method at 60.
+  Added an explicit method ceiling of 60 (report level 61), a debt item for test-backed extraction,
+  and a local non-regression gate. The high legacy baseline remains visible and must only decrease.

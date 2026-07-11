@@ -26,6 +26,7 @@ required_files=(
   composer.json
   composer.lock
   phpstan.neon
+  phpmd.xml
   DEPENDENCY_POLICY.md
   config/dependency-policy.json
   SECURITY.md
@@ -45,6 +46,7 @@ required_commands=(
   scripts/check-secrets.sh
   scripts/security-review.sh
   scripts/dependency-updates.sh
+  scripts/check-complexity.sh
 )
 
 for relative_path in "${required_files[@]}"; do

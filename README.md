@@ -47,6 +47,9 @@ Run static type analysis with `composer typecheck`. PHPStan is pinned, free, loc
 backend and unit tests at enforced level 5, and uses no hosted service.
 Source and file naming rules are documented in [`docs/NAMING.md`](docs/NAMING.md) and enforced by the
 canonical check.
+PHPMD enforces the legacy rules engine's current cyclomatic non-regression ceiling through
+`composer mess:check`. The method limit is 60; tighten it after safe, test-backed extraction and
+never raise it merely to clear validation.
 
 Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.

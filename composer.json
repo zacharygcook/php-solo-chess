@@ -8,6 +8,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "3.94.2",
+        "phpmd/phpmd": "2.15.0",
         "phpstan/phpstan": "2.2.2"
     },
     "config": {
@@ -20,6 +21,7 @@
     "scripts": {
         "format": "./scripts/format.sh --write",
         "format:check": "./scripts/format.sh --check",
+        "mess:check": "./scripts/check-complexity.sh",
         "typecheck": "phpstan analyse --configuration=phpstan.neon"
     }
 }

@@ -4,6 +4,16 @@ This ledger keeps shortcuts and unfinished behavior visible to humans and agents
 must use `TODO(DEBT-NNN):`, `FIXME(DEBT-NNN):`, or `HACK(DEBT-NNN):`; `./scripts/check.sh` rejects
 untracked annotations and IDs missing from this file.
 
+## DEBT-004 — Reduce rules-engine complexity hotspots
+
+- Status: open
+- Area: chess rules architecture
+- Impact: `GameService` has overall cyclomatic complexity 248; `checkMoveLegality()` is 60 and the
+  largest NPath values exceed 11 million. Small rule changes can affect distant branches.
+- Completion: add focused coverage around each extracted rule, move directional and piece-specific
+  decisions behind clear domain boundaries, lower `phpmd.xml` thresholds in the same commits, and
+  retain behavior through the full local suite.
+
 ## DEBT-001 — Replace incomplete castling logic
 
 - Status: open
