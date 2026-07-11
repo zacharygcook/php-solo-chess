@@ -46,6 +46,15 @@ The runner fails when the naming convention discovers no tests.
 Every test must create its own game state rather than relying on a prior test. The harness randomizes
 execution order and prints the seed; replay a failure with `TEST_SEED=12345 ./scripts/test.sh`.
 
+Probe for flaky or order-dependent tests across 20 deterministic seeds:
+
+```bash
+./scripts/test-flakiness.sh
+```
+
+Use `FLAKY_TEST_RUNS` and `FLAKY_TEST_FIRST_SEED` to widen or resume a probe. The command stops at
+the first failure and prints its exact replay seed.
+
 Run the repeatable baseline check before and after changes:
 
 ```bash
