@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "ralph-workflows": {
+      "source": "zacharygcook/zach-ralph-method",
+      "sourceType": "github",
+      "skillPath": "skill/SKILL.md",
+      "computedHash": "195811ed3ef089f889e758a46295367b120ce6d0b880e750de731dba0060e234"
+    }
+  }
+}

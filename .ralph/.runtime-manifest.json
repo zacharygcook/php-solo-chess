@@ -1,24 +1,24 @@
 {
   "managed_files": {
-    "VERSION": "40b8eb4000a913a7791090535f291d3d369874162a89ef3c9e3d4e887a1b9e79",
+    "VERSION": "27ecff1fcdaf65ab46c1bb99c1072d6d134a0e8dd97dd95cfa88696b9ed453b2",
     "format-codex-stream.py": "972a610b4c15206cd5d7510fdbecea21f132edca4d08002ded69218567190964",
     "format-stream.py": "fce8466b6143fb7909976234d7d1aa7ad719991fa432d47109cb726a5b2d1b88",
     "hooks/document.sh": "1e0f8303557471b10a35e9dfc9f402f941bb76c99decf0dfe53d9c8a6f7b1321",
-    "hooks/post-sprint.sh": "7a670a3120860e9afc26f3345797088295994d3c6e481522ba2f1bf5569dbab3",
+    "hooks/post-sprint.sh": "1c8750e664bb3b8157c2b78f9dad1d0c8a0e170e6b8120825972617f5d9d3151",
     "hooks/review.sh": "9d2a9efc38e4bff96f0255ffe2c6a6ef339619b8871ce460916a427e57d1ff52",
-    "hooks/test.sh": "aa5a78a68511839cab629078d3151ea2c4d492bd6cda19c702534480728048d1",
+    "hooks/test.sh": "33e942d2082e0f7a82ffb7ac0da15f7d29dd3cc66be488cc9e2f007e7adb6b89",
     "lib/ralph-common.sh": "fbe0b0f88adf53ed43ad1b0a9190c28c8401959a95e42ea050a1500d813e7c39",
-    "loop.sh": "c5b151d479bf224261d75d067941dfce91c550ef514bbb13af3315bbac3638c1",
+    "loop.sh": "368168c7512faf4292928901cb335a32bcf8356c983c3b20e3ce6c20c5c400cd",
     "pretty-process-snapshots.py": "b7fb28f52c1afd9db0b082dabc0c1fbba7e8e494c5e2c220816b7d01a01e5ef1",
-    "prompt.md.template": "07352279fa42fc0798b25a9b7d81bbafd64dddbca53bc68ce1ec68cb5f6f3020",
+    "prompt.md.template": "48a6347abd4527ed4118b4b3665a8cfd5621f5bdda11df73f31d3829f6b57f71",
     "prompts/document.md": "14876d41466bec36a5853f9243352fdc976fe902fe330b0c684395464083bc1a",
     "prompts/review.md": "7871253b5f11b52539b767a4c1c7a36ce7eee7bb3b85d3cf91c10b5b830a12b8",
-    "prompts/test.md": "ed90c9de931a06d5580f984aba1737f51ba2a5e2664452c83ebd83451d58ff21",
-    "status.sh": "8d1c7331ba4fee3f25a6b105dcc1a097af3300f369217351b7ccbbe07085b409"
+    "prompts/test.md": "faf652af51b623b5e6085a50ee58621932a8cebb3b3d6d874d7725faa50e3bda",
+    "status.sh": "99ee30470a2459b2fdfd28814b6419331b0770a50833a7aaff3f20fbe3052f3f"
   },
   "mode": "monorepo",
-  "previous_runtime_version": null,
+  "previous_runtime_version": "0.5.2",
   "repositories": [],
-  "runtime_version": "0.4.0",
+  "runtime_version": "0.5.3",
   "schema_version": "1.0"
 }
