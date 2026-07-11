@@ -6,6 +6,7 @@ Use `docs/ARCHITECTURE.md` for request flow, state ownership, and component boun
 
 Run `./scripts/check.sh` before and after relevant changes. Add focused rules-engine tests before
 expanding chess behavior. Do not treat a visually successful move as proof of chess correctness.
+Run `./scripts/install-hooks.sh` once per clone so the same check blocks invalid commits locally.
 
 The app currently has no Composer or npm dependencies. Do not add a framework or build system merely
 for convenience; explain the concrete payoff before introducing dependencies.

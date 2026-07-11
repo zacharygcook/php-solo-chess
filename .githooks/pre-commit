@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+echo "Running PHP Solo Chess pre-commit validation..."
+exec "$ROOT/scripts/check.sh"

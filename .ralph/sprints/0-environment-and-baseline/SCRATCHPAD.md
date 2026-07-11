@@ -46,3 +46,5 @@
   constructs fresh session state, so hidden order dependencies become observable.
 - Added a bounded flakiness probe that runs consecutive deterministic seeds, fails fast, and prints
   the exact replay command. It defaults to 20 runs and remains separate from the fast handoff check.
+- Added a committed pre-commit hook and idempotent local installer. This clone uses
+  `core.hooksPath=.githooks`, so scoped commits now prove the canonical check passes.

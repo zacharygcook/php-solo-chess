@@ -13,6 +13,15 @@ Requirements:
 
 No Composer or npm install is currently required.
 
+Install the repository's local Git hooks once per clone:
+
+```bash
+./scripts/install-hooks.sh
+```
+
+The pre-commit hook runs `./scripts/check.sh`. It is intentionally local; this project does not use
+CI or GitHub Actions.
+
 ```bash
 ./scripts/dev.sh
 ```
