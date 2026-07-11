@@ -110,3 +110,5 @@
 - Dynamic probes exposed that using the repository root as PHP's document root also served source,
   lock, and config files. Added an allowlist router plus method-abuse, malformed-JSON, sensitive-path,
   and content-type probes; direct root serving without the router is now explicitly prohibited.
+- Added a generated code-quality snapshot so coverage, duplication, and complexity measurements are
+  available together instead of only appearing as separate pass/fail checks.

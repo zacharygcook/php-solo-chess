@@ -66,6 +66,8 @@ The application currently needs no secrets; [`SECURITY.md`](SECURITY.md) documen
 reporting, and response, while `.env.example` is the safe inventory of required variable names.
 Generate a readable local assessment with `./scripts/security-review.sh`; reports stay ignored under
 `.agent-readiness/`, and the canonical check validates a temporary report on every run.
+Generate a combined coverage, duplication, and complexity snapshot with
+`./scripts/generate-quality-report.sh`; the canonical check validates a temporary snapshot too.
 
 ```bash
 ./scripts/dev.sh

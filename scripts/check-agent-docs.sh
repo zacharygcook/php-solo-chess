@@ -55,6 +55,7 @@ required_commands=(
   scripts/format.sh
   scripts/check-secrets.sh
   scripts/security-review.sh
+  scripts/generate-quality-report.sh
   scripts/dast.sh
   scripts/dependency-updates.sh
   scripts/check-complexity.sh
