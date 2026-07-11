@@ -40,6 +40,8 @@ Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.
 The application currently needs no secrets; [`SECURITY.md`](SECURITY.md) documents local handling,
 reporting, and response, while `.env.example` is the safe inventory of required variable names.
+Generate a readable local assessment with `./scripts/security-review.sh`; reports stay ignored under
+`.agent-readiness/`, and the canonical check validates a temporary report on every run.
 
 ```bash
 ./scripts/dev.sh

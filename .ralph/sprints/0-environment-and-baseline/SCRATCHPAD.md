@@ -70,3 +70,6 @@
   explicit advisory and risk documentation.
 - Documented the zero-secret baseline and future environment-variable workflow, added a safe empty
   `.env.example`, and enforced a local scan for private keys and common token formats.
+- Added a readable local security assessment covering locked-package advisories, abandoned packages,
+  secret scanning, API method guards, JSON responses, cookie hardening, and CDN integrity. HIGH
+  findings block; lower findings remain explicit rather than being score-washed.

@@ -11,7 +11,7 @@ if (!in_array($mode, ['--check', '--write'], true)) {
 $root = dirname(__DIR__);
 $extensions = ['css', 'html', 'js'];
 $iterator = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator($root . '/frontend', FilesystemIterator::SKIP_DOTS)
+    new RecursiveDirectoryIterator($root . '/frontend', FilesystemIterator::SKIP_DOTS),
 );
 $unformatted = [];
 

@@ -10,7 +10,7 @@ while IFS= read -r -d '' file; do
   if ! php -l "$file" >/dev/null; then
     failures=1
   fi
-done < <(find "$ROOT/backend" "$ROOT/tests" -name '*.php' -type f -print0)
+done < <(find "$ROOT/backend" "$ROOT/scripts" "$ROOT/tests" -name '*.php' -type f -print0)
 
 echo "Linting frontend JavaScript syntax"
 while IFS= read -r -d '' file; do

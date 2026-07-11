@@ -33,6 +33,7 @@ required_commands=(
   scripts/install-hooks.sh
   scripts/format.sh
   scripts/check-secrets.sh
+  scripts/security-review.sh
 )
 
 for relative_path in "${required_files[@]}"; do
