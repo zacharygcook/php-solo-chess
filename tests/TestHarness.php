@@ -23,7 +23,7 @@ final class TestHarness
             "%s\nExpected: %s\nActual:   %s",
             $detail,
             var_export($expected, true),
-            var_export($actual, true)
+            var_export($actual, true),
         ));
     }
 
@@ -66,13 +66,13 @@ final class TestHarness
             $count,
             $failures,
             $durationMs,
-            $budgetMs
+            $budgetMs,
         ));
 
         if (!$withinBudget) {
             fwrite(STDERR, sprintf(
                 "FAIL  test suite exceeded its %d ms performance budget\n",
-                $budgetMs
+                $budgetMs,
             ));
         }
 

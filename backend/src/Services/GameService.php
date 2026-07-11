@@ -6,9 +6,7 @@ namespace SoloChess\Services;
 
 final class GameService
 {
-    public function __construct(private SessionStore $store)
-    {
-    }
+    public function __construct(private SessionStore $store) {}
 
     /**
      * @return array<mixed>
@@ -50,7 +48,7 @@ final class GameService
         if ($state['kingInCheck'] === $state['activeColor']) {
             // Acting color that's submitting a move is in check, see if its a legal move
             $checkingPieces = [];
-            
+
             /*
             *  Because of the amazing possibility of double checks, this process will be a bit complicated
             *  We need to go out along every diagonal/rank/file from the king, until side of board or a piece is hit
@@ -58,7 +56,7 @@ final class GameService
             *    - If it hits a friendly piece, block that direction
             *    - Then check all possible knight moves from the king, see if any enemy knights are there
             *
-            *  NOTE: We might move all/most of this logic to the end of previous ply 
+            *  NOTE: We might move all/most of this logic to the end of previous ply
             *      -> since there might be same/similar calculations done to see if the move is checkmate
             */
             $ourKing = $state['activeColor'] === 'white' ? 'wk' : 'bk';
@@ -79,7 +77,7 @@ final class GameService
                 return $state;
             }
 
-            // Search for a checking knight 
+            // Search for a checking knight
             $knightCode = $state['activeColor'] === 'white' ? 'wn' : 'bn';
             $diffRowColToCheck = [
                 [-2, 1],
@@ -89,11 +87,11 @@ final class GameService
                 [1, 2],
                 [1, -2],
                 [2, 1],
-                [2, -1]
+                [2, -1],
             ];
             $potentialKnightSquares = []; # put intermediate values here
 
-            foreach($diffRowColToCheck as $offset) {
+            foreach ($diffRowColToCheck as $offset) {
                 $row = $ourKingPosition['row'] + $offset[0];
                 $col = $ourKingPosition['col'] + $offset[1];
                 if (($row < 0 || $row > 7) || ($col < 0 || $col > 7)) {
@@ -103,12 +101,12 @@ final class GameService
                 }
             }
 
-            foreach($potentialKnightSquares as $square) {
+            foreach ($potentialKnightSquares as $square) {
                 if ($state['board'][$square[0]][$square[1]] === $knightCode) {
                     $checkingPieces[] = [
                         'piece' => 'knight',
                         'pieceCode' => $knightCode,
-                        'boardLocation' => [$square[0], $square[1]]
+                        'boardLocation' => [$square[0], $square[1]],
                     ];
                     break;
                 }
@@ -125,12 +123,12 @@ final class GameService
                 [-1, -1],
                 [-1, 1],
                 [1, -1],
-                [1, 1]
+                [1, 1],
             ];
 
-            foreach($diagonalVectors as $vector) {
+            foreach ($diagonalVectors as $vector) {
                 $startingSquare = [$ourKingPosition['row'], $ourKingPosition['col']];
-                for ($i=1; $i < 9; $i++) {
+                for ($i = 1; $i < 9; $i++) {
                     $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
                     $squareToCheckCol = $startingSquare[1] + $vector[1] * $i;
                     if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
@@ -147,7 +145,7 @@ final class GameService
                                         $checkingPieces[] = [
                                             'piece' => 'pawn',
                                             'pieceCode' => $pieceCode,
-                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                         ];
                                         break 2;
                                     }
@@ -156,7 +154,7 @@ final class GameService
                                         $checkingPieces[] = [
                                             'piece' => 'pawn',
                                             'pieceCode' => $pieceCode,
-                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                            'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                         ];
                                     }
                                     break 2;
@@ -165,7 +163,7 @@ final class GameService
                                 $checkingPieces[] = [
                                     'piece' => 'bishop',
                                     'pieceCode' => $pieceCode,
-                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                 ];
                                 break 2;
                             } else {
@@ -173,7 +171,7 @@ final class GameService
                                 $checkingPieces[] = [
                                     'piece' => 'queen',
                                     'pieceCode' => $pieceCode,
-                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                 ];
                                 break 2;
                             }
@@ -199,12 +197,12 @@ final class GameService
                 [0, 1],
                 [0, -1],
                 [1, 0],
-                [-1, 0]
+                [-1, 0],
             ];
-            
-            foreach($rankFileVectors as $vector) {
+
+            foreach ($rankFileVectors as $vector) {
                 $startingSquare = [$ourKingPosition['row'], $ourKingPosition['col']];
-                for ($i=1; $i < 9; $i++) {
+                for ($i = 1; $i < 9; $i++) {
                     $squareToCheckRow = $startingSquare[0] + $vector[0] * $i;
                     $squareToCheckCol = $startingSquare[1] + $vector[0] * $i;
                     if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckRow > 7)) {
@@ -216,16 +214,16 @@ final class GameService
                                 $checkingPieces[] = [
                                     'piece' => 'rook',
                                     'pieceCode' => $pieceCode,
-                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                 ];
                                 break 2;
                             } else {
                                 $checkingPieces[] = [
                                     'piece' => 'queen',
                                     'pieceCode' => $pieceCode,
-                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol]
+                                    'boardLocation' => [$squareToCheckRow, $squareToCheckCol],
                                 ];
-                                break 2;   
+                                break 2;
                             }
                         } else {
                             # ran into a friendly piece, stop checking along this rank / file
@@ -237,9 +235,9 @@ final class GameService
 
             // Should have any checking pieces collected -> can move on to validate if their move successfully deals with the check
 
-            $state['lastMessage'] = "You're in check from a " . $checkingPieces[0]['piece'] . " and your king in our array is at row "
-                 . $ourKingPosition['row'] . " and column " . $ourKingPosition['col'];
-                
+            $state['lastMessage'] = "You're in check from a " . $checkingPieces[0]['piece'] . ' and your king in our array is at row '
+                 . $ourKingPosition['row'] . ' and column ' . $ourKingPosition['col'];
+
             return $state;
         }
 
@@ -250,9 +248,9 @@ final class GameService
         *  See how the board is setup from buildStartingBoard()
         */
         $fromCol = ord($from[0]) - ord('a');
-        $fromRow = 8 - (int)$from[1];
+        $fromRow = 8 - (int) $from[1];
         $toCol = ord($to[0]) - ord('a');
-        $toRow = 8 - (int)$to[1];
+        $toRow = 8 - (int) $to[1];
         $piece = $state['board'][$fromRow][$fromCol] ?? null;
 
         if (!$piece) {
@@ -277,7 +275,7 @@ final class GameService
             'toRow' => $toRow ?? null,
             'piece' => $piece ?? null,
             'promotion' => $payload['promotion'] ?? null,
-            'timestamp' => time()
+            'timestamp' => time(),
         ];
 
         $state = $this->applyMove($state, $move, $piece);
@@ -297,7 +295,7 @@ final class GameService
         $fromCol = $move['fromCol'];
         $fromRow = $move['fromRow'];
         $piece = $move['piece'];
-        
+
         // TODO(DEBT-001): Implement castling v2
         if (substr($piece, 1, 1) == 'k') {
             $castle = $this->castling($state, $move); # either returns information about the two squares to be updated, or false that its not castling
@@ -305,21 +303,21 @@ final class GameService
                 // Perform the castling move
                 $rookFrom = $castle['rookFormerPosition'];
                 $rookTo = $castle['rookNewPosition'];
-                
+
                 // Move the king
                 $state['board'][$toRow][$toCol] = $state['board'][$fromRow][$fromCol];
                 $state['board'][$fromRow][$fromCol] = null;
-                
+
                 // Move the rook
                 $state['board'][$rookTo[0]][$rookTo[1]] = $state['board'][$rookFrom[0]][$rookFrom[1]];
                 $state['board'][$rookFrom[0]][$rookFrom[1]] = null;
-                
+
                 $state['moveHistory'][] = $move;
                 $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
                 $state['lastMessage'] = 'Castling move successfully made.';
-                
+
                 $this->store->saveState($state);
-                
+
                 return $state;
             }
         }
@@ -354,7 +352,7 @@ final class GameService
         $state['activeColor'] = $state['activeColor'] === 'white' ? 'black' : 'white';
 
         $this->store->saveState($state);
-        
+
         return $state;
     }
 
@@ -374,22 +372,22 @@ final class GameService
         $fromCol = $move['fromCol'];
         $fromRow = $move['fromRow'];
         $piece = $move['piece'];
-        
+
         if ($state['activeColor'] === 'white' && $toRow === 7 && $toCol === 6) {
             // See if valid short castle attempt from white
             // See if rook in starting position
             if ($state['board'][7][7] !== 'wr') {
-                $state['lastMessage'] = "No white rook in starting position for castling.";
+                $state['lastMessage'] = 'No white rook in starting position for castling.';
                 $state['isValidMove'] = false;
                 return null;
             } elseif ($state['board'][7][5] !== null && $state['board'][7][6] !== null) {
-                $state['lastMessage'] = "Pieces in the way for castling.";
+                $state['lastMessage'] = 'Pieces in the way for castling.';
                 $state['isValidMove'] = false;
                 return null;
             } else {
                 return [
-                    "rookFormerPosition" => [7, 7],
-                    "rookNewPosition" => [7, 5]
+                    'rookFormerPosition' => [7, 7],
+                    'rookNewPosition' => [7, 5],
                 ];
             }
         } elseif ($state['activeColor'] === 'white' && $toRow === 7 && $toCol === 2) {
@@ -401,8 +399,8 @@ final class GameService
                 return null;
             } else {
                 return [
-                    "rookFormerPosition" => [7, 0],
-                    "rookNewPosition" => [7, 3]
+                    'rookFormerPosition' => [7, 0],
+                    'rookNewPosition' => [7, 3],
                 ];
             }
         }
@@ -410,17 +408,17 @@ final class GameService
         if ($state['activeColor'] === 'black' && $toRow === 0 && $toCol === 6) {
             // See if valid short castle attempt from black
             if ($state['board'][0][7] !== 'br') {
-                $state['lastMessage'] = "No black rook in starting position for castling.";
+                $state['lastMessage'] = 'No black rook in starting position for castling.';
                 $state['isValidMove'] = false;
                 return null;
             } elseif ($state['board'][0][5] !== null && $state['board'][0][6] !== null) {
-                $state['lastMessage'] = "Pieces in the way for castling.";  
+                $state['lastMessage'] = 'Pieces in the way for castling.';
                 $state['isValidMove'] = false;
                 return null;
             } else {
                 return [
-                    "rookFormerPosition" => [0, 7],
-                    "rookNewPosition" => [0, 5]
+                    'rookFormerPosition' => [0, 7],
+                    'rookNewPosition' => [0, 5],
                 ];
             }
         } elseif ($state['activeColor'] === 'black' && $toRow === 0 && $toCol === 2) {
@@ -431,12 +429,12 @@ final class GameService
                 return null;
             } else {
                 return [
-                    "rookFormerPosition" => [0, 0],
-                    "rookNewPosition" => [0, 3]
+                    'rookFormerPosition' => [0, 0],
+                    'rookNewPosition' => [0, 3],
                 ];
             }
         }
-        
+
         return null;
     }
 
@@ -637,7 +635,7 @@ final class GameService
             // Check if knight can attack king position
             $knightMoves = [
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-                [1, -2], [1, 2], [2, -1], [2, 1]
+                [1, -2], [1, 2], [2, -1], [2, 1],
             ];
             foreach ($knightMoves as $moveOffset) {
                 $knightRow = $move['toRow'] + $moveOffset[0];
@@ -679,7 +677,7 @@ final class GameService
         if ($enemyKingPosition['row'] > $move['toRow'] && $enemyKingPosition['col'] > $move['toCol']) {
             $checkingVector = [1, 1];
             $startingSquare = [$move['toRow'], $move['toCol']];
-            for ($i=1; $i < 9; $i++) {
+            for ($i = 1; $i < 9; $i++) {
                 $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
                 $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
                 if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
@@ -692,11 +690,11 @@ final class GameService
                 } else {
                     return false; # hit a piece in the way, no diagonal check
                 }
-            }            
+            }
         } elseif ($enemyKingPosition['row'] > $move['toRow'] && $enemyKingPosition['col'] < $move['toCol']) {
             $checkingVector = [1, -1];
             $startingSquare = [$move['toRow'], $move['toCol']];
-            for ($i=1; $i < 9; $i++) {
+            for ($i = 1; $i < 9; $i++) {
                 $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
                 $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
                 if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
@@ -713,7 +711,7 @@ final class GameService
         } elseif ($enemyKingPosition['row'] < $move['toRow'] && $enemyKingPosition['col'] > $move['toCol']) {
             $checkingVector = [-1, 1];
             $startingSquare = [$move['toRow'], $move['toCol']];
-            for ($i=1; $i < 9; $i++) {
+            for ($i = 1; $i < 9; $i++) {
                 $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
                 $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
                 if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
@@ -730,7 +728,7 @@ final class GameService
         } elseif ($enemyKingPosition['row'] < $move['toRow'] && $enemyKingPosition['col'] < $move['toCol']) {
             $checkingVector = [-1, -1];
             $startingSquare = [$move['toRow'], $move['toCol']];
-            for ($i=1; $i < 9; $i++) {
+            for ($i = 1; $i < 9; $i++) {
                 $squareToCheckRow = $startingSquare[0] + $checkingVector[0] * $i;
                 $squareToCheckCol = $startingSquare[1] + $checkingVector[1] * $i;
                 if (($squareToCheckRow < 0 || $squareToCheckRow > 7) || ($squareToCheckCol < 0 || $squareToCheckCol > 7)) {
@@ -755,7 +753,7 @@ final class GameService
             // Determine direction and check details
             if ($enemyKingPosition['col'] > $move['toCol']) {
                 $squaresAway = $enemyKingPosition['col'] - $move['toCol'];
-                for ($i=1; $i<=$squaresAway;$i++) {
+                for ($i = 1; $i <= $squaresAway;$i++) {
                     $colToCheck = $move['toCol'] + $i;
                     if ($colToCheck < 0 || $colToCheck > 7) {
                         break; # ran off the board
@@ -771,7 +769,7 @@ final class GameService
                 }
             } else {
                 $squaresAway = $move['toCol'] - $enemyKingPosition['col'];
-                for ($i=1; $i<=$squaresAway;$i++) {
+                for ($i = 1; $i <= $squaresAway;$i++) {
                     $colToCheck = $move['toCol'] + ($i * -1);
                     if ($colToCheck < 0 || $colToCheck > 7) {
                         break; # ran off the board
@@ -790,7 +788,7 @@ final class GameService
             // Determine direction and check details
             if ($enemyKingPosition['row'] > $move['toRow']) {
                 $squaresAway = $enemyKingPosition['row'] - $move['toRow'];
-                for ($i=1; $i<=$squaresAway;$i++) {
+                for ($i = 1; $i <= $squaresAway;$i++) {
                     $rowToCheck = $move['toRow'] + $i;
                     if ($rowToCheck < 0 || $rowToCheck > 7) {
                         break; # ran off the board
@@ -806,7 +804,7 @@ final class GameService
                 }
             } else {
                 $squaresAway = $move['toRow'] - $enemyKingPosition['row'];
-                for ($i=1; $i<=$squaresAway;$i++) {
+                for ($i = 1; $i <= $squaresAway;$i++) {
                     $rowToCheck = $move['toRow'] + ($i * -1);
                     if ($rowToCheck < 0 || $rowToCheck > 7) {
                         break; # ran off the board
@@ -862,7 +860,7 @@ final class GameService
             'kingInCheck' => null,
             'capturedWhite' => [],
             'capturedBlack' => [],
-            'lastMessage' => 'Session ready. Implement chess logic inside GameService.'
+            'lastMessage' => 'Session ready. Implement chess logic inside GameService.',
         ];
     }
 

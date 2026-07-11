@@ -60,3 +60,6 @@
   operational/security context, deferred debt, unrelated changes, and the no-cost/no-CI policy.
 - Consolidated PHP/JavaScript syntax checks into `scripts/lint.sh`, added repository-wide rejection
   of common committed debug calls, and removed the frontend's coordinate console logging.
+- Added pinned, development-only PHP CS Fixer plus repository-owned frontend whitespace formatting.
+  The concrete payoff is deterministic formatting of the large legacy rules engine and new tests;
+  runtime remains dependency-free, and all formatting stays local.

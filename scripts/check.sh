@@ -27,22 +27,25 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/8] Validating agent documentation"
+echo "[1/9] Validating agent documentation"
 "$ROOT/scripts/check-agent-docs.sh"
 
-echo "[2/8] Rejecting oversized repository files"
+echo "[2/9] Rejecting oversized repository files"
 "$ROOT/scripts/check-large-files.sh"
 
-echo "[3/8] Checking technical-debt tracking"
+echo "[3/9] Checking technical-debt tracking"
 "$ROOT/scripts/check-tech-debt.sh"
 
-echo "[4/8] Linting PHP and JavaScript source"
+echo "[4/9] Linting PHP and JavaScript source"
 "$ROOT/scripts/lint.sh"
 
-echo "[5/8] Running rules-engine unit tests"
+echo "[5/9] Checking deterministic formatting"
+"$ROOT/scripts/format.sh" --check
+
+echo "[6/9] Running rules-engine unit tests"
 "$ROOT/scripts/test.sh"
 
-echo "[6/8] Starting isolated server"
+echo "[7/9] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -63,13 +66,13 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[7/8] Loading both frontend URL forms and browser assets"
+echo "[8/9] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/app.js" >/dev/null
 
-echo "[8/8] Playing e2 to e4 through the API"
+echo "[9/9] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null

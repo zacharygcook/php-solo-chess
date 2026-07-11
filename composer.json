@@ -1,0 +1,23 @@
+{
+    "name": "zacharygcook/php-solo-chess",
+    "description": "Local, session-backed chess practice application",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "3.94.2"
+    },
+    "config": {
+        "allow-plugins": false,
+        "platform": {
+            "php": "8.1.0"
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "format": "./scripts/format.sh --write",
+        "format:check": "./scripts/format.sh --check"
+    }
+}

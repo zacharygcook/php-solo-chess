@@ -8,10 +8,17 @@ small: plain PHP owns the game session and rules, while HTML, CSS, and JavaScrip
 Requirements:
 
 - PHP 8.1 or newer
+- Composer 2 for development checks
 - A modern browser
 - Internet access while the frontend still loads jQuery from its CDN
 
-No Composer or npm install is currently required.
+Install the pinned, free development formatter after cloning:
+
+```bash
+composer install
+```
+
+Runtime code still has no Composer or npm dependency.
 
 Install the repository's local Git hooks once per clone:
 
@@ -21,6 +28,10 @@ Install the repository's local Git hooks once per clone:
 
 The pre-commit hook runs `./scripts/check.sh`. It is intentionally local; this project does not use
 CI or GitHub Actions.
+
+Apply deterministic PHP and frontend text formatting with `composer format`; verify it without
+writing through `composer format:check`. PHP CS Fixer is an MIT-licensed development-only tool pinned
+in `composer.lock` and does not enter the application runtime.
 
 ```bash
 ./scripts/dev.sh

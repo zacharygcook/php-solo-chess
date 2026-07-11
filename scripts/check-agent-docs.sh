@@ -16,12 +16,17 @@ required_files=(
   .github/ISSUE_TEMPLATE/feature_request.md
   .github/ISSUE_TEMPLATE/config.yml
   .github/pull_request_template.md
+  .editorconfig
+  .php-cs-fixer.dist.php
+  composer.json
+  composer.lock
 )
 
 required_commands=(
   scripts/check.sh
   scripts/test.sh
   scripts/install-hooks.sh
+  scripts/format.sh
 )
 
 for relative_path in "${required_files[@]}"; do

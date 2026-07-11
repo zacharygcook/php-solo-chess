@@ -17,6 +17,7 @@
 /coverage/
 /.agent-readiness/
 /.phpunit.cache/
+/.php-cs-fixer.cache
 
 # Tool caches and temporary files
 /.cache/
