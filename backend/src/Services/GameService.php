@@ -29,9 +29,9 @@ final class GameService
     /** @return array<string, mixed> */
     public function getSessionState(): array
     {
-        $state = $this->store->getState();
-        if ($state === []) {
-            $state = $this->stateFactory->create();
+        $storedState = $this->store->getState();
+        $state = $this->stateFactory->normalize($storedState);
+        if ($storedState !== $state) {
             $this->store->saveState($state);
         }
 
@@ -106,6 +106,7 @@ final class GameService
             return $this->reject($state, 'Illegal move.');
         }
 
+        $capturedPiece = $board[$move->to->row][$move->to->col];
         $candidate = $this->movePiece($board, $move, $castle);
         $movingColor = $state['activeColor'];
         if ($this->positionAnalyzer->isKingInCheck($candidate, $movingColor)) {
@@ -115,6 +116,7 @@ final class GameService
         $state['board'] = $candidate;
         $state['moveHistory'][] = $move->toHistoryRecord();
         $state['activeColor'] = self::opponent($movingColor);
+        $state = $this->updateRuleState($state, $move, $movingColor, $capturedPiece);
         $inCheck = $this->positionAnalyzer->isKingInCheck($candidate, $state['activeColor']);
         $state['kingInCheck'] = $inCheck ? $state['activeColor'] : null;
         $state['lastMessage'] = $inCheck ? 'Check!' : ($castle === null ? 'Move successfully made.' : 'Castling move successfully made.');
@@ -145,6 +147,72 @@ final class GameService
      * @param array<string, mixed> $state
      * @return array<string, mixed>
      */
+    private function updateRuleState(array $state, Move $move, string $movingColor, ?string $capturedPiece): array
+    {
+        $state['castlingRights'] = $this->updatedCastlingRights($state['castlingRights'], $move, $movingColor, $capturedPiece);
+        $state['enPassantTarget'] = $this->enPassantTargetFor($move);
+        $state['halfmoveClock'] = $move->piece[1] === 'p' || $capturedPiece !== null ? 0 : $state['halfmoveClock'] + 1;
+        if ($movingColor === 'black') {
+            $state['fullmoveNumber']++;
+        }
+        $state['positionHistory'][] = $this->stateFactory->positionKey(
+            $state['board'],
+            $state['activeColor'],
+            $state['castlingRights'],
+            $state['enPassantTarget'],
+        );
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, array<string, bool>> $rights
+     * @return array<string, array<string, bool>>
+     */
+    private function updatedCastlingRights(array $rights, Move $move, string $movingColor, ?string $capturedPiece): array
+    {
+        if ($move->piece[1] === 'k') {
+            $rights[$movingColor]['kingSide'] = false;
+            $rights[$movingColor]['queenSide'] = false;
+        }
+        if ($move->piece[1] === 'r') {
+            $this->clearRookRight($rights, $movingColor, $move->from->row, $move->from->col);
+        }
+        if ($capturedPiece !== null && $capturedPiece[1] === 'r') {
+            $this->clearRookRight($rights, self::pieceColor($capturedPiece), $move->to->row, $move->to->col);
+        }
+
+        return $rights;
+    }
+
+    /** @param array<string, array<string, bool>> $rights */
+    private function clearRookRight(array &$rights, string $color, int $row, int $col): void
+    {
+        $homeRow = $color === 'white' ? 7 : 0;
+        if ($row !== $homeRow) {
+            return;
+        }
+        if ($col === 7) {
+            $rights[$color]['kingSide'] = false;
+        }
+        if ($col === 0) {
+            $rights[$color]['queenSide'] = false;
+        }
+    }
+
+    private function enPassantTargetFor(Move $move): ?string
+    {
+        if ($move->piece[1] !== 'p' || abs($move->to->row - $move->from->row) !== 2) {
+            return null;
+        }
+
+        return self::squareName(($move->from->row + $move->to->row) / 2, $move->from->col);
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
     private function reject(array $state, string $message): array
     {
         $state['lastMessage'] = $message;
@@ -161,5 +229,10 @@ final class GameService
     private static function opponent(string $color): string
     {
         return $color === 'white' ? 'black' : 'white';
+    }
+
+    private static function squareName(int|float $row, int $col): string
+    {
+        return chr(ord('a') + $col) . (8 - (int) $row);
     }
 }

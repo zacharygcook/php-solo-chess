@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Characterize and make the position contract explicit",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Focused tests capture the current public game-state and move-result contract, including no-mutation failures",
         "Rules state explicitly represents active color, board, move history, and eligibility data required by later orthodox rules",

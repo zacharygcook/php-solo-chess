@@ -135,6 +135,24 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(null, $state['board'][7][4]);
         $tests->assertSame(null, $state['board'][7][7]);
         $tests->assertSame('black', $state['activeColor']);
+        $tests->assertSame(['kingSide' => false, 'queenSide' => false], $state['castlingRights']['white']);
+    });
+
+    $tests->test('rook movement and captures update castling eligibility state', function () use ($tests): void {
+        $board = emptyBoardWithKings();
+        $board[7][0] = 'wr';
+        $state = gameWithBoard($board)->submitMove(['from' => 'a1', 'to' => 'a2']);
+
+        $tests->assertSame(false, $state['castlingRights']['white']['queenSide']);
+        $tests->assertSame(true, $state['castlingRights']['white']['kingSide']);
+
+        $board = emptyBoardWithKings();
+        $board[7][0] = 'wr';
+        $board[0][0] = 'br';
+        $capture = gameWithBoard($board)->submitMove(['from' => 'a1', 'to' => 'a8']);
+
+        $tests->assertSame(false, $capture['castlingRights']['black']['queenSide']);
+        $tests->assertSame(true, $capture['castlingRights']['black']['kingSide']);
     });
 
     $tests->test('castling is rejected when its path is occupied', function () use ($tests): void {
