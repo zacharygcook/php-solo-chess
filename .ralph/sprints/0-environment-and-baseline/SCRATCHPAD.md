@@ -122,3 +122,13 @@
   blocking coverage ratchet to 75% instead of retaining the obsolete 21% readiness baseline.
 - Reused the tracked black king board asset as the browser favicon and added it to the canonical
   frontend asset probes so the metadata cannot silently point at a missing icon.
+
+## 2026-07-11 — Ralph preflight handoff
+
+- Re-ran the complete `./scripts/check.sh` baseline successfully before preparing the next sprint.
+- Refreshed the disarmed Ralph runtime to its vendored `0.5.6` version; configuration and Phase 0
+  state were preserved.
+- The next active sprint is `1-rules-engine-completeness`. Its fast chunk gate remains
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`; its final gate remains
+  `./scripts/check.sh`.
+- The dependency-ordered MVP roadmap is `.ralph/SPRINT_PLAN.md`; only Sprint 1 has been created.

@@ -1,0 +1,90 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Characterize and make the position contract explicit",
+      "passes": false,
+      "acceptance_criteria": [
+        "Focused tests capture the current public game-state and move-result contract, including no-mutation failures",
+        "Rules state explicitly represents active color, board, move history, and eligibility data required by later orthodox rules",
+        "Rules code remains independent of HTTP input, rendering, and PHP session access"
+      ],
+      "artifacts": [
+        "tests/RulesEngineTest.php",
+        "tests/GameServiceTest.php",
+        "backend/src/Services/Chess/",
+        "backend/src/Services/GameService.php"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Generate legal orthodox moves with king safety",
+      "passes": false,
+      "acceptance_criteria": [
+        "Every ordinary piece's moves and captures are generated deterministically from explicit state",
+        "Legal-move filtering rejects self-check, wrong-side moves, friendly captures, blocked paths, and terminal-state moves without mutation",
+        "Focused tests cover legal and illegal examples for each ordinary piece plus check evasion"
+      ],
+      "artifacts": [
+        "tests/RulesEngineTest.php",
+        "backend/src/Services/Chess/PieceMovement.php",
+        "backend/src/Services/Chess/PositionAnalyzer.php",
+        "backend/src/Services/GameService.php"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Implement complete special-move eligibility",
+      "passes": false,
+      "acceptance_criteria": [
+        "Castling enforces unmoved pieces, clear path, no check on traversed squares, and correct rook movement",
+        "En passant is permitted only immediately after the qualifying double pawn move and records canonical state",
+        "Promotion requires and applies queen, rook, bishop, or knight choices with correct captures and notation inputs",
+        "Each special move has focused positive and negative regression tests"
+      ],
+      "artifacts": [
+        "tests/RulesEngineTest.php",
+        "backend/src/Services/Chess/CastlingResolver.php",
+        "backend/src/Services/Chess/",
+        "backend/src/Services/GameService.php"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Resolve terminal states and draws immutably",
+      "passes": false,
+      "acceptance_criteria": [
+        "Checkmate and stalemate are distinguished from ordinary check using legal-move availability",
+        "Repetition, move-count, dead-position, resignation, agreed-draw, and timeout result rules have explicit state/result representations or documented application boundaries",
+        "Claim-required draws expose an explicit claim action rather than ending automatically",
+        "No move or clock transition can mutate a finished game, with focused tests for every terminal path implemented in this sprint"
+      ],
+      "artifacts": [
+        "tests/RulesEngineTest.php",
+        "tests/GameServiceTest.php",
+        "backend/src/Services/Chess/",
+        "backend/src/Services/GameService.php"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Expose canonical notation and interchange",
+      "passes": false,
+      "acceptance_criteria": [
+        "Accepted moves produce standard algebraic notation for ordinary moves, captures, checks, mates, castling, and promotions",
+        "The canonical position can be represented as FEN and moves use a stable coordinate representation",
+        "The existing controller and browser smoke path retain their stable response envelope while consuming the upgraded domain state",
+        "Regression tests prove deterministic state, notation, and interchange for representative completed positions"
+      ],
+      "artifacts": [
+        "tests/RulesEngineTest.php",
+        "tests/GameServiceTest.php",
+        "backend/src/Services/Chess/",
+        "backend/src/Services/GameService.php",
+        "backend/src/Controllers/GameController.php",
+        "docs/API.md",
+        "docs/openapi.json"
+      ]
+    }
+  ]
+}
