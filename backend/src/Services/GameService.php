@@ -298,7 +298,7 @@ final class GameService
         $fromRow = $move['fromRow'];
         $piece = $move['piece'];
         
-        // TODO: Implement castling v2
+        // TODO(DEBT-001): Implement castling v2
         if (substr($piece, 1, 1) == 'k') {
             $castle = $this->castling($state, $move); # either returns information about the two squares to be updated, or false that its not castling
             if ($castle !== null) {
@@ -364,7 +364,7 @@ final class GameService
      */
     private function castling(array $state, array $move): ?array
     {
-        // TODO: Implement castling logic v2
+        // TODO(DEBT-001): Implement castling logic v2
         // Version 1: Implement simple legality checks (king and rook are in starting positions and no pieces in between)
         // Version 2: Implement full legality checks (king/rook haven't moved, not in check, squares not attacked, etc)
         $tryCastle = false;
@@ -586,7 +586,7 @@ final class GameService
 
     private function calculateCheckStatus(array $state, array $move): ?string
     {
-        // TODO: Implement logic to go into more detail if the move puts the enemy's king in check
+        // TODO(DEBT-002): Explain checks created by the completed move
         // Return values 'check', 'checkmate', 'stalemate', or null
 
         // Easiest to check per piece type against king position
@@ -670,7 +670,7 @@ final class GameService
 
     private function determineCheckmate(array $state, array $move): bool
     {
-        // TODO: Implement logic to determine if the move results in checkmate
+        // TODO(DEBT-003): Determine whether the move results in checkmate or stalemate
         return false;
     }
 

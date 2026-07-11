@@ -36,3 +36,5 @@
   characterization tests and the existing end-to-end smoke path.
 - Added an architecture guide for the same-origin request flow, component responsibilities, PHP
   session lifecycle, validation boundaries, and sole external runtime dependency.
+- Replaced anonymous chess-rules TODOs with stable debt IDs and a ledger containing impact and
+  completion conditions. The local check now rejects untracked TODO/FIXME/HACK annotations.
