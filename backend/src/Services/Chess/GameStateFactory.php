@@ -6,12 +6,18 @@ namespace SoloChess\Services\Chess;
 
 final class GameStateFactory
 {
+    private NotationFormatter $notationFormatter;
+
+    public function __construct()
+    {
+        $this->notationFormatter = new NotationFormatter();
+    }
+
     /** @return array<string, mixed> */
     public function create(): array
     {
         $board = $this->startingBoard();
-
-        return [
+        $state = [
             'board' => $board,
             'moveHistory' => [],
             'activeColor' => 'white',
@@ -30,6 +36,10 @@ final class GameStateFactory
             'availableActions' => [],
             'lastMessage' => 'Session ready. Implement chess logic inside GameService.',
         ];
+
+        $state['fen'] = $this->notationFormatter->fen($state);
+
+        return $state;
     }
 
     /**
@@ -52,7 +62,10 @@ final class GameStateFactory
             ? $state['positionHistory']
             : [$this->positionKey($state['board'], $state['activeColor'], $state['castlingRights'], $state['enPassantTarget'])];
 
-        return $this->withTerminalDefaults($state);
+        $state = $this->withTerminalDefaults($state);
+        $state['fen'] = $this->notationFormatter->fen($state);
+
+        return $state;
     }
 
     /**

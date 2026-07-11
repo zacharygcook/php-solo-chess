@@ -184,6 +184,8 @@ return static function (TestHarness $tests): void {
         $capture = gameWithBoard($board)->submitMove(['from' => 'c4', 'to' => 'e6']);
         $tests->assertSame('wb', $capture['board'][2][4]);
         $tests->assertSame(null, $capture['board'][4][2]);
+        $tests->assertSame('Bxe6', $capture['moveHistory'][0]['san']);
+        $tests->assertSame('c4e6', $capture['moveHistory'][0]['coordinate']);
 
         $board[2][4] = 'wn';
         $friendly = gameWithBoard($board)->submitMove(['from' => 'c4', 'to' => 'e6']);
@@ -255,6 +257,8 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(null, $state['board'][7][7]);
         $tests->assertSame('black', $state['activeColor']);
         $tests->assertSame(['kingSide' => false, 'queenSide' => false], $state['castlingRights']['white']);
+        $tests->assertSame('O-O', $state['moveHistory'][0]['san']);
+        $tests->assertSame('e1g1', $state['moveHistory'][0]['coordinate']);
     });
 
     $tests->test('queen-side castling moves the rook across the king for black', function () use ($tests): void {
@@ -418,11 +422,13 @@ return static function (TestHarness $tests): void {
         $board = emptyBoardWithKings();
         $board[1][0] = 'wp'; // a7
         $board[0][1] = 'bn'; // b8
-        $state = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'b8', 'promotion' => 'knight']);
+        $state = gameWithState($board)->submitMove(['from' => 'a7', 'to' => 'b8', 'promotion' => 'queen']);
 
-        $tests->assertSame('wn', $state['board'][0][1]);
+        $tests->assertSame('wq', $state['board'][0][1]);
         $tests->assertSame(null, $state['board'][1][0]);
         $tests->assertSame(0, $state['halfmoveClock']);
+        $tests->assertSame('axb8=Q+', $state['moveHistory'][0]['san']);
+        $tests->assertSame('a7b8q', $state['moveHistory'][0]['coordinate']);
     });
 
     $tests->test('a move exposing the active king is rejected', function () use ($tests): void {
@@ -488,6 +494,8 @@ return static function (TestHarness $tests): void {
         $tests->assertSame('white', $mate['kingInCheck']);
         $tests->assertSame([], $mate['legalMoves']);
         $tests->assertSame('Checkmate. Black wins.', $mate['lastMessage']);
+        $tests->assertSame('Qh4#', $mate['moveHistory'][3]['san']);
+        $tests->assertSame('d8h4', $mate['moveHistory'][3]['coordinate']);
 
         $after = $game->submitMove(['from' => 'e2', 'to' => 'e4']);
         $tests->assertSame(false, $after['isValidMove']);

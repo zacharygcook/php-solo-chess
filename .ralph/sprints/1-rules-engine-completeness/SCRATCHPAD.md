@@ -116,3 +116,31 @@
   test seed `704628621` and ran 42 tests with 0 failures.
 - Next handoff: start chunk 5 by generating canonical SAN plus FEN/coordinate interchange from the
   explicit domain state, preserving the existing controller response envelope and browser smoke path.
+
+## 2026-07-11 — Chunk 5 complete
+
+- Completed chunk 5 only: added chess-domain notation/interchange generation through
+  `NotationFormatter`, with canonical FEN on normalized state and SAN, coordinate notation, and
+  post-move FEN on accepted move-history records.
+- Decision: keep notation as domain state consumed through the existing controller response envelope;
+  no HTTP, session, rendering, persistence, account, clock, dependency, or engine work was added.
+- Decision: stamp SAN after terminal resolution so checkmate records `#`; ordinary check records
+  `+`. Coordinate notation uses long algebraic source/destination plus a lowercase promotion suffix
+  when applicable.
+- Focused proofs added: initial-position FEN, post-`e2e4` FEN and coordinate notation, ordinary
+  capture SAN, king-side castling SAN, promotion-capture-with-check SAN, and Fool's mate checkmate
+  SAN.
+- Failed approaches: first focused run failed as expected on missing `fen`, `san`, and `coordinate`
+  fields. The first implementation omitted pawn letters from FEN and used a knight-promotion fixture
+  that did not geometrically give check; fixed FEN pawn serialization and changed that proof to a
+  queen promotion capture.
+- Validation evidence: pre-edit baseline `./scripts/check.sh` passed. Focused red tests failed on
+  missing notation/interchange fields. After implementation, `composer format:check`,
+  `./scripts/test.sh`, exact fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`,
+  `./scripts/test-flakiness.sh`, and full `./scripts/check.sh` all passed. The exact fast gate used
+  test seed `37444077` and ran 42 tests with 0 failures; full check seed `884796812` also ran 42
+  tests with 0 failures.
+- Next handoff: all sprint chunks now pass. Post-sprint hooks should run the comprehensive
+  `./scripts/check.sh` gate and review whether `DEBT-002` belongs in the next sprint because checking
+  pieces are still not explicitly exposed.

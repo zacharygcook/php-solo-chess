@@ -69,7 +69,7 @@
     {
       "id": 5,
       "title": "Expose canonical notation and interchange",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Accepted moves produce standard algebraic notation for ordinary moves, captures, checks, mates, castling, and promotions",
         "The canonical position can be represented as FEN and moves use a stable coordinate representation",

@@ -46,6 +46,7 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(null, $state['terminationReason']);
         $tests->assertSame([], $state['drawClaims']);
         $tests->assertSame([], $state['availableActions']);
+        $tests->assertSame('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', $state['fen']);
         $tests->assertSame($state, unserialize(serialize($state)));
     });
 
@@ -61,6 +62,10 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(0, $state['halfmoveClock']);
         $tests->assertSame(1, $state['fullmoveNumber']);
         $tests->assertSame(2, count($state['positionHistory']));
+        $tests->assertSame('e4', $state['moveHistory'][0]['san']);
+        $tests->assertSame('e2e4', $state['moveHistory'][0]['coordinate']);
+        $tests->assertSame('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', $state['fen']);
+        $tests->assertSame($state['fen'], $state['moveHistory'][0]['fen']);
     });
 
     $tests->test('ordinary black move clears en passant target and advances fullmove state', function () use ($tests): void {

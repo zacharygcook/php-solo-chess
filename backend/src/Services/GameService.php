@@ -9,6 +9,7 @@ use SoloChess\Services\Chess\Coordinate;
 use SoloChess\Services\Chess\GameStateFactory;
 use SoloChess\Services\Chess\LegalMoveGenerator;
 use SoloChess\Services\Chess\Move;
+use SoloChess\Services\Chess\NotationFormatter;
 use SoloChess\Services\Chess\PieceMovement;
 use SoloChess\Services\Chess\PositionAnalyzer;
 use SoloChess\Services\Chess\TerminalStateResolver;
@@ -21,6 +22,7 @@ final class GameService
     private CastlingResolver $castlingResolver;
     private LegalMoveGenerator $legalMoveGenerator;
     private TerminalStateResolver $terminalStateResolver;
+    private NotationFormatter $notationFormatter;
 
     public function __construct(private SessionStore $store)
     {
@@ -30,6 +32,7 @@ final class GameService
         $this->castlingResolver = new CastlingResolver($this->positionAnalyzer);
         $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer, $this->castlingResolver);
         $this->terminalStateResolver = new TerminalStateResolver();
+        $this->notationFormatter = new NotationFormatter();
     }
 
     /** @return array<string, mixed> */
@@ -132,6 +135,7 @@ final class GameService
         }
 
         $state['board'] = $candidate;
+        $before = $state;
         $state['moveHistory'][] = $move->toHistoryRecord();
         $state['activeColor'] = self::opponent($movingColor);
         $state = $this->updateRuleState($state, $move, $movingColor, $capturedPiece);
@@ -140,6 +144,8 @@ final class GameService
         $state['lastMessage'] = $inCheck ? 'Check!' : ($castle === null ? 'Move successfully made.' : 'Castling move successfully made.');
         $state = $this->withLegalMoves($state);
         $state = $this->terminalStateResolver->resolveAfterMove($state);
+        $state['fen'] = $this->notationFormatter->fen($state);
+        $state = $this->withMoveNotation($state, $before, $move, $capturedPiece !== null, $castle !== null);
         unset($state['isValidMove']);
         $this->store->saveState($state);
 
@@ -327,6 +333,22 @@ final class GameService
     private function withLegalMoves(array $state): array
     {
         $state['legalMoves'] = $this->legalMoveGenerator->generate($state);
+        $state['fen'] = $this->notationFormatter->fen($state);
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @param array<string, mixed> $before
+     * @return array<string, mixed>
+     */
+    private function withMoveNotation(array $state, array $before, Move $move, bool $isCapture, bool $isCastle): array
+    {
+        $index = count($state['moveHistory']) - 1;
+        $state['moveHistory'][$index]['coordinate'] = $this->notationFormatter->coordinate($move);
+        $state['moveHistory'][$index]['san'] = $this->notationFormatter->san($before, $state, $move, $isCapture, $isCastle);
+        $state['moveHistory'][$index]['fen'] = $state['fen'];
 
         return $state;
     }
