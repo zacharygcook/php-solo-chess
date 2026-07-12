@@ -34,7 +34,7 @@
     {
       "id": 3,
       "title": "Expose authorized PGN downloads",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Completed or saved games download as valid .pgn responses with safe deterministic filenames",
         "Owned games require the active owner and cannot be exported by another local user",

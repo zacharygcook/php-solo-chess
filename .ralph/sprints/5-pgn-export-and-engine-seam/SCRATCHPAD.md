@@ -60,3 +60,38 @@
   - Final validation: `./scripts/check.sh` passed, including browser smoke and coverage.
 - Handoff: next incomplete chunk is chunk 3, `Expose authorized PGN downloads`; add the API/browser
   download surface without adding engine behavior or changing move application.
+
+## 2026-07-12 — Chunk 3 authorized PGN downloads complete
+
+- Implemented `/backend/public/api/games/export.php` through thin `PgnController` streaming and
+  `PgnDownloadService`, keeping repository reads and guest-session canonicalization out of the HTTP
+  controller layer.
+- Owned saved-game exports require the active authenticated owner, use ordered persisted move rows,
+  return `application/x-chess-pgn`, and send deterministic attachment filenames like
+  `solo-chess-game-1.pgn`. Unowned, missing, and unauthenticated saved-game requests return JSON
+  errors without leaking durable records.
+- Guest exports use only the active guest session state and synthesize canonical PGN records from
+  server-owned move history, participant labels, time control, result, FEN, and SAN. Authenticated
+  no-id exports use the current durable game id when present and otherwise refuse to export guest
+  session state.
+- Added browser actions for active-session PGN download and saved-game row PGN download. The frontend
+  calls the same-origin endpoint directly and does not reconstruct PGN from rendered move history.
+- Focused tests cover PGN response headers/content, deterministic filenames, owner authorization,
+  missing games, unauthenticated saved exports, guest-session export, and authenticated no-id
+  isolation.
+- Dead end: the first full `./scripts/check.sh` after implementation failed the architecture gate
+  because `PgnController` depended on repositories directly. Moved the lookup/export boundary into
+  `PgnDownloadService`; the next full check passed the architecture layer gate.
+- Dead end: a subsequent full-check run hit a transient test-budget failure during quality snapshot
+  generation; rerunning `./scripts/generate-quality-report.sh /tmp/php-solo-q.md` passed, and the
+  final full check passed.
+- Validation evidence:
+  - Baseline before edits: `./scripts/check.sh` passed.
+  - Focused proof: `./scripts/test.sh` passed with 106 tests.
+  - Frontend syntax: `node --check frontend/assets/js/api.js && node --check frontend/assets/js/app.js` passed.
+  - Fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed.
+  - Formatting: `composer format:check` passed.
+  - Final validation: `./scripts/check.sh` passed, including architecture, coverage, and browser smoke.
+- Handoff: next incomplete chunk is chunk 4, `Define and prove the future-engine adapter seam`; keep
+  the adapter deterministic, do not add an engine binary or opponent behavior, and route any proposed
+  move through the existing authoritative move application path.

@@ -67,6 +67,7 @@ function cacheDom() {
     elements.acceptDraw = document.querySelector('#acceptDrawButton');
     elements.claimDraw = document.querySelector('#claimDrawButton');
     elements.soundToggle = document.querySelector('#soundToggleButton');
+    elements.downloadPgn = document.querySelector('#downloadPgnButton');
     elements.actionMessage = document.querySelector('#actionMessage');
     elements.quickGuest = document.querySelector('#quickGuestButton');
     elements.newGameForm = document.querySelector('#newGameForm');
@@ -100,6 +101,7 @@ function bindEvents() {
     elements.acceptDraw.addEventListener('click', () => submitGameAction('acceptDraw'));
     elements.claimDraw.addEventListener('click', () => submitGameAction('claimDraw'));
     elements.soundToggle.addEventListener('click', toggleSound);
+    elements.downloadPgn.addEventListener('click', downloadActivePgn);
     elements.flipBoard.addEventListener('click', flipBoard);
     elements.promotionChoices.addEventListener('click', handlePromotionChoice);
     elements.promotionCancel.addEventListener('click', cancelPromotion);
@@ -391,8 +393,22 @@ async function handleSavedGameClick(event) {
     }
 
     const gameId = button.dataset.gameId;
+    if (button.dataset.action === 'pgn') {
+        window.location.assign(api.pgnExportUrl(gameId));
+        return;
+    }
+
     const fromStart = button.dataset.action === 'replay';
     await openSavedGame(gameId, fromStart);
+}
+
+function downloadActivePgn() {
+    if (uiState.isReviewing) {
+        setActionMessage('Use the saved game PGN button while reviewing.');
+        return;
+    }
+
+    window.location.assign(api.pgnExportUrl());
 }
 
 async function openSavedGame(gameId, fromStart) {
@@ -527,6 +543,7 @@ function renderSavedGames(games) {
         actions.className = 'saved-game-actions';
         actions.append(savedGameButton(game.id, 'open', 'Open'));
         actions.append(savedGameButton(game.id, 'replay', 'Replay'));
+        actions.append(savedGameButton(game.id, 'pgn', 'PGN'));
 
         item.append(summary, actions);
         elements.savedGames.append(item);

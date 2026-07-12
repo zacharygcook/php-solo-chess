@@ -66,6 +66,11 @@ export function createApiClient(apiBase) {
         loadReplay(gameId) {
             return request(`games/replay.php?id=${encodeURIComponent(gameId)}`);
         },
+        pgnExportUrl(gameId = null) {
+            return gameId === null
+                ? `${base}/games/export.php`
+                : `${base}/games/export.php?id=${encodeURIComponent(gameId)}`;
+        },
         abandonGame(payload) {
             return request('games/abandon.php', {
                 method: 'POST',

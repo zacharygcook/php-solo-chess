@@ -21,6 +21,7 @@ return static function (TestHarness $tests): void {
             'savedGames',
             'replayControls',
             'returnLiveButton',
+            'downloadPgnButton',
             'reviewBanner',
         ] as $id) {
             $tests->assertTrue(str_contains($html, 'id="' . $id . '"'), "Missing frontend control: {$id}.");
@@ -45,6 +46,7 @@ return static function (TestHarness $tests): void {
             'games/history.php',
             'games/open.php?id=',
             'games/replay.php?id=',
+            'games/export.php',
             'games/abandon.php',
             'games/resign.php',
             'games/draw-offer.php',
@@ -56,6 +58,7 @@ return static function (TestHarness $tests): void {
 
         $tests->assertTrue(str_contains($api, "credentials: 'same-origin'"), 'API requests must include same-origin cookies.');
         $tests->assertTrue(str_contains($api, 'httpStatus: response.status'), 'Non-2xx validation messages must remain visible.');
+        $tests->assertTrue(str_contains($api, 'pgnExportUrl'), 'PGN downloads must use the same-origin API base.');
     });
 
     $tests->test('frontend auth validation failures preserve current account state', function () use ($tests, $root): void {
