@@ -2,9 +2,10 @@
   "layers": {
     "Api": ["Controllers", "Http"],
     "Controllers": ["Http", "Services"],
-    "Services": ["Services"],
+    "Services": ["Repositories", "Services"],
     "Http": ["Http"],
     "Observability": ["Observability"],
-    "Persistence": ["Persistence"]
+    "Persistence": ["Persistence"],
+    "Repositories": ["Persistence", "Repositories"]
   }
 }

@@ -40,3 +40,32 @@
   - Continue with chunk 2 only. Build typed user/game/move repositories on top of the new
     `Persistence` boundary, keep all SQL parameterized, and use temporary SQLite databases in
     repository tests. Do not move auth or HTTP behavior into chunk 2.
+
+## 2026-07-11 — Chunk 2 complete: typed user/game/move repositories
+
+- Decisions:
+  - Added `SoloChess\Repositories\UserRepository`, `GameRepository`, and `MoveRepository` with typed
+    row/data objects so PDO access stays out of services, controllers, and future auth behavior.
+  - Kept repository inputs as explicit scalar-backed data objects and stored canonical state, clock
+    state, and move snapshots as JSON/FEN strings produced by upstream application/rules code.
+  - Added `GameRepository::replaceCanonicalStateWithMoves()` as the transaction boundary for an
+    owned game snapshot plus its ordered move list.
+  - Added a `Repositories` architecture layer and allowed services to depend on it for the upcoming
+    authentication/application-service chunks.
+- Failed approaches / corrections:
+  - Initial formatting used expanded empty constructors; `composer format` compacted those before
+    validation.
+- Validation evidence:
+  - Baseline before edits: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 45 tests, 0 failures.
+  - Focused suite during implementation: `./scripts/test.sh` passed with 53 tests, 0 failures.
+  - Typecheck during implementation: `composer typecheck` passed.
+  - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures.
+  - Full post-change gate: `./scripts/check.sh` passed.
+- Next handoff:
+  - Continue with chunk 3 only. Build registration/authentication services on top of
+    `UserRepository`, normalize usernames consistently before repository calls, use
+    `password_hash()`/`password_verify()`, and return safe identity data without exposing
+    `passwordHash`. Do not add HTTP endpoints, sessions, email, roles, clocks, or frontend work in
+    chunk 3.

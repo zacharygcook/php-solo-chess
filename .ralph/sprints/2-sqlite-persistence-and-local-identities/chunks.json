@@ -20,7 +20,7 @@
     {
       "id": 2,
       "title": "Build typed user and game repositories",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "User, game, and move persistence is isolated behind repository classes with parameterized queries",
         "Game and ordered move writes are transaction-safe and reload the same canonical state",
