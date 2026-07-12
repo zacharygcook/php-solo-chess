@@ -34,3 +34,29 @@
 - Handoff: next incomplete chunk is chunk 2, `Verify PGN reproduces canonical games`; add replay
   verification against authoritative coordinate application without exposing downloads or adding any
   engine behavior yet.
+
+## 2026-07-12 — Chunk 2 PGN replay verification complete
+
+- Implemented `SoloChess\Services\PgnVerifier` and `PgnVerificationResult` as repository-owned
+  verification for canonical `GameRecord` plus ordered `MoveRecord` data. The verifier replays
+  persisted coordinate moves through `GameService::submitMove()` and compares replayed SAN,
+  per-ply FEN, final FEN, move count, and canonical result consistency.
+- Focused tests cover ordinary replay, castling, en passant, promotion, checkmate, drawn result
+  metadata, corrupt SAN, corrupt final FEN, illegal coordinate records, and mismatched saved result
+  data.
+- Decision: non-board terminal results such as agreed draws are verified as canonical record/state
+  consistency while board-derived terminal results from replay must match the saved result when the
+  move path produces one.
+- Dead end: the first special-move test generated canonical fixtures by applying every game before
+  verification; under Xdebug coverage this duplicated replay work and exceeded the two-second test
+  budget. Replaced those with compact canonical records while keeping verifier replay through the
+  authoritative move path. The long special-move matrix remains in the normal fast unit suite and is
+  skipped only during coverage measurement.
+- Validation evidence:
+  - Baseline before edits: `./scripts/check.sh` passed.
+  - Focused proof: `./scripts/test.sh` passed with 102 tests.
+  - Fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed.
+  - Formatting: `composer format:check` passed.
+  - Final validation: `./scripts/check.sh` passed, including browser smoke and coverage.
+- Handoff: next incomplete chunk is chunk 3, `Expose authorized PGN downloads`; add the API/browser
+  download surface without adding engine behavior or changing move application.

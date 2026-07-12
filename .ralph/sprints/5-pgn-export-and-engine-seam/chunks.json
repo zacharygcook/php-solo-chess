@@ -18,7 +18,7 @@
     {
       "id": 2,
       "title": "Verify PGN reproduces canonical games",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Repository-owned verification replays exported moves through the authoritative coordinate move path",
         "Representative exports reproduce the saved final FEN, result, and move count",
