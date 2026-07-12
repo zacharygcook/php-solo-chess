@@ -10,20 +10,61 @@ export function createApiClient(apiBase) {
             },
             ...options,
         });
+        const payload = await readJson(response);
 
-        if (!response.ok) {
+        if (!response.ok && !payload) {
             throw new Error(`Request failed with HTTP ${response.status}`);
         }
 
-        return response.json();
+        return {
+            ...(payload || {
+                success: false,
+                message: `Request failed with HTTP ${response.status}`,
+                state: {},
+            }),
+            httpStatus: response.status,
+        };
     }
 
     return {
+        currentUser() {
+            return request('auth/user.php');
+        },
+        registerUser(credentials) {
+            return request('auth/register.php', {
+                method: 'POST',
+                body: JSON.stringify(credentials),
+            });
+        },
+        loginUser(credentials) {
+            return request('auth/login.php', {
+                method: 'POST',
+                body: JSON.stringify(credentials),
+            });
+        },
+        logoutUser() {
+            return request('auth/logout.php', { method: 'POST' });
+        },
         loadSession() {
             return request('session.php');
         },
+        createGame(payload) {
+            return request('games/new.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
         resetGame() {
             return request('reset.php', { method: 'POST' });
+        },
+        loadHistory() {
+            return request('games/history.php');
+        },
+        openGame(gameId) {
+            return request(`games/open.php?id=${encodeURIComponent(gameId)}`);
+        },
+        loadReplay(gameId) {
+            return request(`games/replay.php?id=${encodeURIComponent(gameId)}`);
         },
         submitFen(fen) {
             return request('setup.php', {
@@ -38,4 +79,12 @@ export function createApiClient(apiBase) {
             });
         },
     };
+}
+
+async function readJson(response) {
+    try {
+        return await response.json();
+    } catch (_error) {
+        return null;
+    }
 }

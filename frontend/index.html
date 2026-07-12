@@ -14,7 +14,10 @@
             <h1>Solo Chess</h1>
             <p>Play both sides, focus on the fundamentals.</p>
         </div>
-        <div class="status-chip" id="activeColor">Loading...</div>
+        <div class="header-status">
+            <div class="status-chip" id="accountBadge">Guest session</div>
+            <div class="status-chip" id="activeColor">Loading...</div>
+        </div>
     </header>
 
     <main class="app-shell">
@@ -23,10 +26,102 @@
                 <span>Active move:</span>
                 <strong id="activeMoveLabel">--</strong>
             </div>
+            <div class="review-banner" id="reviewBanner" hidden>
+                <strong id="reviewTitle">Review mode</strong>
+                <span id="reviewStepLabel">Step --</span>
+            </div>
             <div id="chessBoard" class="chess-board" role="grid" aria-label="Chess board"></div>
         </section>
 
         <aside class="sidebar">
+            <section class="panel">
+                <h2>New Game</h2>
+                <button id="quickGuestButton" type="button">Start untimed game</button>
+                <form id="newGameForm" class="stacked-form">
+                    <div class="form-grid two">
+                        <label for="whiteLabel">White label</label>
+                        <input id="whiteLabel" name="whiteLabel" type="text" maxlength="80" placeholder="White">
+                        <label for="blackLabel">Black label</label>
+                        <input id="blackLabel" name="blackLabel" type="text" maxlength="80" placeholder="Black">
+                    </div>
+                    <div class="form-grid two">
+                        <label for="whiteType">White type</label>
+                        <select id="whiteType" name="whiteType">
+                            <option value="local_human">Local human</option>
+                            <option value="engine">Engine</option>
+                        </select>
+                        <label for="blackType">Black type</label>
+                        <select id="blackType" name="blackType">
+                            <option value="local_human">Local human</option>
+                            <option value="engine">Engine</option>
+                        </select>
+                    </div>
+                    <fieldset class="segmented-field">
+                        <legend>Clock</legend>
+                        <label><input type="radio" name="timeKind" value="untimed" checked> Untimed</label>
+                        <label><input type="radio" name="timeKind" value="preset"> Preset</label>
+                        <label><input type="radio" name="timeKind" value="custom"> Custom</label>
+                    </fieldset>
+                    <div class="form-grid compact">
+                        <label for="timePreset">Preset</label>
+                        <select id="timePreset" name="timePreset">
+                            <option value="1+0">1+0</option>
+                            <option value="3+2">3+2</option>
+                            <option value="5+0" selected>5+0</option>
+                            <option value="10+0">10+0</option>
+                            <option value="15+10">15+10</option>
+                        </select>
+                        <label for="customBaseMinutes">Minutes</label>
+                        <input id="customBaseMinutes" name="customBaseMinutes" type="number" min="1" max="180" value="10">
+                        <label for="customIncrementSeconds">Increment</label>
+                        <input id="customIncrementSeconds" name="customIncrementSeconds" type="number" min="0" max="60" value="0">
+                    </div>
+                    <button type="submit">Create configured game</button>
+                    <p id="newGameMessage" class="form-message" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="panel">
+                <h2>Account</h2>
+                <p id="accountSummary" class="summary-text">Loading account...</p>
+                <form id="loginForm" class="stacked-form">
+                    <h3>Login or switch</h3>
+                    <label for="loginUsername">Username</label>
+                    <input id="loginUsername" name="username" type="text" autocomplete="username">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" name="password" type="password" autocomplete="current-password">
+                    <button type="submit">Login</button>
+                </form>
+                <form id="registerForm" class="stacked-form">
+                    <h3>Register</h3>
+                    <label for="registerUsername">Username</label>
+                    <input id="registerUsername" name="username" type="text" autocomplete="username">
+                    <label for="registerDisplayName">Display name</label>
+                    <input id="registerDisplayName" name="displayName" type="text">
+                    <label for="registerPassword">Password</label>
+                    <input id="registerPassword" name="password" type="password" autocomplete="new-password">
+                    <button type="submit">Create account</button>
+                </form>
+                <div class="button-row">
+                    <button id="logoutButton" type="button" class="secondary">Logout</button>
+                </div>
+                <p id="authMessage" class="form-message" aria-live="polite"></p>
+            </section>
+
+            <section class="panel">
+                <h2>Saved Games</h2>
+                <div class="button-row">
+                    <button id="refreshHistoryButton" type="button">Refresh history</button>
+                    <button id="returnLiveButton" type="button" class="secondary">Live board</button>
+                </div>
+                <ul id="savedGames" class="saved-games"></ul>
+                <p id="savedGamesMessage" class="summary-text">Log in to view saved games.</p>
+                <div class="replay-controls" id="replayControls" hidden>
+                    <button id="replayPreviousButton" type="button" class="secondary">Previous</button>
+                    <button id="replayNextButton" type="button" class="secondary">Next</button>
+                </div>
+            </section>
+
             <section class="panel">
                 <h2>Controls</h2>
                 <div class="button-row">
@@ -41,7 +136,7 @@
             </section>
 
             <section class="panel">
-                <h2>Move History</h2>
+                <h2 id="moveHistoryTitle">Move History</h2>
                 <ol id="moveHistory" class="move-history"></ol>
             </section>
 

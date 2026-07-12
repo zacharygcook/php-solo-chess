@@ -1,19 +1,26 @@
 :root {
     color-scheme: dark;
-    --bg: #0e1117;
-    --panel: #161b22;
-    --border: #2c313c;
-    --accent: #58a6ff;
+    --bg: #101216;
+    --panel: #181d22;
+    --panel-soft: #20262c;
+    --border: #363c42;
+    --accent: #d19a4a;
+    --accent-strong: #f0b45c;
+    --secondary: #8ab4a2;
     --danger: #f85149;
-    --text: #e6edf3;
-    --muted: #8b949e;
+    --text: #f4efe6;
+    --muted: #b7afa2;
     --light-square: #eed7b3;
-    --dark-square: #b48762;
-    --highlight: #2ea043;
+    --dark-square: #9b6a42;
+    --highlight: #2f7d61;
 }
 
 * {
     box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 body {
@@ -23,7 +30,10 @@ body {
     color: var(--text);
 }
 
-button, textarea {
+button,
+input,
+select,
+textarea {
     font-family: inherit;
 }
 
@@ -45,11 +55,18 @@ button, textarea {
     color: var(--muted);
 }
 
+.header-status {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 .status-chip {
     background: var(--panel);
     border: 1px solid var(--border);
     padding: 0.5rem 1rem;
-    border-radius: 999px;
+    border-radius: 0.5rem;
     font-weight: 600;
 }
 
@@ -63,7 +80,7 @@ button, textarea {
 .board-panel {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -77,11 +94,22 @@ button, textarea {
     font-size: 0.9rem;
 }
 
+.review-banner {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid rgba(209, 154, 74, 0.45);
+    background: rgba(209, 154, 74, 0.12);
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    color: var(--text);
+}
+
 .chess-board {
     display: grid;
     grid-template-columns: repeat(8, minmax(0, 1fr));
     grid-template-rows: repeat(8, minmax(0, 1fr));
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     overflow: hidden;
     border: 1px solid var(--border);
 }
@@ -104,7 +132,7 @@ button, textarea {
 }
 
 .square.selected {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--accent-strong);
     outline-offset: -3px;
 }
 
@@ -156,13 +184,21 @@ button, textarea {
 .panel {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     padding: 1rem;
 }
 
 .panel h2 {
     margin-top: 0;
     font-size: 1rem;
+}
+
+.panel h3 {
+    margin: 0.75rem 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .button-row {
@@ -174,10 +210,10 @@ button, textarea {
 button {
     flex: 1;
     padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     border: 1px solid var(--border);
     background: var(--accent);
-    color: #031224;
+    color: #1e1405;
     font-weight: 600;
     cursor: pointer;
     transition: opacity 0.2s ease, transform 0.1s ease;
@@ -191,18 +227,33 @@ button:active {
     transform: scale(0.98);
 }
 
+button.secondary {
+    background: var(--panel-soft);
+    color: var(--text);
+}
+
 button.danger {
     background: var(--danger);
     color: white;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+input,
+select,
 textarea {
     width: 100%;
     padding: 0.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.375rem;
     border: 1px solid var(--border);
-    background: #0b0f16;
+    background: #0d1014;
     color: var(--text);
+}
+
+textarea {
     resize: vertical;
 }
 
@@ -211,6 +262,69 @@ label {
     margin-bottom: 0.25rem;
     font-size: 0.85rem;
     color: var(--muted);
+}
+
+.stacked-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: minmax(6rem, 0.8fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-grid.two {
+    grid-template-columns: minmax(5rem, 0.8fr) minmax(0, 1.2fr);
+}
+
+.form-grid.compact {
+    grid-template-columns: minmax(4.75rem, 0.8fr) minmax(0, 1fr);
+}
+
+.segmented-field {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin: 0.25rem 0;
+    padding: 0;
+    border: 0;
+}
+
+.segmented-field legend {
+    grid-column: 1 / -1;
+    margin-bottom: 0.25rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.segmented-field label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2.25rem;
+    margin: 0;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--panel-soft);
+    color: var(--text);
+}
+
+.segmented-field input {
+    width: auto;
+}
+
+.form-message,
+.summary-text {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
 }
 
 .move-history {
@@ -228,6 +342,59 @@ label {
     border-bottom: 1px solid var(--border);
 }
 
+.move-history li.active {
+    color: var(--accent-strong);
+    font-weight: 700;
+}
+
+.saved-games {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.saved-games li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--panel-soft);
+}
+
+.saved-game-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.saved-game-summary strong,
+.saved-game-summary span {
+    overflow-wrap: anywhere;
+}
+
+.saved-game-summary span {
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.saved-game-actions,
+.replay-controls {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.saved-game-actions button,
+.replay-controls button {
+    min-width: 4.25rem;
+}
+
 #statusMessage {
     margin: 0;
     min-height: 2rem;
@@ -235,6 +402,36 @@ label {
 
 @media (max-width: 960px) {
     .app-shell {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .header-status,
+    .button-row,
+    .saved-game-actions,
+    .replay-controls {
+        width: 100%;
+    }
+
+    .app-shell {
+        padding: 1rem;
+    }
+
+    .form-grid,
+    .form-grid.two,
+    .form-grid.compact,
+    .saved-games li {
+        grid-template-columns: 1fr;
+    }
+
+    .segmented-field {
         grid-template-columns: 1fr;
     }
 }

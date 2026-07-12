@@ -22,6 +22,21 @@ const PIECE_NAMES = {
     k: 'King',
 };
 
+const FEN_PIECES = {
+    P: 'wp',
+    R: 'wr',
+    N: 'wn',
+    B: 'wb',
+    Q: 'wq',
+    K: 'wk',
+    p: 'bp',
+    r: 'br',
+    n: 'bn',
+    b: 'bb',
+    q: 'bq',
+    k: 'bk',
+};
+
 export function renderBoard(boardElement, board, selection, onSquareAction) {
     boardElement.replaceChildren();
 
@@ -62,6 +77,36 @@ export function renderBoard(boardElement, board, selection, onSquareAction) {
             boardElement.append(square);
         });
     });
+}
+
+export function boardFromFen(fen) {
+    if (typeof fen !== 'string' || fen.trim() === '') {
+        return [];
+    }
+
+    const placement = fen.trim().split(/\s+/)[0];
+    const rows = placement.split('/');
+    if (rows.length !== 8) {
+        return [];
+    }
+
+    const board = rows.map((row) => {
+        const cells = [];
+        [...row].forEach((token) => {
+            if (/^[1-8]$/.test(token)) {
+                for (let index = 0; index < Number(token); index += 1) {
+                    cells.push(null);
+                }
+                return;
+            }
+
+            cells.push(FEN_PIECES[token] || null);
+        });
+
+        return cells;
+    });
+
+    return board.every((row) => row.length === 8) ? board : [];
 }
 
 export function getPieceAt(board, coord) {

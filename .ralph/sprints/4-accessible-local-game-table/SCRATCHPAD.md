@@ -30,3 +30,22 @@
   and `./scripts/check.sh` also passed.
 - Handoff: continue with chunk 2, account game creation/history UI. Existing unrelated dirty files
   from Sprint 3 remain outside this chunk.
+
+## 2026-07-12T14:10:38Z — Chunk 2 complete
+
+- Added compact account, new-game, saved-game history, and replay controls to `frontend/index.html`
+  with no framework, bundler, CDN, remote asset, or page-level alert dependency.
+- Extended `api.js` with same-origin auth, game creation, history, open, and replay endpoints while
+  preserving JSON validation messages from non-2xx responses for inline UI feedback.
+- Extended `state.js` with user and read-only replay mode. `app.js` now keeps live server state
+  separate from saved-game review state, disables board moves during review, and uses canonical
+  server FEN from replay positions for board rendering through `boardFromFen()`.
+- Added `tests/FrontendContractTest.php` to lock account/history/replay controls, same-origin API
+  endpoint wiring, local-only runtime assets, and read-only replay behavior.
+- Dead end avoided: did not make `open.php` mutate the live board; saved-game open/replay remain
+  review-only so the browser does not invent active game state.
+- Validation evidence: `./scripts/lint.sh` passed; `composer format:check` passed after one quote
+  style correction; `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+  passed with 92 tests, PHPStan clean, and complexity budget clean.
+- Handoff: continue with chunk 3, accessible board interaction and state cues. Existing unrelated
+  Sprint 3 dirty files remain outside this chunk.

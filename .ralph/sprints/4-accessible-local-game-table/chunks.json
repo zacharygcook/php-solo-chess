@@ -23,7 +23,7 @@
     {
       "id": 2,
       "title": "Build account game creation and history views",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "A guest can start an untimed game quickly with sensible default labels",
         "Registration, login, logout, account switching, preset/custom time controls, and validation feedback are usable without page-level alerts",
