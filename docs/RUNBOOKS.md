@@ -43,6 +43,20 @@ or state that persists after browser refresh.
    `SOLO_CHESS_DATABASE_PATH=/tmp/solo-chess-debug.sqlite`.
 5. Restart and run `./scripts/check.sh` before investigating rules behavior.
 
+## PGN download fails
+
+Symptoms: **Download PGN** returns JSON instead of a file, a saved-game row will not export, or the
+downloaded movetext/result does not match the saved game.
+
+1. Confirm the request is same-origin under `/backend/public/api/games/export.php`.
+2. For a saved-game export, confirm the browser is logged in as the owner of that saved game.
+3. For an active guest export, omit the `id` query parameter so only the current PHP session state is
+   used.
+4. Run `php scripts/generate-api-docs.php --check` if the documented content type or endpoint list
+   looks stale.
+5. Run `./scripts/test.sh` before debugging PGN correctness; exporter and verifier tests replay
+   canonical move records through the authoritative move path.
+
 ## Canonical check fails
 
 1. Read the named step and its complete error output; each policy command can also run separately

@@ -167,3 +167,16 @@
 - Residual risk: documentation and final validation hooks remain pending after this review; the
   review hook is marked complete in tracked sprint state, and the remaining hooks should be completed
   by the Ralph post-sprint flow.
+
+## 2026-07-12T16:05:09Z — Documentation reconciliation
+
+- Updated canonical repository documentation made stale or incomplete by Sprint 5: `README.md` now
+  includes PGN export in the manual QA path and current MVP scope, and `docs/RUNBOOKS.md` now has a
+  PGN download failure triage procedure.
+- Evidence: `docs/API.md`, `docs/openapi.json`, and `docs/ARCHITECTURE.md` already documented the
+  generated PGN endpoint contract, PGN services, and passive engine seam from chunk 5, so no further
+  API or architecture changes were needed.
+- Decision: keep PGN/engine boundary documentation in the existing README, API, architecture, and
+  runbook pages rather than creating a sprint-specific repository docs page.
+- Decision: do not document real engine setup, engine binaries, analysis UI, model downloads,
+  difficulty levels, or opponent behavior because Sprint 5 intentionally added only the passive seam.

@@ -138,7 +138,8 @@ For a short manual pass:
 3. Try moving another white piece immediately; the move should be rejected.
 4. Make a legal black move and confirm both moves appear in history.
 5. Refresh the browser and confirm the position survives in the PHP session.
-6. Select **Reset** and confirm the initial position returns.
+6. Select **Download PGN** and confirm the browser receives a `.pgn` file.
+7. Select **Reset** and confirm the initial position returns.
 
 Runtime session files and the local SQLite database live under `backend/storage/` and are ignored by
 Git. Use `SOLO_CHESS_DATABASE_PATH` to point a diagnostic run at another SQLite file.
@@ -146,8 +147,9 @@ Git. Use `SOLO_CHESS_DATABASE_PATH` to point a diagnostic run at another SQLite 
 ## Current milestone
 
 The target MVP is correct, test-backed, locally playable chess: complete legal-move enforcement,
-check/checkmate/stalemate, special moves, clear frontend feedback, and an end-to-end smoke test.
-Multiplayer and themed animation work are later milestones.
+check/checkmate/stalemate, special moves, local accounts and saved history, clocks, PGN export,
+clear frontend feedback, a documented future-engine seam, and end-to-end smoke coverage. Multiplayer,
+real engine play, and themed animation work are later milestones.
 
 Ralph workflow quality is tracked visibly in [`RALPH_DOGFOOD_SCORECARD.md`](RALPH_DOGFOOD_SCORECARD.md).
 The runtime request flow and component boundaries are documented in
