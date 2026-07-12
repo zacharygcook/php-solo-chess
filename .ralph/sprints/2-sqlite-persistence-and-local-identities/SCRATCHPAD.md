@@ -99,3 +99,33 @@
     `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
     `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
     endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
+
+## Ralph validation feedback — chunk 2, iteration 3
+
+- Result: configured chunk validation failed
+- Log: `/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-3.log`
+- The chunk was reset to `passes: false`; inspect the log and repair before claiming completion again.
+
+## 2026-07-11 — Chunk 2 revalidated after second Ralph reset
+
+- Decisions:
+  - Treated chunk 2 as the next incomplete sequential chunk because Ralph reset only its
+    `passes` flag after the prior implementation and revalidation commits.
+  - Inspected the iteration 3 validation log before changing sprint state. The failure again
+    occurred after `./scripts/test.sh` passed; `composer typecheck` exhausted PHPStan's default
+    128 MB process limit while parsing internal stubs.
+  - Rechecked the committed repository implementation from `a09fbcb` and found the chunk 2
+    acceptance criteria still covered by repository tests and typed PDO repository boundaries.
+  - Made no product-code or tooling changes because the exact required fast gate passed in this
+    repair turn; the only sprint-state change is restoring chunk 2 `passes` to `true`.
+- Failed approaches / corrections:
+  - Did not change PHPStan memory settings or Ralph validation commands because the failure did not
+    reproduce under the required command in this environment.
+- Validation evidence:
+  - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+- Next handoff:
+  - Continue with chunk 3 only. Implement registration/authentication services on top of
+    `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
+    `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
+    endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
