@@ -11,3 +11,19 @@
   `./scripts/check.sh`.
 - This folder is dormant; `CURRENT_SPRINT` was intentionally left unchanged.
 - Append decisions, dead ends, validation evidence, and the next-context handoff before every exit.
+
+## 2026-07-11 23:03 CDT — Chunk 1 complete
+
+- Implemented game creation modeling with `GameLifecycleService` and `TimeControl`; supported untimed
+  games, presets `1+0`, `3+2`, `5+0`, `10+0`, `15+10`, and validated custom base/increment controls.
+- Creation state now includes participant labels/types, time-control metadata, and initialized
+  server-owned clock state using an injected deterministic millisecond source for tests.
+- Wired `GameService::createGame()` and reset through the lifecycle path; authenticated creation now
+  creates a new owner-scoped durable game and persists label/type, time-control, and clock JSON.
+- Focused proof added in `tests/GameLifecycleTest.php` for default untimed games, preset/custom
+  timed games, malformed controls, invalid participant types, and authenticated persistence metadata.
+- Validation passed: baseline `./scripts/check.sh`; focused `./scripts/test.sh`; requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`; final
+  `./scripts/check.sh`.
+- Handoff: next chunk is chunk 2, server-authoritative clock debiting. Reuse the existing
+  `clockState` fields and injected time pattern; do not add timeout termination until chunk 3.

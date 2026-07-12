@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Model game creation and time controls",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "New games accept untimed play, required presets, or validated custom base and increment values",
         "White and Black labels receive sensible defaults and participant types are stored without changing rules behavior",

@@ -63,6 +63,7 @@ final class GameStateFactory
             : [$this->positionKey($state['board'], $state['activeColor'], $state['castlingRights'], $state['enPassantTarget'])];
 
         $state = $this->withTerminalDefaults($state);
+        $state = $this->withLifecycleDefaults($state);
         $state['fen'] = $this->notationFormatter->fen($state);
 
         return $state;
@@ -81,6 +82,56 @@ final class GameStateFactory
         $state['availableActions'] = is_array($state['availableActions'] ?? null) ? $state['availableActions'] : [];
 
         return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function withLifecycleDefaults(array $state): array
+    {
+        $state['participants'] = is_array($state['participants'] ?? null)
+            ? $state['participants']
+            : [];
+        $state['participants']['white'] = $this->participantDefaults($state['participants']['white'] ?? null, 'White');
+        $state['participants']['black'] = $this->participantDefaults($state['participants']['black'] ?? null, 'Black');
+        $state['timeControl'] = is_array($state['timeControl'] ?? null)
+            ? $state['timeControl']
+            : [
+                'kind' => 'untimed',
+                'label' => 'Untimed',
+                'baseMilliseconds' => null,
+                'incrementMilliseconds' => 0,
+            ];
+        $state['clockState'] = is_array($state['clockState'] ?? null)
+            ? $state['clockState']
+            : [
+                'mode' => 'untimed',
+                'activeColor' => 'white',
+                'whiteRemainingMilliseconds' => null,
+                'blackRemainingMilliseconds' => null,
+                'turnStartedAtMilliseconds' => null,
+                'incrementMilliseconds' => 0,
+            ];
+
+        return $state;
+    }
+
+    /** @return array{label: string, type: string} */
+    private function participantDefaults(mixed $participant, string $defaultLabel): array
+    {
+        if (!is_array($participant)) {
+            return ['label' => $defaultLabel, 'type' => 'local_human'];
+        }
+
+        return [
+            'label' => is_string($participant['label'] ?? null) && trim($participant['label']) !== ''
+                ? trim($participant['label'])
+                : $defaultLabel,
+            'type' => is_string($participant['type'] ?? null) && trim($participant['type']) !== ''
+                ? trim($participant['type'])
+                : 'local_human',
+        ];
     }
 
     /**

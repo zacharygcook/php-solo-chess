@@ -80,6 +80,21 @@ final class GamePersistenceService
     }
 
     /** @param array<string, mixed> $state */
+    public function createStateForAuthenticatedUser(array $state): void
+    {
+        $ownerUserId = $this->sessions->getAuthenticatedUserId();
+        if ($ownerUserId === null) {
+            return;
+        }
+
+        $created = $this->games->createWithMoves(
+            $this->createData($ownerUserId, $state),
+            self::moveDataFromState($state),
+        );
+        $this->sessions->saveCurrentGameId($created->id);
+    }
+
+    /** @param array<string, mixed> $state */
     private function createData(int $ownerUserId, array $state): GameCreateData
     {
         return new GameCreateData(
@@ -88,6 +103,12 @@ final class GamePersistenceService
             currentStateJson: self::encodeState($state),
             result: self::nullableString($state['result'] ?? null),
             terminationReason: self::nullableString($state['terminationReason'] ?? null),
+            whiteLabel: self::participantLabel($state, 'white', 'White'),
+            blackLabel: self::participantLabel($state, 'black', 'Black'),
+            whitePlayerType: self::participantType($state, 'white'),
+            blackPlayerType: self::participantType($state, 'black'),
+            timeControlJson: self::optionalJson($state['timeControl'] ?? null),
+            clockStateJson: self::optionalJson($state['clockState'] ?? null),
         );
     }
 
@@ -99,6 +120,8 @@ final class GamePersistenceService
             currentStateJson: self::encodeState($state),
             result: self::nullableString($state['result'] ?? null),
             terminationReason: self::nullableString($state['terminationReason'] ?? null),
+            timeControlJson: self::optionalJson($state['timeControl'] ?? null),
+            clockStateJson: self::optionalJson($state['clockState'] ?? null),
         );
     }
 
@@ -176,6 +199,31 @@ final class GamePersistenceService
     private static function nullableString(mixed $value): ?string
     {
         return is_string($value) ? $value : null;
+    }
+
+    /** @param array<string, mixed> $state */
+    private static function participantLabel(array $state, string $color, string $fallback): string
+    {
+        $participants = $state['participants'] ?? null;
+        $participant = is_array($participants) && is_array($participants[$color] ?? null) ? $participants[$color] : [];
+        $label = $participant['label'] ?? null;
+
+        return is_string($label) && trim($label) !== '' ? trim($label) : $fallback;
+    }
+
+    /** @param array<string, mixed> $state */
+    private static function participantType(array $state, string $color): string
+    {
+        $participants = $state['participants'] ?? null;
+        $participant = is_array($participants) && is_array($participants[$color] ?? null) ? $participants[$color] : [];
+        $type = $participant['type'] ?? null;
+
+        return is_string($type) && trim($type) !== '' ? trim($type) : 'local_human';
+    }
+
+    private static function optionalJson(mixed $value): ?string
+    {
+        return is_array($value) ? self::encodeState($value) : null;
     }
 
     /** @param array<string, mixed> $values */

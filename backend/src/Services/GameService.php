@@ -23,6 +23,7 @@ final class GameService
     private LegalMoveGenerator $legalMoveGenerator;
     private TerminalStateResolver $terminalStateResolver;
     private NotationFormatter $notationFormatter;
+    private GameLifecycleService $lifecycle;
 
     public function __construct(
         private SessionStore $store,
@@ -35,6 +36,7 @@ final class GameService
         $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer, $this->castlingResolver);
         $this->terminalStateResolver = new TerminalStateResolver();
         $this->notationFormatter = new NotationFormatter();
+        $this->lifecycle = new GameLifecycleService($this->stateFactory);
     }
 
     public static function default(): self
@@ -104,10 +106,19 @@ final class GameService
     /** @return array<string, mixed> */
     public function resetGame(): array
     {
-        $state = $this->stateFactory->create();
+        return $this->createGame([]);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function createGame(array $payload): array
+    {
+        $state = $this->lifecycle->createGame($payload);
         $state = $this->withLegalMoves($state);
         $this->store->saveState($state);
-        $this->persistence?->saveStateForAuthenticatedUser($state);
+        $this->persistence?->createStateForAuthenticatedUser($state);
 
         return $state;
     }
