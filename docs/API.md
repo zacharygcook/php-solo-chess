@@ -5,6 +5,12 @@ This file is generated from `config/api-endpoints.json`. Do not edit it by hand;
 
 All endpoints are same-origin JSON and use the PHP session cookie described in `docs/ARCHITECTURE.md`.
 
+Successful responses keep the stable envelope `success`, `message`, and `state`. Game state
+contains the board, move history, active color, legal moves, FEN, castling/en-passant clocks,
+terminal fields, and draw-claim actions. Accepted move-history records include coordinate
+notation, SAN, and post-move FEN. Promotion requests use `queen`, `rook`, `bishop`, or `knight`.
+Auth state contains only the current safe user identity or `null`, never password material.
+
 | Method | Path | Purpose | Success |
 |---|---|---|---:|
 | `GET` | `/backend/public/api/session.php` | Load or create the current game session | `200` |

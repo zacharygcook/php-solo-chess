@@ -301,10 +301,10 @@
                             "null"
                         ],
                         "enum": [
-                            "q",
-                            "r",
-                            "b",
-                            "n",
+                            "queen",
+                            "rook",
+                            "bishop",
+                            "knight",
                             null
                         ]
                     }
@@ -455,9 +455,121 @@
                             "black",
                             null
                         ]
+                    },
+                    "castlingRights": {
+                        "type": "object",
+                        "properties": {
+                            "white": {
+                                "$ref": "#/components/schemas/CastlingRights"
+                            },
+                            "black": {
+                                "$ref": "#/components/schemas/CastlingRights"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "enPassantTarget": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[a-h][1-8]$"
+                    },
+                    "halfmoveClock": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "fullmoveNumber": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "positionHistory": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "legalMoves": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[a-h][1-8]$"
+                            }
+                        }
+                    },
+                    "fen": {
+                        "type": "string"
+                    },
+                    "gameStatus": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "finished"
+                        ]
+                    },
+                    "result": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "1-0",
+                            "0-1",
+                            "1/2-1/2",
+                            null
+                        ]
+                    },
+                    "terminationReason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "checkmate",
+                            "stalemate",
+                            "deadPosition",
+                            null
+                        ]
+                    },
+                    "drawClaims": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "fiftyMoveRule",
+                                "threefoldRepetition"
+                            ]
+                        }
+                    },
+                    "availableActions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "claimDraw"
+                            ]
+                        }
                     }
                 },
                 "additionalProperties": true
+            },
+            "CastlingRights": {
+                "type": "object",
+                "required": [
+                    "kingSide",
+                    "queenSide"
+                ],
+                "properties": {
+                    "kingSide": {
+                        "type": "boolean"
+                    },
+                    "queenSide": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
             },
             "GameResponse": {
                 "type": "object",

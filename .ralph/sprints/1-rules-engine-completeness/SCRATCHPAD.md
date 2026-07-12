@@ -144,3 +144,38 @@
 - Next handoff: all sprint chunks now pass. Post-sprint hooks should run the comprehensive
   `./scripts/check.sh` gate and review whether `DEBT-002` belongs in the next sprint because checking
   pieces are still not explicitly exposed.
+
+## 2026-07-11 — Post-sprint review
+
+- Reviewed range `9d4d8c5a93b70492e2e5913c0013207358a54231..02fffe207c697ab4d732cf807ddcddfdc2d2fe7e`
+  against the implementation plan, chunk criteria, repository chess-rules guidance, and adjacent
+  controller/domain contracts.
+- Finding: product code matched sprint scope and validation stayed green, but Ralph post-sprint
+  orchestration did not persist a reconciled hook-complete state. `manifest.json` still says
+  `phase=chunks_done`, all hook statuses are `pending`, no `.hook-*.done` marker files were present,
+  and the latest `orchestrator.log` stops at `hooks_started`.
+- No product-code fixes were applied. Automatic fivefold-repetition and seventy-five-move endings
+  remain an open policy question because the sprint documented threefold/fifty-move claim exposure
+  but did not explicitly require automatic thresholds.
+- Validation evidence from review: `./scripts/check.sh`, `./scripts/test.sh`, `composer typecheck`,
+  and `./scripts/test-flakiness.sh` all passed. The direct `./scripts/test.sh` review run used seed
+  `1743594937` and ran 42 tests with 0 failures.
+
+## 2026-07-11 — Documentation reconciliation
+
+- Updated canonical repository documentation only where the sprint made it stale:
+  `docs/ARCHITECTURE.md`, `scripts/generate-api-docs.php`, generated `docs/API.md`, and generated
+  `docs/openapi.json`.
+- Decision: keep API documentation generated. The promotion request contract now documents the
+  server's full-name values (`queen`, `rook`, `bishop`, `knight`) rather than stale single-letter
+  values, and the state schema now names the newly exposed legal-move, FEN, castling/en-passant,
+  terminal, and draw-action fields without removing `additionalProperties: true`.
+- Decision: update the existing architecture page rather than create a sprint-specific docs page.
+  It now lists `LegalMoveGenerator`, `TerminalStateResolver`, and `NotationFormatter`, removes the
+  resolved castling-debt wording, and records move-history notation fields.
+- Dead end avoided: no separate documentation hierarchy or agent-process narrative was added because
+  the canonical architecture/API/tech-debt locations already covered the durable product behavior.
+- Validation evidence: `php scripts/generate-api-docs.php --check`, `./scripts/check-agent-docs.sh`,
+  and full `./scripts/check.sh` passed after the documentation updates. The full check used unit-test
+  seed `1477287935`, coverage-test seed `197782474`, ran 42 tests with 0 failures in both phases, and
+  completed the local browser/API smoke path.

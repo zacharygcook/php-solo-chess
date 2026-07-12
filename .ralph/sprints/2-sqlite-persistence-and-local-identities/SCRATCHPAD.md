@@ -313,3 +313,57 @@
 - Next handoff:
   - All Sprint 2 chunks now pass. Proceed to Ralph post-sprint review, documentation, and validation
     hooks; do not start Sprint 3 work until those hooks complete.
+
+## 2026-07-11 — Post-sprint review complete
+
+- Decisions:
+  - Reviewed the stated range
+    `6420864fcfcca573c354db0c238082e36c1f0cb0..8adfc149c396d12d00d514c027fd646ac74cbead`
+    against the implementation plan, chunks, repository instructions, architecture/runbook
+    contracts, and adjacent auth/persistence tests.
+  - Found no clear sprint-scope product-code defect requiring a behavior change. Owner-scoped reloads,
+    guest session behavior, transaction boundaries, password hashing, safe auth envelopes, API docs,
+    router exposure, and dynamic probes matched the sprint acceptance criteria.
+  - Fixed sprint metadata drift in `manifest.json`: the `commits` array now includes all nine commits
+    in the review range, including the chunk 2 repository implementation and revalidation commits
+    that were previously omitted.
+  - Wrote `REVIEW.md` with findings, the metadata fix, checks run, readiness score, and residual risk.
+- Failed approaches / corrections:
+  - Did not change logout/current-game behavior or add history/replay UI/API. Those are product-policy
+    and future-scope questions relative to this sprint's narrower current-game persistence plan.
+  - Did not mark post-sprint hook statuses or create hook marker files manually; the active Ralph hook
+    runner should own `.hook-*` marker reconciliation after this review exits.
+- Validation evidence:
+  - Manifest JSON parse check passed.
+  - `./scripts/check.sh` passed all 24 steps, including generated API docs, architecture checks,
+    formatting, PHPStan, 69 tests, coverage, dynamic security probes, and local API smoke.
+- Next handoff:
+  - Let Ralph reconcile the review hook marker/status, then run the documentation and validation
+    hooks. Treat the still-pending hook state as the main residual sprint-readiness risk until those
+    markers and manifest statuses are complete.
+
+## 2026-07-11 — Documentation reconciliation complete
+
+- Updated canonical repository documentation made stale or incomplete by Sprint 2:
+  `README.md`, `docs/RUNBOOKS.md`, `docs/ARCHITECTURE.md`, `SECURITY.md`, and `.env.example`.
+- Preserved the existing generated API documentation updates from the sprint; `docs/API.md` and
+  `docs/openapi.json` remained generated from `scripts/generate-api-docs.php` and needed no manual
+  edit in this pass.
+- Decision: document local accounts as local-only SQLite runtime data, not as external accounts or a
+  hosted persistence system. The external-systems contract now distinguishes pinned jQuery from the
+  ignored local database.
+- Decision: keep persistence recovery guidance in the existing runbook instead of creating a new
+  persistence document. The runbook now separates guest session cleanup from deliberately discarding
+  local account/saved-game SQLite data.
+- Decision: record `SOLO_CHESS_DATABASE_PATH` as an optional non-secret diagnostic path override in
+  `.env.example`, `README.md`, `SECURITY.md`, and the runbook.
+- Dead end avoided: no parallel documentation hierarchy or agent-process narrative was added because
+  the existing README, architecture, runbook, security policy, and environment example are the
+  durable canonical locations for this behavior.
+- Validation evidence:
+  - `php scripts/generate-api-docs.php --check` passed.
+  - `./scripts/check-agent-docs.sh` passed.
+  - `git diff --check` passed.
+  - `./scripts/check.sh` passed all 24 steps. The unit-test phase used seed `429335587`, the coverage
+    phase used seed `1801420232`, both ran 69 tests with 0 failures, and the local API smoke move
+    completed.

@@ -44,6 +44,131 @@ class RalphError(ValueError):
     pass
 
 
+def prompt_choice(label: str, choices: set[str]) -> str:
+    ordered = ", ".join(sorted(choices))
+    while True:
+        value = input(f"{label} ({ordered}): ").strip()
+        if value in choices:
+            return value
+        print(f"Choose one of: {ordered}", file=sys.stderr)
+
+
+def prompt_positive_integer(label: str) -> int:
+    while True:
+        value = input(f"{label}: ").strip()
+        if value.isdigit() and int(value) > 0:
+            return int(value)
+        print("Enter a positive integer.", file=sys.stderr)
+
+
+def prompt_command(label: str) -> str:
+    value = input(f"{label}: ").strip()
+    if not value:
+        raise RalphError(f"{label} cannot be empty")
+    return value
+
+
+def resolve_validation_commands(
+    chunk_enabled: bool,
+    chunk_command: str,
+    sprint_enabled: bool,
+    sprint_command: str,
+    context: str,
+) -> tuple[str, str]:
+    missing = []
+    if chunk_enabled and not chunk_command:
+        missing.append("--chunk-validation-command")
+    if sprint_enabled and not sprint_command:
+        missing.append("--sprint-validation-command")
+    if not missing:
+        return chunk_command, sprint_command
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        raise RalphError(
+            f"Missing validation choices for noninteractive {context}: "
+            + ", ".join(missing)
+        )
+    print("Configure repository validation. No commands are assumed.")
+    if chunk_enabled and not chunk_command:
+        chunk_command = prompt_command("Fast command to validate each chunk")
+    if sprint_enabled and not sprint_command:
+        sprint_command = prompt_command(
+            "Comprehensive command to validate the completed sprint"
+        )
+    return chunk_command, sprint_command
+
+
+def resolve_init_operator_choices(arguments: argparse.Namespace) -> None:
+    """Collect missing operator intent interactively or fail clearly in automation."""
+    missing = []
+    if not arguments.agent:
+        missing.append("--agent")
+    if arguments.agent != "custom" and not arguments.model:
+        missing.append("--model")
+    if arguments.max_sprint_iterations is None:
+        missing.append("--max-sprint-iterations")
+    if arguments.max_chunk_iterations is None:
+        missing.append("--max-chunk-iterations")
+    if not missing:
+        return
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        raise RalphError(
+            "Missing operator choices for noninteractive init: " + ", ".join(missing)
+        )
+    print("Configure Ralph operator controls. No choices are assumed.")
+    if not arguments.agent:
+        arguments.agent = prompt_choice("Agent harness", AGENTS)
+    if arguments.agent != "custom" and not arguments.model:
+        arguments.model = input("Exact model: ").strip()
+        if not arguments.model:
+            raise RalphError("An explicit model is required for a standard harness")
+    if arguments.max_sprint_iterations is None:
+        arguments.max_sprint_iterations = prompt_positive_integer(
+            "Maximum agent turns for the sprint"
+        )
+    if arguments.max_chunk_iterations is None:
+        arguments.max_chunk_iterations = prompt_positive_integer(
+            "Maximum agent turns per chunk"
+        )
+
+
+def resolve_upgrade_operator_choices(
+    agent: str,
+    model: str,
+    max_sprint_iterations: int | str | None,
+    max_chunk_iterations: int | str | None,
+) -> tuple[str, str, int | str, int | str]:
+    """Repair incomplete stored operator intent without inventing values."""
+    missing = []
+    if agent not in AGENTS:
+        missing.append("--agent")
+    if agent != "custom" and not model:
+        missing.append("--model")
+    if max_sprint_iterations is None or str(max_sprint_iterations) == "":
+        missing.append("--max-sprint-iterations")
+    if max_chunk_iterations is None or str(max_chunk_iterations) == "":
+        missing.append("--max-chunk-iterations")
+    if not missing:
+        return agent, model, max_sprint_iterations, max_chunk_iterations
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        raise RalphError("Missing operator choices for upgrade: " + ", ".join(missing))
+    print("Configure missing Ralph operator controls. No choices are assumed.")
+    if agent not in AGENTS:
+        agent = prompt_choice("Agent harness", AGENTS)
+    if agent != "custom" and not model:
+        model = input("Exact model: ").strip()
+        if not model:
+            raise RalphError("An explicit model is required for a standard harness")
+    if max_sprint_iterations is None or str(max_sprint_iterations) == "":
+        max_sprint_iterations = prompt_positive_integer(
+            "Maximum agent turns for the sprint"
+        )
+    if max_chunk_iterations is None or str(max_chunk_iterations) == "":
+        max_chunk_iterations = prompt_positive_integer(
+            "Maximum agent turns per chunk"
+        )
+    return agent, model, max_sprint_iterations, max_chunk_iterations
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -153,55 +278,30 @@ def install(arguments: argparse.Namespace) -> Path:
     metadata_path = target / ".runtime-manifest.json"
     if target.is_symlink():
         raise RalphError(f"Refusing symlinked runtime directory: {target}")
-    if target.exists() and not arguments.update_runtime:
-        raise RalphError(
-            f"Refusing to overwrite existing runtime: {target}; use --update-runtime"
+    if target.exists():
+        return upgrade(arguments)
+    resolve_init_operator_choices(arguments)
+    if arguments.agent != "custom" and not arguments.model:
+        raise RalphError("New runtimes require --model for the selected agent harness")
+    if arguments.max_sprint_iterations < 1 or arguments.max_chunk_iterations < 1:
+        raise RalphError("Iteration budgets must be positive integers")
+    chunk_enabled = not arguments.disable_chunk_validation
+    sprint_enabled = not arguments.disable_sprint_validation and not arguments.disable_tests
+    arguments.chunk_validation_command, arguments.sprint_validation_command = (
+        resolve_validation_commands(
+            chunk_enabled,
+            arguments.chunk_validation_command or "",
+            sprint_enabled,
+            arguments.sprint_validation_command or arguments.test_command or "",
+            "init",
         )
-    if not target.exists():
-        if arguments.agent != "custom" and not arguments.model:
-            raise RalphError(
-                "New runtimes require --model for the selected agent harness"
-            )
-        if arguments.max_sprint_iterations < 1 or arguments.max_chunk_iterations < 1:
-            raise RalphError("Iteration budgets must be positive integers")
-        if (
-            not arguments.disable_chunk_validation
-            and not arguments.chunk_validation_command
-        ):
-            raise RalphError(
-                "New runtimes require --chunk-validation-command unless --disable-chunk-validation is explicit"
-            )
-        if (
-            not arguments.disable_sprint_validation
-            and not arguments.disable_tests
-            and not (arguments.sprint_validation_command or arguments.test_command)
-        ):
-            raise RalphError(
-                "New runtimes require --sprint-validation-command unless --disable-sprint-validation is explicit"
-            )
-
-    previous: dict[str, Any] = {}
-    if metadata_path.exists():
-        try:
-            value = json.loads(metadata_path.read_text(encoding="utf-8"))
-            if isinstance(value, dict):
-                previous = value
-        except json.JSONDecodeError:
-            previous = {}
-    previous_mode = previous.get("mode")
-    if arguments.update_runtime and previous_mode and previous_mode != arguments.mode:
-        raise RalphError(
-            f"Refusing runtime mode change from {previous_mode} to {arguments.mode}; reinstall deliberately"
-        )
+    )
 
     target.mkdir(parents=True, exist_ok=True)
     if config.is_symlink():
         raise RalphError(f"Refusing symlinked runtime configuration: {config}")
     checksums = copy_runtime(target, arguments.mode)
-    if not config.exists():
-        config.write_text(render_config(arguments), encoding="utf-8")
-    elif not arguments.update_runtime:
-        raise RalphError(f"Refusing to overwrite existing config: {config}")
+    config.write_text(render_config(arguments), encoding="utf-8")
 
     write_json(
         metadata_path,
@@ -211,7 +311,7 @@ def install(arguments: argparse.Namespace) -> Path:
             "mode": arguments.mode,
             "repositories": arguments.repos if arguments.mode == "multi-repo" else [],
             "managed_files": checksums,
-            "previous_runtime_version": previous.get("runtime_version"),
+            "previous_runtime_version": None,
         },
     )
     (target / "sprints").mkdir(exist_ok=True)
@@ -304,22 +404,22 @@ def upgrade(arguments: argparse.Namespace) -> Path:
         or config.get("RALPH_TEST_COMMAND", "")
     )
     model = arguments.model or config.get("RALPH_AGENT_MODEL", "")
-    agent = config.get("RALPH_AGENT", "")
-    if agent != "custom" and not model:
-        raise RalphError(
-            "Upgrade requires --model because the installed standard harness has no explicit model"
-        )
+    agent = arguments.agent or config.get("RALPH_AGENT", "")
     max_sprint_iterations = (
         arguments.max_sprint_iterations
         if arguments.max_sprint_iterations is not None
         else config.get("MAX_SPRINT_ITERATIONS")
         or config.get("MAX_ITERATIONS")
-        or "30"
     )
     max_chunk_iterations = (
         arguments.max_chunk_iterations
         if arguments.max_chunk_iterations is not None
-        else config.get("MAX_CHUNK_ITERATIONS") or "5"
+        else config.get("MAX_CHUNK_ITERATIONS")
+    )
+    agent, model, max_sprint_iterations, max_chunk_iterations = (
+        resolve_upgrade_operator_choices(
+            agent, model, max_sprint_iterations, max_chunk_iterations
+        )
     )
     for label, value in (
         ("MAX_SPRINT_ITERATIONS", str(max_sprint_iterations)),
@@ -339,6 +439,7 @@ def upgrade(arguments: argparse.Namespace) -> Path:
     sprint_enabled = (
         "false"
         if arguments.disable_sprint_validation
+        or getattr(arguments, "disable_tests", False)
         else (
             "true"
             if arguments.sprint_validation_command
@@ -348,14 +449,13 @@ def upgrade(arguments: argparse.Namespace) -> Path:
             )
         )
     )
-    if chunk_enabled == "true" and not chunk_command:
-        raise RalphError(
-            "Upgrade requires --chunk-validation-command unless --disable-chunk-validation is explicit"
-        )
-    if sprint_enabled == "true" and not sprint_command:
-        raise RalphError(
-            "Upgrade requires --sprint-validation-command unless --disable-sprint-validation is explicit"
-        )
+    chunk_command, sprint_command = resolve_validation_commands(
+        chunk_enabled == "true",
+        chunk_command,
+        sprint_enabled == "true",
+        sprint_command,
+        "upgrade",
+    )
 
     # Validate every managed destination before changing any runtime file.
     sources = runtime_sources(mode)
@@ -374,6 +474,7 @@ def upgrade(arguments: argparse.Namespace) -> Path:
         ),
         {
             "RALPH_MODE": mode,
+            "RALPH_AGENT": agent,
             "RALPH_AGENT_MODEL": shell_value(model),
             "MAX_SPRINT_ITERATIONS": str(max_sprint_iterations),
             "MAX_CHUNK_ITERATIONS": str(max_chunk_iterations),
@@ -483,7 +584,7 @@ def validate_sprint(
 def validate(repo: Path) -> dict[str, Any]:
     root = repo.resolve() / ".ralph"
     findings: list[dict[str, str]] = []
-    for command in ("bash", "git", "jq", "python3"):
+    for command in ("bash", "git", "jq"):
         executable = shutil.which(command)
         findings.append(
             {
@@ -492,6 +593,23 @@ def validate(repo: Path) -> dict[str, Any]:
                 "detail": executable or "not found on PATH",
             }
         )
+    python_executable = None
+    for command in ("python3", "python"):
+        candidate = shutil.which(command)
+        if candidate and subprocess.run(
+            [candidate, "-c", "import sys; raise SystemExit(sys.version_info < (3, 11))"],
+            check=False,
+            capture_output=True,
+        ).returncode == 0:
+            python_executable = candidate
+            break
+    findings.append(
+        {
+            "status": "pass" if python_executable else "fail",
+            "check": "prerequisite:python",
+            "detail": python_executable or "Python 3.11+ not found as python3 or python",
+        }
+    )
     metadata_path = root / ".runtime-manifest.json"
     metadata: dict[str, Any] = {}
     if metadata_path.is_file():
@@ -746,7 +864,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Child repository directory names for multi-repo mode.",
     )
     init_parser.add_argument("--primary-repo")
-    init_parser.add_argument("--agent", choices=sorted(AGENTS), default="codex")
+    init_parser.add_argument("--agent", choices=sorted(AGENTS))
     init_parser.add_argument("--model")
     init_parser.add_argument(
         "--agent-command",
@@ -759,18 +877,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Deprecated alias for --sprint-validation-command.",
     )
     init_parser.add_argument("--e2e-command")
-    init_parser.add_argument("--max-sprint-iterations", type=int, default=30)
-    init_parser.add_argument("--max-chunk-iterations", type=int, default=5)
+    init_parser.add_argument("--max-sprint-iterations", type=int)
+    init_parser.add_argument("--max-chunk-iterations", type=int)
     init_parser.add_argument("--disable-review", action="store_true")
     init_parser.add_argument("--disable-documentation", action="store_true")
     init_parser.add_argument("--disable-tests", action="store_true")
     init_parser.add_argument("--disable-chunk-validation", action="store_true")
     init_parser.add_argument("--disable-sprint-validation", action="store_true")
-    init_parser.add_argument("--update-runtime", action="store_true")
+    init_parser.add_argument("--update-runtime", action="store_true", help=argparse.SUPPRESS)
     upgrade_parser = subparsers.add_parser(
         "upgrade", help="Safely refresh an installed runtime and migrate validation gates."
     )
     upgrade_parser.add_argument("--repo", type=Path, default=Path.cwd())
+    upgrade_parser.add_argument("--agent", choices=sorted(AGENTS))
     upgrade_parser.add_argument("--model")
     upgrade_parser.add_argument("--max-sprint-iterations", type=int)
     upgrade_parser.add_argument("--max-chunk-iterations", type=int)
@@ -795,12 +914,16 @@ def main() -> int:
     arguments = build_parser().parse_args()
     try:
         if arguments.command == "init":
+            existed = (arguments.repo.resolve() / ".ralph").is_dir()
             target = install(arguments)
-            print(f"Installed Ralph runtime {runtime_version()}: {target}")
+            config = parse_config(target / "config.env")
+            action = "Upgraded" if existed else "Installed"
+            print(f"{action} Ralph runtime {runtime_version()}: {target}")
             print(
-                f"Harness={arguments.agent} model={arguments.model or 'custom-command'} "
-                f"sprint-turns={arguments.max_sprint_iterations} "
-                f"chunk-turns={arguments.max_chunk_iterations}"
+                f"Harness={config.get('RALPH_AGENT') or 'unset'} "
+                f"model={config.get('RALPH_AGENT_MODEL') or 'custom-command'} "
+                f"sprint-turns={config.get('MAX_SPRINT_ITERATIONS') or 'unset'} "
+                f"chunk-turns={config.get('MAX_CHUNK_ITERATIONS') or 'unset'}"
             )
             return 0
         if arguments.command == "validate":

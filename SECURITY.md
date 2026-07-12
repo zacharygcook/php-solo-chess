@@ -1,15 +1,17 @@
 # Security Policy
 
-PHP Solo Chess is a local-only side project with no user accounts, production environment, paid
-service, CI, or repository secrets. The application should run without credentials.
+PHP Solo Chess is a local-only side project with local account records stored in an ignored SQLite
+database. It has no production environment, paid service, CI, external account provider, or
+repository secrets. The application should run without external credentials.
 
 ## Local secret handling
 
-- Never commit credentials, session cookies, PHP session files, tokens, private keys, or copied
-  environment files.
+- Never commit credentials, password hashes, session cookies, PHP session files, SQLite runtime
+  files, tokens, private keys, or copied environment files.
 - If a future local integration genuinely needs a credential, read it from a named environment
   variable. Add only the variable name and a non-secret explanation to `.env.example`; keep the
-  actual value in a shell session or ignored `.env` file.
+  actual value in a shell session or ignored `.env` file. `SOLO_CHESS_DATABASE_PATH` is a non-secret
+  local path override for SQLite diagnostics.
 - Do not add CI secrets or GitHub Actions. Do not create an external account or paid service for this
   project.
 - `./scripts/check-secrets.sh` scans tracked and unignored files for high-signal credential formats.

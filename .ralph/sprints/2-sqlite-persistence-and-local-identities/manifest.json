@@ -1,0 +1,226 @@
+{
+  "sprint": "2-sqlite-persistence-and-local-identities",
+  "start_commit": "6420864fcfcca573c354db0c238082e36c1f0cb0",
+  "started_at": "2026-07-12T00:46:58Z",
+  "end_commit": "8adfc149c396d12d00d514c027fd646ac74cbead",
+  "completed_at": "2026-07-12T01:38:50Z",
+  "iterations": 9,
+  "agent_turns": [
+    {
+      "chunk_id": 1,
+      "iteration": 1,
+      "started_at": "2026-07-12T00:46:58Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 2,
+      "started_at": "2026-07-12T00:54:01Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 3,
+      "started_at": "2026-07-12T01:00:44Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 4,
+      "started_at": "2026-07-12T01:03:10Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 5,
+      "started_at": "2026-07-12T01:05:31Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 6,
+      "started_at": "2026-07-12T01:07:43Z"
+    },
+    {
+      "chunk_id": 3,
+      "iteration": 7,
+      "started_at": "2026-07-12T01:11:08Z"
+    },
+    {
+      "chunk_id": 4,
+      "iteration": 8,
+      "started_at": "2026-07-12T01:16:54Z"
+    },
+    {
+      "chunk_id": 5,
+      "iteration": 9,
+      "started_at": "2026-07-12T01:28:22Z"
+    }
+  ],
+  "commits": [
+    {
+      "hash": "fc8286b29c22e5810cd9535c486769909b6a3fc9",
+      "message": "Add deterministic SQLite schema setup",
+      "chunk_id": 1,
+      "iteration": 1
+    },
+    {
+      "hash": "a09fbcbaf659f6c862b64b8daddcdb49aaf14953",
+      "message": "Add SQLite repositories",
+      "chunk_id": 2,
+      "iteration": 2
+    },
+    {
+      "hash": "b9fc80431b3a85e1b4c05c7be5f577895e281601",
+      "message": "Revalidate SQLite repository chunk",
+      "chunk_id": 2,
+      "iteration": 3
+    },
+    {
+      "hash": "acf529da0bf0a08b7a53985482551894a50c77a3",
+      "message": "Record chunk 2 revalidation",
+      "chunk_id": 2,
+      "iteration": 4
+    },
+    {
+      "hash": "c2112279a0dcb6d2a209d2ae504eed9fbe576980",
+      "message": "Revalidate sprint 2 chunk 2",
+      "chunk_id": 2,
+      "iteration": 5
+    },
+    {
+      "hash": "6781a6d86774d34ada8450c67c4b988a97eb04c8",
+      "message": "Stabilize Ralph typecheck gate",
+      "chunk_id": 2,
+      "iteration": 6
+    },
+    {
+      "hash": "706f2bc7b7f4bd438da9bcf8ddcea63464a09512",
+      "message": "Add local auth service",
+      "chunk_id": 3,
+      "iteration": 7
+    },
+    {
+      "hash": "35d7aee94de9ec600c8a6ce61410169ac051b940",
+      "message": "Add session-backed auth endpoints",
+      "chunk_id": 4,
+      "iteration": 8
+    },
+    {
+      "hash": "8adfc149c396d12d00d514c027fd646ac74cbead",
+      "message": "Persist owned canonical games",
+      "chunk_id": 5,
+      "iteration": 9
+    }
+  ],
+  "validation": {
+    "chunk_attempts": [
+      {
+        "chunk_id": 1,
+        "iteration": 1,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T00:53:56Z",
+        "completed_at": "2026-07-12T00:53:59Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-1-validation-1.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 2,
+        "status": "failed",
+        "exit_code": 1,
+        "started_at": "2026-07-12T01:00:39Z",
+        "completed_at": "2026-07-12T01:00:42Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-2.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 3,
+        "status": "failed",
+        "exit_code": 1,
+        "started_at": "2026-07-12T01:03:05Z",
+        "completed_at": "2026-07-12T01:03:08Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-3.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 4,
+        "status": "failed",
+        "exit_code": 1,
+        "started_at": "2026-07-12T01:05:26Z",
+        "completed_at": "2026-07-12T01:05:29Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-4.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 5,
+        "status": "failed",
+        "exit_code": 1,
+        "started_at": "2026-07-12T01:07:38Z",
+        "completed_at": "2026-07-12T01:07:41Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-5.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 6,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T01:11:02Z",
+        "completed_at": "2026-07-12T01:11:06Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-6.log"
+      },
+      {
+        "chunk_id": 3,
+        "iteration": 7,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T01:16:46Z",
+        "completed_at": "2026-07-12T01:16:51Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-3-validation-7.log"
+      },
+      {
+        "chunk_id": 4,
+        "iteration": 8,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T01:28:16Z",
+        "completed_at": "2026-07-12T01:28:20Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-4-validation-8.log"
+      },
+      {
+        "chunk_id": 5,
+        "iteration": 9,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T01:38:46Z",
+        "completed_at": "2026-07-12T01:38:50Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-5-validation-9.log"
+      }
+    ]
+  },
+  "phase": "hooks_done",
+  "hooks": {
+    "review": {
+      "status": "done",
+      "completed_at": "2026-07-12T01:47:11Z",
+      "reason": null
+    },
+    "documentation": {
+      "status": "done",
+      "completed_at": "2026-07-12T01:47:11Z",
+      "reason": null
+    },
+    "validation": {
+      "status": "done",
+      "completed_at": "2026-07-12T01:47:11Z",
+      "reason": null,
+      "phases": {
+        "sprint": {
+          "status": "done",
+          "reason": null,
+          "completed_at": "2026-07-12T01:47:11Z"
+        },
+        "e2e": {
+          "status": "skipped",
+          "reason": "not_configured",
+          "completed_at": "2026-07-12T01:47:11Z"
+        }
+      }
+    }
+  }
+}

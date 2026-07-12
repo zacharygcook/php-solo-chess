@@ -138,7 +138,8 @@ For a short manual pass:
 5. Refresh the browser and confirm the position survives in the PHP session.
 6. Select **Reset** and confirm the initial position returns.
 
-Session files are local scratch data under `backend/storage/sessions/` and are ignored by Git.
+Runtime session files and the local SQLite database live under `backend/storage/` and are ignored by
+Git. Use `SOLO_CHESS_DATABASE_PATH` to point a diagnostic run at another SQLite file.
 
 ## Current milestone
 

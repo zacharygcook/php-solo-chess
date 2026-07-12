@@ -1,8 +1,9 @@
 # Local Runbooks
 
 These procedures cover the operational surface of this local-only application. There is no hosted
-environment, production database, CI, or paid monitoring service. Preserve failure output before
-changing code; do not delete user work to make a check green.
+environment, production database, CI, or paid monitoring service. Local accounts and saved games live
+in an ignored SQLite file. Preserve failure output before changing code; do not delete user work to
+make a check green.
 
 ## Local server does not start
 
@@ -27,15 +28,20 @@ Symptoms: an unstyled board, asset 404s, or “Failed to reach backend session e
 5. If only the UI script fails while offline, check whether `code.jquery.com` is reachable. Backend
    unit tests remain usable without it; do not replace the dependency with an unreviewed package.
 
-## Session state is stale or corrupt
+## Session or local persistence state is stale or corrupt
 
-Symptoms: an unexpected turn, malformed board, or state that persists after browser refresh.
+Symptoms: an unexpected turn, malformed board, login state that does not match the browser session,
+or state that persists after browser refresh.
 
 1. Save the JSON from `/backend/public/api/session.php` if it is useful for reproducing a rules bug.
 2. Use the UI Reset button or POST to `/backend/public/api/reset.php` on the local origin.
-3. If reset cannot run, stop the local server and remove only files under
-   `backend/storage/sessions/`; they are ignored scratch state.
-4. Restart and run `./scripts/check.sh` before investigating rules behavior.
+3. If reset cannot run and only guest state is affected, stop the local server and remove only files
+   under `backend/storage/sessions/`; they are ignored scratch state.
+4. If local account or saved-game data is corrupt and can be discarded, stop the server and remove
+   `backend/storage/solo-chess.sqlite` plus any SQLite `-journal`, `-wal`, or `-shm` sidecar files.
+   To avoid touching the default database during diagnostics, start PHP with
+   `SOLO_CHESS_DATABASE_PATH=/tmp/solo-chess-debug.sqlite`.
+5. Restart and run `./scripts/check.sh` before investigating rules behavior.
 
 ## Canonical check fails
 
@@ -56,7 +62,8 @@ Symptoms: an unexpected turn, malformed board, or state that persists after brow
 
 ## Security or privacy concern
 
-This application should contain no secrets or personal data. Do not paste tokens, cookies, or local
-session contents into issues or commits. If one is committed, stop sharing the repository, revoke
-the exposed credential at its source, remove it from the working tree and history with explicit
-owner coordination, and document the incident. Git history rewriting is never an automatic repair.
+This application should contain no repository secrets. Local account data, password hashes, cookies,
+and session contents are ignored runtime data; do not paste them into issues or commits. If a real
+credential is committed, stop sharing the repository, revoke the exposed credential at its source,
+remove it from the working tree and history with explicit owner coordination, and document the
+incident. Git history rewriting is never an automatic repair.

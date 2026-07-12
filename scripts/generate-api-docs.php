@@ -93,7 +93,7 @@ $openApi = [
                 'properties' => [
                     'from' => ['type' => 'string', 'pattern' => '^[a-h][1-8]$', 'example' => 'e2'],
                     'to' => ['type' => 'string', 'pattern' => '^[a-h][1-8]$', 'example' => 'e4'],
-                    'promotion' => ['type' => ['string', 'null'], 'enum' => ['q', 'r', 'b', 'n', null]],
+                    'promotion' => ['type' => ['string', 'null'], 'enum' => ['queen', 'rook', 'bishop', 'knight', null]],
                 ],
                 'additionalProperties' => false,
             ],
@@ -155,8 +155,51 @@ $openApi = [
                     'moveHistory' => ['type' => 'array', 'items' => ['type' => 'object']],
                     'activeColor' => ['type' => 'string', 'enum' => ['white', 'black']],
                     'kingInCheck' => ['type' => ['string', 'null'], 'enum' => ['white', 'black', null]],
+                    'castlingRights' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'white' => ['$ref' => '#/components/schemas/CastlingRights'],
+                            'black' => ['$ref' => '#/components/schemas/CastlingRights'],
+                        ],
+                        'additionalProperties' => false,
+                    ],
+                    'enPassantTarget' => ['type' => ['string', 'null'], 'pattern' => '^[a-h][1-8]$'],
+                    'halfmoveClock' => ['type' => 'integer', 'minimum' => 0],
+                    'fullmoveNumber' => ['type' => 'integer', 'minimum' => 1],
+                    'positionHistory' => ['type' => 'array', 'items' => ['type' => 'string']],
+                    'legalMoves' => [
+                        'type' => 'object',
+                        'additionalProperties' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string', 'pattern' => '^[a-h][1-8]$'],
+                        ],
+                    ],
+                    'fen' => ['type' => 'string'],
+                    'gameStatus' => ['type' => 'string', 'enum' => ['active', 'finished']],
+                    'result' => ['type' => ['string', 'null'], 'enum' => ['1-0', '0-1', '1/2-1/2', null]],
+                    'terminationReason' => [
+                        'type' => ['string', 'null'],
+                        'enum' => ['checkmate', 'stalemate', 'deadPosition', null],
+                    ],
+                    'drawClaims' => [
+                        'type' => 'array',
+                        'items' => ['type' => 'string', 'enum' => ['fiftyMoveRule', 'threefoldRepetition']],
+                    ],
+                    'availableActions' => [
+                        'type' => 'array',
+                        'items' => ['type' => 'string', 'enum' => ['claimDraw']],
+                    ],
                 ],
                 'additionalProperties' => true,
+            ],
+            'CastlingRights' => [
+                'type' => 'object',
+                'required' => ['kingSide', 'queenSide'],
+                'properties' => [
+                    'kingSide' => ['type' => 'boolean'],
+                    'queenSide' => ['type' => 'boolean'],
+                ],
+                'additionalProperties' => false,
             ],
             'GameResponse' => [
                 'type' => 'object',
@@ -196,6 +239,12 @@ $markdown = implode("\n", [
     '`php scripts/generate-api-docs.php --write` and commit the manifest plus generated artifacts.',
     '',
     'All endpoints are same-origin JSON and use the PHP session cookie described in `docs/ARCHITECTURE.md`.',
+    '',
+    'Successful responses keep the stable envelope `success`, `message`, and `state`. Game state',
+    'contains the board, move history, active color, legal moves, FEN, castling/en-passant clocks,',
+    'terminal fields, and draw-claim actions. Accepted move-history records include coordinate',
+    'notation, SAN, and post-move FEN. Promotion requests use `queen`, `rook`, `bishop`, or `knight`.',
+    'Auth state contains only the current safe user identity or `null`, never password material.',
     '',
     '| Method | Path | Purpose | Success |',
     '|---|---|---|---:|',
