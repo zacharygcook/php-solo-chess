@@ -8,6 +8,7 @@ final class SessionStore
 {
     private const SESSION_KEY = 'solo_chess_state';
     private const AUTH_USER_ID_KEY = 'solo_chess_auth_user_id';
+    private const CURRENT_GAME_ID_KEY = 'solo_chess_current_game_id';
 
     /**
      * @return array<mixed>
@@ -45,5 +46,22 @@ final class SessionStore
     public function clearAuthenticatedUser(): void
     {
         unset($_SESSION[self::AUTH_USER_ID_KEY]);
+    }
+
+    public function saveCurrentGameId(int $gameId): void
+    {
+        $_SESSION[self::CURRENT_GAME_ID_KEY] = $gameId;
+    }
+
+    public function getCurrentGameId(): ?int
+    {
+        $gameId = $_SESSION[self::CURRENT_GAME_ID_KEY] ?? null;
+
+        return is_int($gameId) && $gameId > 0 ? $gameId : null;
+    }
+
+    public function clearCurrentGame(): void
+    {
+        unset($_SESSION[self::CURRENT_GAME_ID_KEY]);
     }
 }

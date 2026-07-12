@@ -19,6 +19,37 @@ final class GameRepository
 
     public function create(GameCreateData $data): GameRecord
     {
+        $this->insertGame($data);
+
+        return $this->findRequiredById((int) $this->pdo->lastInsertId());
+    }
+
+    /**
+     * @param list<MoveCreateData> $moves
+     */
+    public function createWithMoves(GameCreateData $data, array $moves): GameRecord
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->insertGame($data);
+            $gameId = (int) $this->pdo->lastInsertId();
+            $this->moveRepository->replaceForGame($gameId, $moves);
+            $record = $this->findRequiredById($gameId);
+            $this->pdo->commit();
+
+            return $record;
+        } catch (Throwable $error) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $error;
+        }
+    }
+
+    private function insertGame(GameCreateData $data): void
+    {
         $statement = $this->pdo->prepare(
             'INSERT INTO games (
                 owner_user_id, white_label, black_label, white_player_type, black_player_type,
@@ -44,8 +75,6 @@ final class GameRepository
             ':clock_state_json' => $data->clockStateJson,
             ':completed_at' => $data->completedAt,
         ]);
-
-        return $this->findRequiredById((int) $this->pdo->lastInsertId());
     }
 
     public function findByIdForOwner(int $id, int $ownerUserId): ?GameRecord

@@ -1,8 +1,9 @@
 # Architecture
 
-PHP Solo Chess is one local web application with a static jQuery frontend and a session-backed PHP
-backend. There is no database, build step, dependency container, background worker, or deployment
-service.
+PHP Solo Chess is one local web application with a static jQuery frontend and a PHP backend. Guest
+games stay PHP-session backed. Authenticated local users also use SQLite persistence for the current
+owned game and ordered move records. There is no build step, dependency container, background worker,
+or deployment service.
 
 ## Runtime flow
 
@@ -20,6 +21,10 @@ GameController
   | shapes API responses
   v
 GameService  <---->  SessionStore  <---->  PHP session file
+  |
+  | for authenticated users only
+  v
+GamePersistenceService <----> GameRepository/MoveRepository <----> SQLite file
   |
   | coordinates explicit chess-domain services
   v
@@ -59,8 +64,11 @@ paths, while serving the root without the router exposes sensitive project files
 - `backend/src/Services/Chess/CastlingResolver.php` isolates the currently supported castling board
   transformation. Complete castling eligibility remains tracked in `DEBT-001`.
 - `backend/src/Services/Chess/GameStateFactory.php` owns the initial board and stable state shape.
-- `backend/src/Services/SessionStore.php` is the persistence boundary. It reads and writes one
-  namespaced value in PHP's session.
+- `backend/src/Services/SessionStore.php` is the session persistence boundary. It reads and writes
+  namespaced session values for guest game state, authenticated user id, and the current durable game
+  id.
+- `backend/src/Repositories/` isolates PDO SQLite access for users, games, and moves. Game reads and
+  updates are owner-scoped, and canonical game snapshots plus ordered moves are replaced atomically.
 - `backend/src/Http/JsonResponse.php` owns status codes, JSON content type, serialization, and
   response termination.
 

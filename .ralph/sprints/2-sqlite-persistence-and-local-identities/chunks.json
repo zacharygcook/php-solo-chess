@@ -73,7 +73,7 @@
     {
       "id": 5,
       "title": "Persist owned canonical games without breaking guest play",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "A logged-in owner can save and reload canonical game state plus ordered move records without notation or FEN drift",
         "Ownership checks prevent one local user from loading or mutating another user's games",

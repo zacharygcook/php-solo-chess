@@ -274,3 +274,42 @@
     accepted transitions, enforce owner isolation on reload/mutation, and keep guest games on the
     existing session-only path. Do not add clocks, roles, email, remote services, or frontend
     expansion in chunk 5.
+
+## 2026-07-11 — Chunk 5 complete: owned canonical game persistence
+
+- Decisions:
+  - Added `GamePersistenceService` as the application boundary between `GameService` and the typed
+    SQLite repositories. Guest games continue to use only `SessionStore`.
+  - Added session tracking for the current durable game id alongside the authenticated user id, so
+    account game reloads remain owner-scoped without changing frontend contracts.
+  - Extended `GameRepository` with `createWithMoves()` so first durable saves and later replacements
+    both write canonical state plus ordered moves inside repository transaction boundaries.
+  - Wired default game HTTP behavior through `GameService::default()`, which initializes SQLite via
+    `RepositoryFactory` only for the normal application path. Existing tests can still inject
+    isolated in-memory repositories and sessions.
+  - On authenticated load, the service reloads only the current owned game or latest owned game. A
+    stale or cross-owner current game id is cleared instead of being loaded or mutated.
+  - Durable writes encode the canonical rules-owned state JSON and derive move rows from
+    `moveHistory` so stored coordinate notation, SAN, and post-move FEN match the rules engine.
+- Failed approaches / corrections:
+  - The first implementation injected `MoveRepository` into `GamePersistenceService` even though the
+    service writes moves only through `GameRepository` transaction methods. PHPStan reported the
+    write-only property (`property.onlyWritten`), so the unused dependency was removed.
+  - The initial load path created an empty durable game for a logged-in user with no prior game.
+    Narrowed that behavior so loading only reloads existing owned games; first accepted moves and
+    resets create durable records.
+- Validation evidence:
+  - Baseline before edits: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 65 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+  - Focused suite after implementation: `./scripts/test.sh` passed with 69 tests, 0 failures.
+  - Static checks during implementation: `composer typecheck && ./scripts/check-complexity.sh`
+    passed after removing the unused `MoveRepository` dependency.
+  - Formatting check: `composer format:check` passed.
+  - Required fast gate:
+    `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with 69 tests,
+    0 failures; PHPStan reported no errors; complexity budget passed.
+  - Full project gate: `./scripts/check.sh` passed, including architecture checks, formatting,
+    PHPStan, tests, coverage, dynamic security probes, and API smoke.
+- Next handoff:
+  - All Sprint 2 chunks now pass. Proceed to Ralph post-sprint review, documentation, and validation
+    hooks; do not start Sprint 3 work until those hooks complete.

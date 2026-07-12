@@ -25,6 +25,16 @@ final class RepositoryFactory
         return new UserRepository($this->pdo);
     }
 
+    public function gameRepository(): GameRepository
+    {
+        return new GameRepository($this->pdo, $this->moveRepository());
+    }
+
+    public function moveRepository(): MoveRepository
+    {
+        return new MoveRepository($this->pdo);
+    }
+
     private static function defaultDatabasePath(): string
     {
         $configured = getenv('SOLO_CHESS_DATABASE_PATH');

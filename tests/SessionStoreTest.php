@@ -28,4 +28,15 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(null, $store->getAuthenticatedUserId());
         $tests->assertSame(['activeColor' => 'black'], $store->getState());
     });
+
+    $tests->test('session store tracks and clears the current durable game id', function () use ($tests): void {
+        $_SESSION = [];
+        $store = new SessionStore();
+
+        $store->saveCurrentGameId(42);
+        $tests->assertSame(42, $store->getCurrentGameId());
+
+        $store->clearCurrentGame();
+        $tests->assertSame(null, $store->getCurrentGameId());
+    });
 };

@@ -6,7 +6,6 @@ namespace SoloChess\Controllers;
 
 use SoloChess\Http\JsonResponse;
 use SoloChess\Services\GameService;
-use SoloChess\Services\SessionStore;
 
 final class GameController
 {
@@ -14,7 +13,7 @@ final class GameController
 
     public function __construct(?GameService $service = null)
     {
-        $this->service = $service ?? new GameService(new SessionStore());
+        $this->service = $service ?? GameService::default();
     }
 
     public function sessionState(): void

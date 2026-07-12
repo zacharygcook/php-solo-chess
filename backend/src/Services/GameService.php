@@ -24,8 +24,10 @@ final class GameService
     private TerminalStateResolver $terminalStateResolver;
     private NotationFormatter $notationFormatter;
 
-    public function __construct(private SessionStore $store)
-    {
+    public function __construct(
+        private SessionStore $store,
+        private ?GamePersistenceService $persistence = null,
+    ) {
         $this->stateFactory = new GameStateFactory();
         $this->movement = new PieceMovement();
         $this->positionAnalyzer = new PositionAnalyzer($this->movement);
@@ -35,12 +37,26 @@ final class GameService
         $this->notationFormatter = new NotationFormatter();
     }
 
+    public static function default(): self
+    {
+        $store = new SessionStore();
+
+        return new self($store, GamePersistenceService::default($store));
+    }
+
     /** @return array<string, mixed> */
     public function getSessionState(): array
     {
         $storedState = $this->store->getState();
         $state = $this->stateFactory->normalize($storedState);
         $state = $this->withLegalMoves($state);
+
+        if ($this->persistence !== null) {
+            $state = $this->persistence->loadStateForAuthenticatedUser($state);
+            $state = $this->stateFactory->normalize($state);
+            $state = $this->withLegalMoves($state);
+        }
+
         if ($storedState !== $state) {
             $this->store->saveState($state);
         }
@@ -91,6 +107,7 @@ final class GameService
         $state = $this->stateFactory->create();
         $state = $this->withLegalMoves($state);
         $this->store->saveState($state);
+        $this->persistence?->saveStateForAuthenticatedUser($state);
 
         return $state;
     }
@@ -148,6 +165,7 @@ final class GameService
         $state = $this->withMoveNotation($state, $before, $move, $capturedPiece !== null, $castle !== null);
         unset($state['isValidMove']);
         $this->store->saveState($state);
+        $this->persistence?->saveStateForAuthenticatedUser($state);
 
         return $state;
     }
