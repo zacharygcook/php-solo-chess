@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Build the executable MVP acceptance matrix",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Every required SPEC acceptance criterion maps to current executable tests, commands, and manual evidence",
         "Any uncovered requirement becomes a scoped test/product gap in this sprint rather than an unsupported completion claim",

@@ -12,6 +12,7 @@ required_files=(
   docs/RUNBOOKS.md
   docs/API.md
   docs/openapi.json
+  docs/MVP_ACCEPTANCE.md
   docs/RELEASING.md
   docs/NAMING.md
   config/api-endpoints.json
