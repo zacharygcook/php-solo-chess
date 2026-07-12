@@ -94,6 +94,8 @@
 - Validation evidence:
   - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
     passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+  - Full project gate: `./scripts/check.sh` passed, including dependency policy, generated API docs,
+    formatting, PHPStan, tests, coverage, and local API smoke probes.
 - Next handoff:
   - Continue with chunk 3 only. Implement registration/authentication services on top of
     `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
@@ -153,6 +155,37 @@
 - Failed approaches / corrections:
   - Did not raise PHPStan memory settings or alter the validation command because the requested gate
     passed without reproducing the Ralph subprocess failure.
+- Validation evidence:
+  - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+- Next handoff:
+  - Continue with chunk 3 only. Implement registration/authentication services on top of
+    `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
+    `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
+    endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
+
+## Ralph validation feedback — chunk 2, iteration 5
+
+- Result: configured chunk validation failed
+- Log: `/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-5.log`
+- The chunk was reset to `passes: false`; inspect the log and repair before claiming completion again.
+
+## 2026-07-11 — Chunk 2 revalidated after persistent Ralph reset
+
+- Decisions:
+  - Treated chunk 2 as the next incomplete sequential chunk because Ralph reset only its `passes`
+    flag after the repository implementation and prior revalidation commits.
+  - Inspected iteration 5 validation output before changing sprint state. The failure pattern matched
+    the earlier resets: tests passed, then `composer typecheck` exhausted PHPStan's inherited 128 MB
+    PHP child-process memory limit while parsing internal stubs.
+  - Made the gate deterministic by updating `composer typecheck` to invoke `vendor/bin/phpstan`
+    through PHP with `memory_limit=512M`. This preserves the configured fast gate command and avoids
+    changing Ralph validation commands mid-sprint.
+  - Recorded the repeated reset as Ralph workflow friction in `RALPH_DOGFOOD_SCORECARD.md`.
+- Failed approaches / corrections:
+  - Earlier revalidation passes left the PHPStan memory limit unchanged because the failure did not
+    reproduce manually. After the fifth reset, fixed the underlying validation environment instead
+    of re-marking the same already-implemented chunk without a durability change.
 - Validation evidence:
   - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
     passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.

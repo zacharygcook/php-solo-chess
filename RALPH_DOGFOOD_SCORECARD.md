@@ -34,6 +34,7 @@ product work itself ultimately succeeds.
 | 2026-07-11 | Readiness | High | The root document-server layout exposed repository source and configuration paths over local HTTP. | Product setup | Added an allowlist router and blocking dynamic probes for sensitive paths and method/input abuse. |
 | 2026-07-11 | Readiness | Info | Coverage loads the backend bootstrap outside HTTP, where `http_response_code()` returns `false`. | Project setup | Start request telemetry only when a request method exists and retain a defensive status fallback. |
 | 2026-07-11 | Pre-Ralph readiness | High | `GameService` was 887 lines with class complexity 248, one method at 60, NPath above 11 million, and 33% measured duplication. The initial five rules tests could not safely support autonomous edits. | Project setup | Added behavior-first coverage, extracted six chess-domain boundaries, reduced `GameService` to 165 lines, capped methods at complexity 9, and reduced duplication below 7%. |
+| 2026-07-11 | `2-sqlite-persistence-and-local-identities` | Medium | Ralph repeatedly reset chunk 2 after `./scripts/test.sh` passed because `composer typecheck` inherited a 128 MB PHPStan child-process memory limit while parsing internal stubs. | Runtime defect | Made `composer typecheck` invoke PHPStan through PHP with an explicit 512 MB memory limit, preserving the configured fast gate. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.

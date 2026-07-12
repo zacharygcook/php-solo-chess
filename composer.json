@@ -24,6 +24,6 @@
         "duplicate:check": "php scripts/check-duplication.php --check",
         "coverage:check": "XDEBUG_MODE=coverage php tests/coverage.php --check",
         "mess:check": "./scripts/check-complexity.sh",
-        "typecheck": "phpstan analyse --configuration=phpstan.neon"
+        "typecheck": "php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon"
     }
 }
