@@ -1,0 +1,142 @@
+{
+  "sprint": "6-mvp-integration-and-release-evidence",
+  "start_commit": "79f6f024597cd646222476bf04015ca082d42346",
+  "started_at": "2026-07-12T16:08:28Z",
+  "end_commit": "b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c",
+  "completed_at": "2026-07-12T16:36:39Z",
+  "iterations": 5,
+  "agent_turns": [
+    {
+      "chunk_id": 1,
+      "iteration": 1,
+      "started_at": "2026-07-12T16:08:28Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 2,
+      "started_at": "2026-07-12T16:11:29Z"
+    },
+    {
+      "chunk_id": 3,
+      "iteration": 3,
+      "started_at": "2026-07-12T16:17:19Z"
+    },
+    {
+      "chunk_id": 4,
+      "iteration": 4,
+      "started_at": "2026-07-12T16:21:34Z"
+    },
+    {
+      "chunk_id": 5,
+      "iteration": 5,
+      "started_at": "2026-07-12T16:30:33Z"
+    }
+  ],
+  "commits": [
+    {
+      "hash": "c89f63a88ae8178a73271bb66975459b7e68625f",
+      "message": "Add MVP acceptance evidence matrix",
+      "chunk_id": 1,
+      "iteration": 1
+    },
+    {
+      "hash": "94f187f2b3f173534916dcb8fc6f5448fc07ef66",
+      "message": "test untimed saved-game MVP journey",
+      "chunk_id": 2,
+      "iteration": 2
+    },
+    {
+      "hash": "3b9f41b933b45a5f58859ddd07e1c6e160a7e6d9",
+      "message": "Add timed MVP journey evidence",
+      "chunk_id": 3,
+      "iteration": 3
+    },
+    {
+      "hash": "c04442fbb743bf8df45e63cc2013baf9b16eb328",
+      "message": "Harden browser smoke MVP evidence",
+      "chunk_id": 4,
+      "iteration": 4
+    },
+    {
+      "hash": "b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c",
+      "message": "Reconcile MVP release evidence",
+      "chunk_id": 5,
+      "iteration": 5
+    }
+  ],
+  "validation": {
+    "chunk_attempts": [
+      {
+        "chunk_id": 1,
+        "iteration": 1,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T16:11:21Z",
+        "completed_at": "2026-07-12T16:11:26Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/6-mvp-integration-and-release-evidence/run-20260712-110828/chunk-1-validation-1.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 2,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T16:17:11Z",
+        "completed_at": "2026-07-12T16:17:16Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/6-mvp-integration-and-release-evidence/run-20260712-110828/chunk-2-validation-2.log"
+      },
+      {
+        "chunk_id": 3,
+        "iteration": 3,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T16:21:25Z",
+        "completed_at": "2026-07-12T16:21:32Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/6-mvp-integration-and-release-evidence/run-20260712-110828/chunk-3-validation-3.log"
+      },
+      {
+        "chunk_id": 4,
+        "iteration": 4,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T16:30:24Z",
+        "completed_at": "2026-07-12T16:30:30Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/6-mvp-integration-and-release-evidence/run-20260712-110828/chunk-4-validation-4.log"
+      },
+      {
+        "chunk_id": 5,
+        "iteration": 5,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T16:36:32Z",
+        "completed_at": "2026-07-12T16:36:39Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/6-mvp-integration-and-release-evidence/run-20260712-110828/chunk-5-validation-5.log"
+      }
+    ]
+  },
+  "phase": "chunks_done",
+  "hooks": {
+    "review": {
+      "status": "pending",
+      "completed_at": null,
+      "reason": null
+    },
+    "documentation": {
+      "status": "done",
+      "completed_at": "2026-07-12T16:42:17Z",
+      "reason": null
+    },
+    "validation": {
+      "status": "pending",
+      "completed_at": null,
+      "reason": null,
+      "phases": {
+        "sprint": {
+          "status": "pending"
+        },
+        "e2e": {
+          "status": "pending"
+        }
+      }
+    }
+  }
+}

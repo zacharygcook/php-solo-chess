@@ -156,3 +156,21 @@
   browser smoke, and release artifacts for commit `b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c`.
 - Residual risk: post-sprint hook state in `manifest.json` remains pending and was not rewritten by
   hand; active checkout dirty work outside this sprint remains untouched.
+
+## 2026-07-12 — Post-sprint documentation reconciliation complete
+
+- Re-read the sprint plan, chunks, manifest, review, scratchpad, changed file list, and canonical
+  repository docs after review.
+- Repository documentation changes: none. `README.md`, `docs/ARCHITECTURE.md`,
+  `docs/MVP_ACCEPTANCE.md`, `docs/RELEASING.md`, `docs/RUNBOOKS.md`, `TECH_DEBT.md`, generated API
+  docs, and `RALPH_DOGFOOD_SCORECARD.md` already reflected the final required MVP and local-only
+  release evidence from chunk 5 and review.
+- Evidence: sprint review proved the endpoint commit `b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c`
+  from a clean detached worktree; the fast gate passed with 113 tests, and local package generation
+  passed the full canonical gate with browser smoke, idempotent SQLite setup, and release artifacts
+  under `/tmp/php-solo-chess-review-release`.
+- Durable decision: do not adjust canonical docs to repeat the scratchpad-only discrepancy between
+  dirty-checkout chunk-time test counts and clean endpoint test counts. The durable product claim is
+  the clean endpoint validation, which is already recorded in `REVIEW.md` and this scratchpad.
+- Sprint-state updates: marked only the documentation hook done in `manifest.json` and added the
+  conventional `.hook-documentation.done` marker because `RALPH_STATE_MODE=tracked`.
