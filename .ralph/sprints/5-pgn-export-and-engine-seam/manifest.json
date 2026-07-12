@@ -113,28 +113,32 @@
       }
     ]
   },
-  "phase": "chunks_done",
+  "phase": "hooks_done",
   "hooks": {
     "review": {
       "status": "done",
-      "completed_at": "2026-07-12T16:01:12Z",
+      "completed_at": "2026-07-12T16:07:43Z",
       "reason": null
     },
     "documentation": {
       "status": "done",
-      "completed_at": "2026-07-12T16:05:09Z",
+      "completed_at": "2026-07-12T16:07:43Z",
       "reason": null
     },
     "validation": {
-      "status": "pending",
-      "completed_at": null,
+      "status": "done",
+      "completed_at": "2026-07-12T16:07:43Z",
       "reason": null,
       "phases": {
         "sprint": {
-          "status": "pending"
+          "status": "done",
+          "reason": null,
+          "completed_at": "2026-07-12T16:07:42Z"
         },
         "e2e": {
-          "status": "pending"
+          "status": "skipped",
+          "reason": "not_configured",
+          "completed_at": "2026-07-12T16:07:43Z"
         }
       }
     }
