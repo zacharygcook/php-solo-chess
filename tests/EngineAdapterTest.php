@@ -35,9 +35,10 @@ return static function (TestHarness $tests): void {
     });
 
     $tests->test('fake engine proposals use the same authoritative move path as human moves', function () use ($tests): void {
+        $clock = static fn(): int => 1_783_871_678_000;
         $_SESSION = [];
         $engineStore = new SessionStore();
-        $engineGame = new GameService($engineStore);
+        $engineGame = new GameService($engineStore, null, $clock);
         $engineGame->createGame(['blackParticipantType' => 'engine']);
         $engineGame->submitMove(['from' => 'e2', 'to' => 'e4']);
 
@@ -47,7 +48,7 @@ return static function (TestHarness $tests): void {
         $afterEngineProposal = $engineGame->submitMove($proposal->toMovePayload());
 
         $_SESSION = [];
-        $humanGame = new GameService(new SessionStore());
+        $humanGame = new GameService(new SessionStore(), null, $clock);
         $humanGame->createGame(['blackParticipantType' => 'engine']);
         $humanGame->submitMove(['from' => 'e2', 'to' => 'e4']);
         $afterHumanMove = $humanGame->submitMove(['from' => 'e7', 'to' => 'e5']);

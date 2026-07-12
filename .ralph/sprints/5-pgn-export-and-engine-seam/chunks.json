@@ -70,7 +70,7 @@
     {
       "id": 5,
       "title": "Document and integrate export and engine boundaries",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Generated API documentation includes the PGN download contract and content type",
         "Architecture documentation identifies PGN and engine adapters as canonical-state consumers",

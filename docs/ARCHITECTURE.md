@@ -56,6 +56,14 @@ paths, while serving the root without the router exposes sensitive project files
   submitted coordinates into a move, coordinates validation and board mutation, updates turn/history,
   regenerates legal moves, terminal state, and notation, and persists accepted state through
   `SessionStore` plus the optional authenticated-user persistence service.
+- `backend/src/Services/PgnExporter.php`, `PgnVerifier.php`, and `PgnDownloadService.php` consume
+  canonical saved or session-owned game state plus ordered move records to produce PGN, verify that
+  persisted coordinates replay to the saved final FEN/result, and stream authorized downloads. They
+  do not read rendered move history or browser markup.
+- `backend/src/Engine/` defines the passive future-engine seam. `EngineRequest` exposes canonical
+  FEN, active color, legal moves, participant metadata, terminal metadata, and stable context;
+  `EngineAdapter` returns coordinate proposals; `FakeEngineAdapter` is deterministic test support.
+  The seam does not bundle an engine or mutate game state.
 - `backend/src/Services/GamePersistenceService.php` owns the authenticated game persistence behavior.
   It loads only games owned by the current authenticated user, saves accepted canonical snapshots
   through repository transaction boundaries, and leaves guest sessions ephemeral.

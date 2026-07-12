@@ -114,6 +114,14 @@
       "response_schema": "ReplayResponse"
     },
     {
+      "path": "/backend/public/api/games/export.php",
+      "method": "get",
+      "summary": "Download PGN for the active game or one saved game owned by the authenticated user",
+      "success_status": 200,
+      "response_content_type": "application/x-chess-pgn; charset=UTF-8",
+      "response_schema": "PgnDownload"
+    },
+    {
       "path": "/backend/public/api/reset.php",
       "method": "post",
       "summary": "Reset the current session to the initial position",

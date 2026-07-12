@@ -31,17 +31,25 @@ foreach ($manifest['endpoints'] as $endpoint) {
     }
 
     $responseSchema = $endpoint['response_schema'] ?? 'GameResponse';
+    $responseContentType = $endpoint['response_content_type'] ?? 'application/json';
+    $successContent = $responseContentType === 'application/json'
+        ? [
+            'application/json' => [
+                'schema' => ['$ref' => '#/components/schemas/' . $responseSchema],
+            ],
+        ]
+        : [
+            $responseContentType => [
+                'schema' => ['$ref' => '#/components/schemas/' . $responseSchema],
+            ],
+        ];
     $operation = [
         'summary' => $endpoint['summary'],
         'operationId' => $endpoint['method'] . ucfirst(pathinfo($endpoint['path'], PATHINFO_FILENAME)),
         'responses' => [
             (string) $endpoint['success_status'] => [
-                'description' => 'JSON result',
-                'content' => [
-                    'application/json' => [
-                        'schema' => ['$ref' => '#/components/schemas/' . $responseSchema],
-                    ],
-                ],
+                'description' => $responseContentType === 'application/json' ? 'JSON result' : 'PGN download',
+                'content' => $successContent,
             ],
             '405' => [
                 'description' => 'Method not allowed',
@@ -99,11 +107,12 @@ foreach ($manifest['endpoints'] as $endpoint) {
 
     $paths[$endpoint['path']] = [$endpoint['method'] => $operation];
     $markdownRows[] = sprintf(
-        '| `%s` | `%s` | %s | `%d` |',
+        '| `%s` | `%s` | %s | `%d` | `%s` |',
         $expectedMethod,
         $endpoint['path'],
         $endpoint['summary'],
         $endpoint['success_status'],
+        $responseContentType,
     );
 }
 
@@ -494,6 +503,11 @@ $openApi = [
                     ],
                 ],
             ],
+            'PgnDownload' => [
+                'type' => 'string',
+                'format' => 'binary',
+                'description' => 'PGN text downloaded as an attachment.',
+            ],
             'ErrorResponse' => [
                 'type' => 'object',
                 'required' => ['success', 'message'],
@@ -513,7 +527,7 @@ $markdown = implode("\n", [
     'This file is generated from `config/api-endpoints.json`. Do not edit it by hand; run',
     '`php scripts/generate-api-docs.php --write` and commit the manifest plus generated artifacts.',
     '',
-    'All endpoints are same-origin JSON and use the PHP session cookie described in `docs/ARCHITECTURE.md`.',
+    'All endpoints are same-origin and use the PHP session cookie described in `docs/ARCHITECTURE.md`.',
     '',
     'Successful responses keep the stable envelope `success`, `message`, and `state`. Game state',
     'contains the board, participants, time control, server-owned clock state, move history, active',
@@ -521,11 +535,12 @@ $markdown = implode("\n", [
     'draw-claim actions. Accepted move-history records include coordinate notation, SAN, post-move',
     'FEN, and clock snapshots. Promotion requests use `queen`, `rook`, `bishop`, or `knight`.',
     'Auth state contains only the current safe user identity or `null`, never password material.',
-    'History, saved-game open, and replay endpoints require an authenticated owner session and never',
-    'mutate the active game while returning saved replay positions.',
+    'History, saved-game open, replay, and saved-game PGN export endpoints require an authenticated',
+    'owner session and never mutate the active game while returning saved replay positions. PGN export',
+    'returns `application/x-chess-pgn; charset=UTF-8` on success and JSON error envelopes on failure.',
     '',
-    '| Method | Path | Purpose | Success |',
-    '|---|---|---|---:|',
+    '| Method | Path | Purpose | Success | Content Type |',
+    '|---|---|---|---:|---|',
     ...$markdownRows,
     '',
     'The machine-readable OpenAPI 3.1 contract is [`openapi.json`](openapi.json).',

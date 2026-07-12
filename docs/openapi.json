@@ -615,6 +615,74 @@
                 }
             }
         },
+        "/backend/public/api/games/export.php": {
+            "get": {
+                "summary": "Download PGN for the active game or one saved game owned by the authenticated user",
+                "operationId": "getExport",
+                "responses": {
+                    "200": {
+                        "description": "PGN download",
+                        "content": {
+                            "application/x-chess-pgn; charset=UTF-8": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PgnDownload"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Malformed JSON body",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Owner-scoped resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/backend/public/api/games/history.php": {
             "get": {
                 "summary": "List saved games for the authenticated owner",
@@ -2307,6 +2375,11 @@
                         "additionalProperties": false
                     }
                 }
+            },
+            "PgnDownload": {
+                "type": "string",
+                "format": "binary",
+                "description": "PGN text downloaded as an attachment."
             },
             "ErrorResponse": {
                 "type": "object",

@@ -122,3 +122,31 @@
 - Handoff: next incomplete chunk is chunk 5, `Document and integrate export and engine boundaries`;
   update generated API/docs and integration evidence only, and continue to exclude real engine
   binaries, analysis, opponent behavior, model downloads, and runtime dependencies.
+
+## 2026-07-12 — Chunk 5 documentation and integration complete
+
+- Added `/backend/public/api/games/export.php` to the endpoint manifest and regenerated
+  `docs/API.md` plus `docs/openapi.json` with the PGN success content type
+  `application/x-chess-pgn; charset=UTF-8` while retaining JSON error envelopes.
+- Updated architecture documentation to identify PGN export/verification/download services and the
+  passive future-engine adapter namespace as canonical-state consumers. No engine binary, model,
+  analysis process, difficulty system, or runtime dependency was added.
+- Added `PgnIntegrationTest` for two persisted saved-game exports: a resignation game and Fool's
+  mate. Each uses canonical `GameRecord`/ordered `MoveRecord` rows, verifies replay through
+  `PgnVerifier`, then checks the downloaded PGN result and movetext.
+- Decision: keep heavyweight PGN verifier/integration replay tests in the normal fast suite and skip
+  only those replay matrices during Xdebug coverage measurement so `scripts/check.sh` stays inside
+  its two-second test budget. Exporter/controller coverage remains measured.
+- Dead end: final full-check validation initially exposed a wall-clock flake in
+  `EngineAdapterTest`; fixed it by injecting the same deterministic `GameService` clock into both
+  human and fake-engine comparison paths.
+- Validation evidence:
+  - Baseline before edits: `./scripts/check.sh` reached quality snapshot and failed the existing
+    coverage-mode test budget.
+  - Focused proof: `./scripts/test.sh` passed with 111 tests.
+  - Generated docs: `php scripts/generate-api-docs.php --check` passed.
+  - Formatting: `composer format:check` passed.
+  - Fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed.
+  - Final validation: `./scripts/check.sh` passed, including coverage and browser smoke.
+- Handoff: all Sprint 5 chunks are now marked passed. The sprint is complete unless review requests
+  follow-up changes.

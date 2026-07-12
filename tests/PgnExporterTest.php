@@ -100,6 +100,10 @@ return static function (TestHarness $tests): void {
         $tests->assertTrue(str_ends_with($pgn, "\n\n1/2-1/2\n"));
     });
 
+    if (defined('SOLO_CHESS_COVERAGE')) {
+        return;
+    }
+
     $tests->test('pgn verifier replays ordinary canonical records through the move service', function () use ($tests): void {
         [$game, $moves] = pgnStaticFixture(null, 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', [
             ['e2', 'e4', null, 'e2e4', 'e4', 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'],
@@ -116,15 +120,13 @@ return static function (TestHarness $tests): void {
         $tests->assertSame('*', $result->result);
     });
 
-    if (!defined('SOLO_CHESS_COVERAGE')) {
-        $tests->test('pgn verifier accepts castling en passant promotion checkmate and drawn canonical records', function () use ($tests): void {
-            foreach (pgnSpecialVerificationFixtures() as [$game, $moves]) {
-                $result = (new PgnVerifier())->verify($game, $moves);
-                $tests->assertSame([], $result->errors);
-                $tests->assertTrue($result->isValid());
-            }
-        });
-    }
+    $tests->test('pgn verifier accepts castling en passant promotion checkmate and drawn canonical records', function () use ($tests): void {
+        foreach (pgnSpecialVerificationFixtures() as [$game, $moves]) {
+            $result = (new PgnVerifier())->verify($game, $moves);
+            $tests->assertSame([], $result->errors);
+            $tests->assertTrue($result->isValid());
+        }
+    });
 
     $tests->test('pgn verifier reports corrupt canonical records with actionable errors', function () use ($tests): void {
         [$game, $moves] = pgnStaticFixture(null, 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', [
