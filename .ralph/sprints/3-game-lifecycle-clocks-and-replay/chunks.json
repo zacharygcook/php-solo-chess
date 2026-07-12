@@ -53,7 +53,7 @@
     {
       "id": 4,
       "title": "Persist transitions and expose history replay services",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Every accepted owned-game move or lifecycle transition is saved atomically with clock and terminal metadata",
         "Personal history lists required date, result, labels, time control, and completion reason fields for only the active owner",

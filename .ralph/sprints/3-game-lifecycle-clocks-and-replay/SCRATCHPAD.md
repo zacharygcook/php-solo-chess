@@ -68,3 +68,22 @@
 - Handoff: next chunk is chunk 4, persist transitions and expose history/replay services. Reuse the
   new terminal action methods as the canonical transition surface; HTTP endpoints remain deferred to
   chunk 5.
+
+## 2026-07-11 23:23 CDT — Chunk 4 complete
+
+- Added `GameHistoryService` as the read-only owner-scoped service for personal history and saved-game
+  replay. It lists only the authenticated owner, decodes time-control metadata, opens canonical saved
+  final state, and returns ordered replay positions from saved move FEN/clock rows without touching
+  session state.
+- Finished canonical states now receive deterministic server-owned `completedAt` timestamps from the
+  injected millisecond time source, and authenticated persistence writes `completed_at`, result,
+  termination reason, time-control JSON, and clock-state JSON atomically with saved move rows.
+- Focused proof added in `tests/GameHistoryTest.php` for owner isolation, required history fields,
+  deterministic completion dates, persisted move clock metadata, ordered replay positions, and replay
+  read immutability against both saved records and the active session game.
+- Validation passed: baseline `./scripts/check.sh`; focused `./scripts/test.sh`; requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`; rules flakiness
+  `./scripts/test-flakiness.sh`; final `./scripts/check.sh`.
+- Handoff: next chunk is chunk 5, publish lifecycle/history/replay HTTP contracts. Wire controllers
+  and endpoint manifest to `GameService` terminal actions and `GameHistoryService`; keep replay
+  read-only and owner-scoped, and do not add PGN or frontend polish in this sprint.

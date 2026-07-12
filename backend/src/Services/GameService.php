@@ -304,6 +304,7 @@ final class GameService
         $state['lastMessage'] = $inCheck ? 'Check!' : ($castle === null ? 'Move successfully made.' : 'Castling move successfully made.');
         $state = $this->withLegalMoves($state);
         $state = $this->terminalStateResolver->resolveAfterMove($state);
+        $state = $this->withCompletionTimestamp($state);
         $state['fen'] = $this->notationFormatter->fen($state);
         $state = $this->withMoveNotation($state, $before, $move, $capturedPiece !== null, $castle !== null);
         $state = $this->clock->withLatestMoveClockSnapshot($state);
@@ -627,7 +628,7 @@ final class GameService
         $state['legalMoves'] = [];
         $state['lastMessage'] = $message;
 
-        return $state;
+        return $this->withCompletionTimestamp($state);
     }
 
     /**
@@ -638,6 +639,21 @@ final class GameService
     {
         $this->store->saveState($state);
         $this->persistence?->saveStateForAuthenticatedUser($state);
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function withCompletionTimestamp(array $state): array
+    {
+        if (($state['gameStatus'] ?? 'active') !== 'finished' || is_string($state['completedAt'] ?? null)) {
+            return $state;
+        }
+
+        $state['completedAt'] = gmdate('c', intdiv(($this->currentTimeMilliseconds)(), 1_000));
 
         return $state;
     }

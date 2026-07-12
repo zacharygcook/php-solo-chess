@@ -109,6 +109,7 @@ final class GamePersistenceService
             blackPlayerType: self::participantType($state, 'black'),
             timeControlJson: self::optionalJson($state['timeControl'] ?? null),
             clockStateJson: self::optionalJson($state['clockState'] ?? null),
+            completedAt: self::completedAt($state),
         );
     }
 
@@ -122,6 +123,7 @@ final class GamePersistenceService
             terminationReason: self::nullableString($state['terminationReason'] ?? null),
             timeControlJson: self::optionalJson($state['timeControl'] ?? null),
             clockStateJson: self::optionalJson($state['clockState'] ?? null),
+            completedAt: self::completedAt($state),
         );
     }
 
@@ -226,6 +228,16 @@ final class GamePersistenceService
     private static function optionalJson(mixed $value): ?string
     {
         return is_array($value) ? self::encodeState($value) : null;
+    }
+
+    /** @param array<string, mixed> $state */
+    private static function completedAt(array $state): ?string
+    {
+        if (self::status($state) !== 'finished') {
+            return null;
+        }
+
+        return self::nullableString($state['completedAt'] ?? null);
     }
 
     /** @param array<string, mixed> $values */
