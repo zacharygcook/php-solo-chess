@@ -116,6 +116,16 @@ Probe for flaky or order-dependent tests across 20 deterministic seeds:
 Use `FLAKY_TEST_RUNS` and `FLAKY_TEST_FIRST_SEED` to widen or resume a probe. The command stops at
 the first failure and prints its exact replay seed.
 
+Run the browser smoke journey directly when frontend behavior changes:
+
+```bash
+./scripts/browser-smoke.sh
+```
+
+It starts an isolated PHP server and headless Chrome/Chromium profile, then drives guest play, local
+account registration/login, timed status, saved-game replay, responsive layout, and sound toggling.
+Pass a port as the first argument or set `BROWSER_SMOKE_CHROME` when Chrome is not on a standard path.
+
 Run the repeatable baseline check before and after changes:
 
 ```bash
@@ -162,6 +172,8 @@ Milestone release validation and generated Git-history notes are documented in
 [`docs/RELEASING.md`](docs/RELEASING.md).
 `./scripts/package-release.sh <version>` creates a validated local archive, notes, checksums, and
 manifest under ignored `dist/`; it never tags, pushes, uploads, or invokes CI.
+The MVP release candidate is local-only: keep `dist/` ignored, review the generated notes and
+manifest, and publish nothing unless a human separately authorizes that step.
 Before opening or reviewing a pull request, generate a deterministic risk review with
 `php scripts/review-change.php --base=<base-ref> --output=.agent-readiness/pr-review.md`. It reports
 file-specific missing test, contract, dependency, security, and frontend evidence for human review.

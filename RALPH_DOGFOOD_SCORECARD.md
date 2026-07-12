@@ -8,21 +8,23 @@ product work itself ultimately succeeds.
 
 | Measure | Current | Goal |
 | --- | ---: | ---: |
-| Product milestone | Phase 0 | Locally playable, test-backed MVP |
+| Product milestone | MVP release evidence | Locally playable, test-backed MVP |
 | Ralph runtime | v0.4.0 | Upgrade only between bounded runs |
-| Sprints prepared | 1 | — |
-| Autonomous loop runs | 0 | Increase deliberately after Phase 0 |
-| Sprints completed without intervention | 0 | Increasing trend |
+| Sprints prepared | 7 | — |
+| Autonomous loop runs | 4 | Increase deliberately after Phase 0 |
+| Sprints completed without intervention | 3 | Increasing trend |
 | Human interventions | 0 | As few as safely possible |
 | False completion signals caught | 0 | Catch all |
-| Runtime defects discovered | 0 | Record and repair every defect |
-| Product regressions escaping validation | 1 | 0 |
+| Runtime defects discovered | 1 | Record and repair every defect |
+| Product regressions escaping validation | 3 | 0 |
 
 ## Sprint scorecard
 
 | Sprint | Outcome | Agent | Iterations | Human interventions | Runtime findings | Product result |
 | --- | --- | --- | ---: | ---: | --- | --- |
 | `0-environment-and-baseline` | Completed | Human-guided setup | 0 | 0 | None | Reproducible startup, baseline QA, and disarmed runtime |
+| `4-accessible-local-game-table` | Chunks done; post-sprint review fix applied | Ralph/Codex | 5 | 0 | Review and documentation hooks recorded; final validation pending | Vanilla accessible local game table, saved-game replay UI, optional sound, and browser smoke coverage |
+| `6-mvp-integration-and-release-evidence` | Chunks done; post-sprint hooks pending | Ralph/Codex | 5 | 0 | None during chunks | Executable MVP evidence matrix, untimed and timed saved-game journeys, hardened browser smoke, and local release packaging proof |
 
 ## Friction log
 
@@ -35,7 +37,10 @@ product work itself ultimately succeeds.
 | 2026-07-11 | Readiness | Info | Coverage loads the backend bootstrap outside HTTP, where `http_response_code()` returns `false`. | Project setup | Start request telemetry only when a request method exists and retain a defensive status fallback. |
 | 2026-07-11 | Pre-Ralph readiness | High | `GameService` was 887 lines with class complexity 248, one method at 60, NPath above 11 million, and 33% measured duplication. The initial five rules tests could not safely support autonomous edits. | Project setup | Added behavior-first coverage, extracted six chess-domain boundaries, reduced `GameService` to 165 lines, capped methods at complexity 9, and reduced duplication below 7%. |
 | 2026-07-11 | `2-sqlite-persistence-and-local-identities` | Medium | Ralph repeatedly reset chunk 2 after `./scripts/test.sh` passed because `composer typecheck` inherited a 128 MB PHPStan child-process memory limit while parsing internal stubs. | Runtime defect | Made `composer typecheck` invoke PHPStan through PHP with an explicit 512 MB memory limit, preserving the configured fast gate. |
+| 2026-07-11 | `3-game-lifecycle-clocks-and-replay` | High | Sprint validation missed timeout result misclassification when the non-flagging side had only a minor piece but the flagging side still had material that can make legal mate possible. | Product setup | Added a focused timeout-material regression test and made `canColorLegallyWin()` consider flagging-side non-king material before declaring a timeout draw. |
+| 2026-07-12 | `4-accessible-local-game-table` | Medium | Sprint validation and browser smoke coverage missed a failed-auth edge case: after an existing account was visible, failed login or registration applied `state.user: null` in the browser even though the backend kept the authenticated session. | Product setup | Preserved visible account state on failed auth, added frontend contract regression coverage, and recorded richer failed-auth browser assertions as future coverage value. |
 | 2026-07-12 | `5-pgn-export-and-engine-seam` | Medium | Full validation exposed a timing-sensitive engine seam test that compared wall-clock move-history timestamps, and PGN replay integration pushed Xdebug coverage-mode tests over the two-second budget. | Product setup | Injected a deterministic clock for the engine path comparison and kept heavyweight PGN replay matrices in the normal fast suite while skipping them only during coverage measurement. |
+| 2026-07-12 | `6-mvp-integration-and-release-evidence` | Info | The working checkout contained unrelated Ralph runtime and prior product edits, while release packaging intentionally requires a clean worktree. | Agent behavior | Kept chunk edits scoped and planned the package proof from a separate clean Git worktree after the chunk commit. |
 
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.

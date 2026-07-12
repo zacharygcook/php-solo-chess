@@ -11,7 +11,9 @@ Create a validated local release bundle from a clean worktree with:
 
 The command runs the canonical gate, archives the exact target commit under `dist/`, generates
 release notes, writes SHA-256 checksums, and records the commit and artifact names in a JSON
-manifest. It fails on a dirty worktree. It never tags, pushes, uploads, or invokes a hosted service.
+manifest. It fails on a dirty worktree, and the archive is created from Git rather than runtime
+storage, so ignored session files, SQLite databases, and local release artifacts are excluded. It
+never tags, pushes, uploads, or invokes a hosted service.
 
 To preview notes independently, generate them from the previous milestone (or chosen starting
 commit) through the reviewed target:
@@ -28,5 +30,6 @@ the approved content into the Git tag or GitHub release only through an explicit
 publishing step. The generator never pushes, tags, publishes, creates an account, or incurs cost.
 
 Before manually publishing a milestone tag, also run `./scripts/test-flakiness.sh` and review the
-package manifest, checksum file, security snapshot, and known chess-rule limitations. Do not publish
-when any blocking check fails.
+package manifest, checksum file, security snapshot, acceptance matrix, and known chess-rule
+limitations. Do not publish when any blocking check fails. The required MVP leaves real
+engine-powered review explicitly deferred.

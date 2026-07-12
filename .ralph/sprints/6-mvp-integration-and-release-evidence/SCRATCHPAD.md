@@ -111,3 +111,27 @@
 - Next handoff: start chunk 5 by reconciling final architecture/API/runbooks/README/debt/scorecard
   documentation, packaging a local release candidate, and proving the full final gate from the final
   clean state. Optional engine-powered review remains out of scope.
+
+## 2026-07-12 — Chunk 5 complete
+
+- Completed chunk 5 only: reconciled release-facing README/release/acceptance/scorecard evidence,
+  marked the final chunk passed in `chunks.json`, and kept API/generated docs unchanged because
+  `php scripts/generate-api-docs.php --check` reported them current.
+- Decision: leave post-sprint hook status in `manifest.json` pending for Ralph instead of marking
+  review/documentation/validation hooks by hand.
+- Decision: because the active checkout already contained unrelated Ralph runtime and prior product
+  edits, local release packaging will be proved from a separate clean Git worktree at the scoped chunk
+  commit rather than by reverting or staging unrelated files in this checkout.
+- Out of scope: no tag, push, upload, CI, hosted service, production account, external database, real
+  engine integration, or optional engine-powered review was introduced.
+- Validation evidence before edits: requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with seed
+  `1301995539`, 114 tests, PHPStan clean, and complexity within the method ceiling.
+- Post-edit validation evidence: requested fast gate passed with seed `1553953408`, 114 tests,
+  PHPStan clean, and complexity within the method ceiling. Full `./scripts/check.sh` passed with
+  unit seed `1692462704`, coverage seed `1183138013`, 82.89% backend line coverage, generated API
+  docs current, SQLite setup idempotent, and browser smoke passed.
+- Next handoff: after the scoped commit, run `./scripts/package-release.sh 0.1.0` from a clean
+  worktree for that commit to produce the local archive, notes, checksums, and manifest without
+  publishing anything. Then allow post-sprint hooks to perform final review, docs, and full
+  validation.

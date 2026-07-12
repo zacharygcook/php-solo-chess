@@ -68,6 +68,22 @@ downloaded movetext/result does not match the saved game.
    before it is cleaned up, then reproduce with `./scripts/dev.sh 8090`.
 6. Fix the capability or product defect; never weaken a threshold merely to unblock a commit.
 
+## Browser smoke coverage fails
+
+Symptoms: `./scripts/check.sh` fails during browser smoke coverage, or `./scripts/browser-smoke.sh`
+cannot find Chrome, cannot start its isolated server, or times out waiting for a UI state.
+
+1. Confirm `php`, `node`, `curl`, `jq`, and Chrome or Chromium are installed.
+2. Run the smoke directly on an unused port: `./scripts/browser-smoke.sh 18181`.
+3. If Chrome is installed in a non-standard location, set `BROWSER_SMOKE_CHROME=/path/to/chrome`.
+4. If the DevTools port conflicts, set `BROWSER_SMOKE_DEBUG_PORT=<port>` and rerun.
+5. Read the failing wait label. The smoke labels the covered workflow area, including browser
+   recovery probes, drag movement, keyboard movement, promotion, timed status, terminal feedback,
+   saved replay, and mobile overflow.
+6. Preserve any server or Chrome log path printed by the script before changing code. If a capture
+   or promotion assertion fails, replay the same move sequence through `./scripts/test.sh` or a
+   focused `GameService` test before treating the issue as visual-only.
+
 ## Clean-clone validation fails during setup
 
 Symptoms: `./scripts/check.sh` fails before the local server starts, SQLite setup is not

@@ -71,7 +71,7 @@
     {
       "id": 5,
       "title": "Reconcile documentation and package MVP release evidence",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Architecture, API, runbooks, README, debt ledger, acceptance matrix, and Ralph scorecard match the final required MVP",
         "Generated documentation checks and all quality/security/dependency ratchets pass without weakened thresholds",
