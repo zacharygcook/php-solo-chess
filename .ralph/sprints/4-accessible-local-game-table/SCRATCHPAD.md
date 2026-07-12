@@ -69,3 +69,23 @@
   passed with 93 tests, `composer format:check` passed, and `./scripts/check.sh` passed.
 - Handoff: continue with chunk 4, clock/control/terminal feedback and responsive polish. Existing
   unrelated Sprint 3 dirty files and runtime manifest state remain outside this chunk.
+
+## 2026-07-12T14:26:55Z — Chunk 4 complete
+
+- Added clock faces for White and Black that render canonical server `clockState` and project only the
+  active timed clock locally with `Date.now()`; the browser does not mutate clock state or declare
+  timeouts.
+- Wired abandon, resign, draw offer, draw accept, and draw claim controls through existing PHP
+  lifecycle endpoints. Buttons disable during review or finished games and derive action payloads
+  from server state (`activeColor`, `drawOffer`, `availableActions`, and `drawClaims`).
+- Added concise terminal summaries for checkmate, stalemate, timeout, resignation, agreed draw,
+  dead position, claim draws, and abandonment, plus a draw-offer notice and responsive CSS for clocks
+  and lifecycle controls at mobile widths.
+- Added a visible sound toggle state only; chunk 5 still owns local audio assets, persisted sound
+  preference, feedback sounds, and browser smoke coverage.
+- Validation evidence: `node --check frontend/assets/js/app.js`, `node --check frontend/assets/js/api.js`,
+  `./scripts/lint.sh`, `composer format:check`, `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+  passed with 94 tests, and `./scripts/check.sh` passed.
+- Handoff: continue with chunk 5, local optional sound feedback and repository-owned browser smoke
+  coverage. Existing unrelated Sprint 3 dirty files and runtime manifest state remain outside this
+  chunk.

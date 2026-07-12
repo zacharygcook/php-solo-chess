@@ -6,6 +6,20 @@ const api = createApiClient(document.body.dataset.apiBase);
 const uiState = createUiState();
 const elements = {};
 let pendingPromotionMove = null;
+let clockIntervalId = null;
+let soundEnabled = false;
+
+const TERMINAL_COPY = {
+    checkmate: ['Checkmate', 'The king is trapped and the result is final.'],
+    stalemate: ['Stalemate', 'The side to move has no legal move and is not in check.'],
+    timeout: ['Timeout', 'The server clock reached zero and recorded the result.'],
+    resignation: ['Resignation', 'A player resigned and the result is final.'],
+    agreedDraw: ['Agreed draw', 'Both sides accepted a draw.'],
+    deadPosition: ['Dead position', 'Neither side can legally force checkmate.'],
+    fiftyMoveRule: ['Fifty-move draw', 'The draw claim was accepted by the server.'],
+    threefoldRepetition: ['Threefold repetition', 'The draw claim was accepted by the server.'],
+    abandoned: ['Abandoned', 'The local game was stopped without a chess result.'],
+};
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -25,6 +39,16 @@ function cacheDom() {
     elements.activeMoveLabel = document.querySelector('#activeMoveLabel');
     elements.boardOrientation = document.querySelector('#boardOrientation');
     elements.flipBoard = document.querySelector('#flipBoardButton');
+    elements.whiteClock = document.querySelector('#whiteClock');
+    elements.blackClock = document.querySelector('#blackClock');
+    elements.whiteClockLabel = document.querySelector('#whiteClockLabel');
+    elements.blackClockLabel = document.querySelector('#blackClockLabel');
+    elements.whiteClockTime = document.querySelector('#whiteClockTime');
+    elements.blackClockTime = document.querySelector('#blackClockTime');
+    elements.drawOfferNotice = document.querySelector('#drawOfferNotice');
+    elements.terminalSummary = document.querySelector('#terminalSummary');
+    elements.terminalTitle = document.querySelector('#terminalTitle');
+    elements.terminalDetail = document.querySelector('#terminalDetail');
     elements.capturedWhite = document.querySelector('#capturedWhite');
     elements.capturedBlack = document.querySelector('#capturedBlack');
     elements.promotionPanel = document.querySelector('#promotionPanel');
@@ -34,6 +58,13 @@ function cacheDom() {
     elements.accountSummary = document.querySelector('#accountSummary');
     elements.refresh = document.querySelector('#refreshButton');
     elements.reset = document.querySelector('#resetButton');
+    elements.abandon = document.querySelector('#abandonButton');
+    elements.resign = document.querySelector('#resignButton');
+    elements.offerDraw = document.querySelector('#offerDrawButton');
+    elements.acceptDraw = document.querySelector('#acceptDrawButton');
+    elements.claimDraw = document.querySelector('#claimDrawButton');
+    elements.soundToggle = document.querySelector('#soundToggleButton');
+    elements.actionMessage = document.querySelector('#actionMessage');
     elements.quickGuest = document.querySelector('#quickGuestButton');
     elements.newGameForm = document.querySelector('#newGameForm');
     elements.newGameMessage = document.querySelector('#newGameMessage');
@@ -60,6 +91,12 @@ function cacheDom() {
 function bindEvents() {
     elements.refresh.addEventListener('click', loadState);
     elements.reset.addEventListener('click', resetGame);
+    elements.abandon.addEventListener('click', () => submitGameAction('abandon'));
+    elements.resign.addEventListener('click', () => submitGameAction('resign'));
+    elements.offerDraw.addEventListener('click', () => submitGameAction('offerDraw'));
+    elements.acceptDraw.addEventListener('click', () => submitGameAction('acceptDraw'));
+    elements.claimDraw.addEventListener('click', () => submitGameAction('claimDraw'));
+    elements.soundToggle.addEventListener('click', toggleSound);
     elements.flipBoard.addEventListener('click', flipBoard);
     elements.promotionChoices.addEventListener('click', handlePromotionChoice);
     elements.promotionCancel.addEventListener('click', cancelPromotion);
@@ -111,12 +148,37 @@ async function loadUser() {
 
 async function resetGame() {
     setStatus('Resetting session...');
+    setActionMessage('Resetting live game...');
 
     try {
         uiState.clearSelection();
         applyState(await api.resetGame());
+        setActionMessage('Live game reset.');
     } catch (_error) {
         setStatus('Reset failed. Check backend logs.');
+        setActionMessage('Reset failed.');
+    }
+}
+
+async function submitGameAction(action) {
+    if (uiState.isReviewing) {
+        setActionMessage('Return to the live board before using game controls.');
+        return;
+    }
+
+    const payload = actionPayload(action);
+    if (!payload) {
+        return;
+    }
+
+    setActionMessage(`${actionLabel(action)} request sent...`);
+
+    try {
+        const response = await actionRequest(action, payload);
+        applyState(response);
+        setActionMessage(response.message || `${actionLabel(action)} complete.`);
+    } catch (_error) {
+        setActionMessage(`${actionLabel(action)} request failed.`);
     }
 }
 
@@ -361,6 +423,10 @@ function applyState(response) {
     elements.activeColor.textContent = active ? `${active} to move` : '-';
     elements.activeMoveLabel.textContent = active || '-';
     renderBoardStatus();
+    renderActionControls();
+    renderDrawOffer();
+    renderTerminalSummary();
+    startClockRendering();
 }
 
 function applyUser(response) {
@@ -471,6 +537,10 @@ function renderReviewMode(message) {
     renderCurrentBoard();
     renderHistory(replay?.moves || [], activePly);
     setStatus(message);
+    renderActionControls();
+    renderDrawOffer();
+    renderTerminalSummary();
+    startClockRendering();
     elements.savedGamesMessage.textContent = 'Review mode is read-only. Return to the live board to move.';
 }
 
@@ -496,6 +566,10 @@ function returnToLiveBoard() {
     renderCurrentBoard();
     renderHistory(uiState.gameState?.moveHistory || []);
     setStatus('Live board ready.');
+    renderActionControls();
+    renderDrawOffer();
+    renderTerminalSummary();
+    startClockRendering();
 }
 
 function stepReplay(delta) {
@@ -513,6 +587,10 @@ function setAuthMessage(message) {
 
 function setNewGameMessage(message) {
     elements.newGameMessage.textContent = message;
+}
+
+function setActionMessage(message) {
+    elements.actionMessage.textContent = message;
 }
 
 function flashSelectionError(message) {
@@ -685,11 +763,238 @@ function renderBoardStatus() {
     }
 }
 
+function renderActionControls() {
+    const state = uiState.gameState;
+    const reviewing = uiState.isReviewing;
+    const finished = state?.gameStatus === 'finished';
+    const active = Boolean(state) && !reviewing && !finished;
+    const drawOfferedBy = state?.drawOffer?.offeredBy || null;
+    const canAcceptDraw = active && drawOfferedBy !== null;
+    const canClaimDraw = active && Array.isArray(state?.availableActions) && state.availableActions.includes('claimDraw');
+
+    elements.refresh.disabled = false;
+    elements.reset.disabled = reviewing;
+    elements.quickGuest.disabled = reviewing;
+    elements.newGameForm.querySelectorAll('input, select, button').forEach((control) => {
+        control.disabled = reviewing;
+    });
+    elements.flipBoard.disabled = false;
+    elements.abandon.disabled = !active;
+    elements.resign.disabled = !active;
+    elements.offerDraw.disabled = !active;
+    elements.acceptDraw.disabled = !canAcceptDraw;
+    elements.claimDraw.disabled = !canClaimDraw;
+    elements.soundToggle.disabled = false;
+    elements.soundToggle.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+    elements.soundToggle.textContent = soundEnabled ? 'Sound on' : 'Sound off';
+
+    elements.resign.textContent = active ? `Resign ${capitalize(state.activeColor || 'side')}` : 'Resign';
+    elements.offerDraw.textContent = active ? `Offer draw as ${capitalize(state.activeColor || 'side')}` : 'Offer draw';
+    elements.acceptDraw.textContent = canAcceptDraw ? `Accept ${capitalize(drawOfferedBy)} offer` : 'Accept draw';
+    elements.claimDraw.textContent = canClaimDraw ? `Claim ${claimLabel(state.drawClaims?.[0])}` : 'Claim draw';
+}
+
+function renderDrawOffer() {
+    const offeredBy = uiState.gameState?.drawOffer?.offeredBy || null;
+    elements.drawOfferNotice.hidden = offeredBy === null || uiState.isReviewing;
+    if (offeredBy !== null) {
+        elements.drawOfferNotice.textContent = `${capitalize(offeredBy)} offered a draw. The opponent may accept.`;
+    }
+}
+
+function renderTerminalSummary() {
+    const state = uiState.gameState;
+    const reason = state?.terminationReason || null;
+    const finished = state?.gameStatus === 'finished';
+    elements.terminalSummary.hidden = !finished || uiState.isReviewing;
+    elements.terminalSummary.dataset.reason = finished && reason ? reason : '';
+
+    if (!finished) {
+        elements.terminalTitle.textContent = 'Game finished';
+        elements.terminalDetail.textContent = '';
+        return;
+    }
+
+    const copy = TERMINAL_COPY[reason] || ['Game finished', 'The server recorded a final state.'];
+    const result = state.result ? ` Result: ${state.result}.` : '';
+    elements.terminalTitle.textContent = copy[0];
+    elements.terminalDetail.textContent = `${copy[1]}${result}`;
+}
+
+function startClockRendering() {
+    if (clockIntervalId !== null) {
+        window.clearInterval(clockIntervalId);
+        clockIntervalId = null;
+    }
+
+    renderClocks();
+
+    const clock = uiState.gameState?.clockState;
+    if (!uiState.isReviewing && clock?.mode === 'timed' && uiState.gameState?.gameStatus !== 'finished') {
+        clockIntervalId = window.setInterval(renderClocks, 250);
+    }
+}
+
+function renderClocks() {
+    const state = uiState.gameState;
+    const clock = state?.clockState || {};
+    const participants = state?.participants || {};
+    elements.whiteClockLabel.textContent = participants.white?.label || 'White';
+    elements.blackClockLabel.textContent = participants.black?.label || 'Black';
+
+    if (uiState.isReviewing) {
+        setClockFace('white', 'Review', false);
+        setClockFace('black', 'Review', false);
+        return;
+    }
+
+    if (clock.mode !== 'timed') {
+        setClockFace('white', 'Untimed', false);
+        setClockFace('black', 'Untimed', false);
+        return;
+    }
+
+    const activeColor = state?.gameStatus === 'finished' ? null : clock.activeColor;
+    setClockFace('white', formatClock(projectRemaining(clock, 'white')), activeColor === 'white');
+    setClockFace('black', formatClock(projectRemaining(clock, 'black')), activeColor === 'black');
+}
+
+function setClockFace(color, text, active) {
+    const face = color === 'white' ? elements.whiteClock : elements.blackClock;
+    const time = color === 'white' ? elements.whiteClockTime : elements.blackClockTime;
+    face.classList.toggle('active', active);
+    face.classList.toggle('low-time', text !== 'Untimed' && text !== 'Review' && clockMillisecondsFromText(text) <= 20_000);
+    time.textContent = text;
+}
+
+function projectRemaining(clock, color) {
+    const key = `${color}RemainingMilliseconds`;
+    const remaining = Number(clock[key]);
+    if (!Number.isFinite(remaining)) {
+        return null;
+    }
+    if (clock.activeColor !== color || uiState.gameState?.gameStatus === 'finished') {
+        return Math.max(0, remaining);
+    }
+
+    const startedAt = Number(clock.turnStartedAtMilliseconds);
+    if (!Number.isFinite(startedAt)) {
+        return Math.max(0, remaining);
+    }
+
+    return Math.max(0, remaining - Math.max(0, Date.now() - startedAt));
+}
+
+function formatClock(milliseconds) {
+    if (milliseconds === null) {
+        return '--';
+    }
+
+    if (milliseconds < 20_000) {
+        const totalTenths = Math.floor(milliseconds / 100);
+        const minutes = Math.floor(totalTenths / 600);
+        const seconds = Math.floor((totalTenths % 600) / 10);
+        const tenths = totalTenths % 10;
+
+        return `${minutes}:${String(seconds).padStart(2, '0')}.${tenths}`;
+    }
+
+    const totalSeconds = Math.ceil(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
+function clockMillisecondsFromText(value) {
+    const match = value.match(/^(\d+):(\d{2})(?:\.(\d))?$/);
+    if (!match) {
+        return Number.POSITIVE_INFINITY;
+    }
+
+    return (Number(match[1]) * 60 + Number(match[2])) * 1000 + Number(match[3] || 0) * 100;
+}
+
+function actionPayload(action) {
+    const state = uiState.gameState;
+    if (!state) {
+        setActionMessage('No live game state is loaded.');
+        return null;
+    }
+
+    if (action === 'acceptDraw') {
+        const offeredBy = state.drawOffer?.offeredBy || null;
+        if (!offeredBy) {
+            setActionMessage('No draw offer is available.');
+            return null;
+        }
+
+        return { actorColor: offeredBy === 'white' ? 'black' : 'white' };
+    }
+
+    const actorColor = state.activeColor;
+    if (actorColor !== 'white' && actorColor !== 'black') {
+        setActionMessage('No active side is available for this action.');
+        return null;
+    }
+
+    if (action === 'claimDraw') {
+        return { actorColor, claim: state.drawClaims?.[0] || null };
+    }
+
+    return { actorColor };
+}
+
+function actionRequest(action, payload) {
+    if (action === 'abandon') {
+        return api.abandonGame(payload);
+    }
+    if (action === 'resign') {
+        return api.resignGame(payload);
+    }
+    if (action === 'offerDraw') {
+        return api.offerDraw(payload);
+    }
+    if (action === 'acceptDraw') {
+        return api.acceptDraw(payload);
+    }
+    if (action === 'claimDraw') {
+        return api.claimDraw(payload);
+    }
+
+    return Promise.reject(new Error(`Unsupported action: ${action}`));
+}
+
+function actionLabel(action) {
+    return splitWords(action).replace(/^\w/, (letter) => letter.toUpperCase());
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    renderActionControls();
+    setActionMessage(soundEnabled ? 'Sound enabled.' : 'Sound disabled.');
+}
+
 function terminalLabel(state) {
     const reason = state.terminationReason ? ` by ${splitWords(state.terminationReason)}` : '';
     const result = state.result ? ` (${state.result})` : '';
 
     return `Finished${result}${reason}`;
+}
+
+function claimLabel(claim) {
+    if (claim === 'fiftyMoveRule') {
+        return '50-move draw';
+    }
+    if (claim === 'threefoldRepetition') {
+        return 'threefold draw';
+    }
+
+    return 'draw';
+}
+
+function capitalize(value) {
+    return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function moveLabel(move) {

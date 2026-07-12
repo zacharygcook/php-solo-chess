@@ -45,6 +45,11 @@ return static function (TestHarness $tests): void {
             'games/history.php',
             'games/open.php?id=',
             'games/replay.php?id=',
+            'games/abandon.php',
+            'games/resign.php',
+            'games/draw-offer.php',
+            'games/draw-accept.php',
+            'games/draw-claim.php',
         ] as $endpoint) {
             $tests->assertTrue(str_contains($api, $endpoint), "Missing API endpoint: {$endpoint}.");
         }
@@ -99,5 +104,65 @@ return static function (TestHarness $tests): void {
         }
 
         $tests->assertTrue(!str_contains($app, 'alert('), 'Illegal move feedback must not use page-level alerts.');
+    });
+
+    $tests->test('frontend presents server clocks actions and terminal feedback responsively', function () use ($tests, $root): void {
+        $html = file_get_contents($root . '/frontend/index.html');
+        $app = file_get_contents($root . '/frontend/assets/js/app.js');
+        $css = file_get_contents($root . '/frontend/assets/css/styles.css');
+        if ($html === false || $app === false || $css === false) {
+            throw new RuntimeException('Unable to read frontend lifecycle files.');
+        }
+
+        foreach ([
+            'whiteClock',
+            'blackClock',
+            'terminalSummary',
+            'drawOfferNotice',
+            'abandonButton',
+            'resignButton',
+            'offerDrawButton',
+            'acceptDrawButton',
+            'claimDrawButton',
+            'soundToggleButton',
+            'actionMessage',
+        ] as $id) {
+            $tests->assertTrue(str_contains($html, 'id="' . $id . '"'), "Missing lifecycle control: {$id}.");
+        }
+
+        foreach ([
+            'projectRemaining',
+            'turnStartedAtMilliseconds',
+            'Date.now()',
+            'api.resignGame(payload)',
+            'api.offerDraw(payload)',
+            'api.acceptDraw(payload)',
+            'api.claimDraw(payload)',
+            'api.abandonGame(payload)',
+            'drawOffer?.offeredBy',
+            'availableActions.includes(\'claimDraw\')',
+        ] as $needle) {
+            $tests->assertTrue(str_contains($app, $needle), "Missing lifecycle rendering behavior: {$needle}.");
+        }
+
+        foreach ([
+            'checkmate',
+            'stalemate',
+            'timeout',
+            'resignation',
+            'agreedDraw',
+            'deadPosition',
+            'fiftyMoveRule',
+            'threefoldRepetition',
+        ] as $reason) {
+            $tests->assertTrue(str_contains($app, $reason), "Missing terminal copy for: {$reason}.");
+        }
+
+        foreach (['.clock-row', '.clock-face.active', '.terminal-summary[data-reason=', '.button-row.lifecycle-row'] as $selector) {
+            $tests->assertTrue(str_contains($css, $selector), "Missing lifecycle style selector: {$selector}.");
+        }
+
+        $tests->assertTrue(str_contains($css, '.clock-row,'), 'Mobile layout must stack the clock row.');
+        $tests->assertTrue(!str_contains($app, 'alert('), 'Lifecycle feedback must not use page-level alerts.');
     });
 };

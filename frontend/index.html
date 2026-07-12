@@ -27,6 +27,21 @@
                 <span id="boardOrientation">White at bottom</span>
                 <button id="flipBoardButton" type="button" class="secondary compact-button">Flip board</button>
             </div>
+            <div class="clock-row" aria-label="Game clocks">
+                <div class="clock-face" id="whiteClock" data-color="white">
+                    <span id="whiteClockLabel">White</span>
+                    <strong id="whiteClockTime">--</strong>
+                </div>
+                <div class="clock-face" id="blackClock" data-color="black">
+                    <span id="blackClockLabel">Black</span>
+                    <strong id="blackClockTime">--</strong>
+                </div>
+            </div>
+            <div id="drawOfferNotice" class="inline-notice" aria-live="polite" hidden></div>
+            <div id="terminalSummary" class="terminal-summary" role="status" aria-live="polite" hidden>
+                <strong id="terminalTitle">Game finished</strong>
+                <span id="terminalDetail"></span>
+            </div>
             <div class="review-banner" id="reviewBanner" hidden>
                 <strong id="reviewTitle">Review mode</strong>
                 <span id="reviewStepLabel">Step --</span>
@@ -149,6 +164,19 @@
                     <button id="refreshButton">Refresh</button>
                     <button id="resetButton" class="danger">Reset</button>
                 </div>
+                <div class="button-row lifecycle-row">
+                    <button id="abandonButton" type="button" class="danger">Abandon</button>
+                    <button id="resignButton" type="button" class="danger">Resign</button>
+                </div>
+                <div class="button-row lifecycle-row">
+                    <button id="offerDrawButton" type="button" class="secondary">Offer draw</button>
+                    <button id="acceptDrawButton" type="button" class="secondary">Accept draw</button>
+                </div>
+                <div class="button-row lifecycle-row">
+                    <button id="claimDrawButton" type="button" class="secondary">Claim draw</button>
+                    <button id="soundToggleButton" type="button" class="secondary" aria-pressed="false">Sound off</button>
+                </div>
+                <p id="actionMessage" class="form-message" aria-live="polite"></p>
                 <form id="fenForm">
                     <label for="fenInput">Load FEN (stub)</label>
                     <textarea id="fenInput" name="fen" rows="3" placeholder="Paste FEN here"></textarea>

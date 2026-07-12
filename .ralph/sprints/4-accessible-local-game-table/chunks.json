@@ -58,7 +58,7 @@
     {
       "id": 4,
       "title": "Present clocks controls and responsive terminal feedback",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Both clocks display server-owned state and the active clock advances visually without becoming authoritative",
         "New game, reset/abandon, resign, draw offer/accept/claim, sound, and orientation controls reflect their allowed states",

@@ -66,6 +66,36 @@ export function createApiClient(apiBase) {
         loadReplay(gameId) {
             return request(`games/replay.php?id=${encodeURIComponent(gameId)}`);
         },
+        abandonGame(payload) {
+            return request('games/abandon.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
+        resignGame(payload) {
+            return request('games/resign.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
+        offerDraw(payload) {
+            return request('games/draw-offer.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
+        acceptDraw(payload) {
+            return request('games/draw-accept.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
+        claimDraw(payload) {
+            return request('games/draw-claim.php', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+        },
         submitFen(fen) {
             return request('setup.php', {
                 method: 'POST',
