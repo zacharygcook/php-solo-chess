@@ -44,6 +44,76 @@
       "request_schema": "MoveRequest"
     },
     {
+      "path": "/backend/public/api/games/new.php",
+      "method": "post",
+      "summary": "Create a new untimed, preset, or custom timed game",
+      "success_status": 201,
+      "request_schema": "CreateGameRequest"
+    },
+    {
+      "path": "/backend/public/api/games/move.php",
+      "method": "post",
+      "summary": "Submit one move for the active player through the games API",
+      "success_status": 200,
+      "request_schema": "MoveRequest"
+    },
+    {
+      "path": "/backend/public/api/games/resign.php",
+      "method": "post",
+      "summary": "Resign the active game for one side",
+      "success_status": 200,
+      "request_schema": "GameActionRequest"
+    },
+    {
+      "path": "/backend/public/api/games/draw-offer.php",
+      "method": "post",
+      "summary": "Offer a draw for the side to move",
+      "success_status": 200,
+      "request_schema": "GameActionRequest"
+    },
+    {
+      "path": "/backend/public/api/games/draw-accept.php",
+      "method": "post",
+      "summary": "Accept an available draw offer as the opponent",
+      "success_status": 200,
+      "request_schema": "GameActionRequest"
+    },
+    {
+      "path": "/backend/public/api/games/draw-claim.php",
+      "method": "post",
+      "summary": "Claim an available rule-owned draw",
+      "success_status": 200,
+      "request_schema": "DrawClaimRequest"
+    },
+    {
+      "path": "/backend/public/api/games/abandon.php",
+      "method": "post",
+      "summary": "Abandon the active game without a winner",
+      "success_status": 200,
+      "request_schema": "GameActionRequest"
+    },
+    {
+      "path": "/backend/public/api/games/history.php",
+      "method": "get",
+      "summary": "List saved games for the authenticated owner",
+      "success_status": 200,
+      "response_schema": "GameHistoryResponse"
+    },
+    {
+      "path": "/backend/public/api/games/open.php",
+      "method": "get",
+      "summary": "Open one saved game owned by the authenticated user",
+      "success_status": 200,
+      "response_schema": "SavedGameResponse"
+    },
+    {
+      "path": "/backend/public/api/games/replay.php",
+      "method": "get",
+      "summary": "Load read-only replay data for one saved game owned by the authenticated user",
+      "success_status": 200,
+      "response_schema": "ReplayResponse"
+    },
+    {
       "path": "/backend/public/api/reset.php",
       "method": "post",
       "summary": "Reset the current session to the initial position",

@@ -71,7 +71,7 @@
     {
       "id": 5,
       "title": "Publish lifecycle history and replay APIs",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "HTTP contracts cover new game, move, resign, draw offer/accept/claim, abandon, history, saved-game open, and replay data",
         "Controllers enforce method, input, authentication, and ownership boundaries with stable JSON envelopes",

@@ -87,3 +87,23 @@
 - Handoff: next chunk is chunk 5, publish lifecycle/history/replay HTTP contracts. Wire controllers
   and endpoint manifest to `GameService` terminal actions and `GameHistoryService`; keep replay
   read-only and owner-scoped, and do not add PGN or frontend polish in this sprint.
+
+## 2026-07-11 23:33 CDT — Chunk 5 complete
+
+- Published additive `/backend/public/api/games/` contracts for new game creation, move submission,
+  resignation, draw offer/accept/claim, abandonment, authenticated owner history, saved-game open,
+  and replay-only reads while preserving the legacy session/move/reset endpoints.
+- Added controller result methods and `GameHistoryController` so endpoint files stay thin and tests
+  can assert stable JSON envelopes without starting a server inside the fast unit suite.
+- Generated API docs now describe participant labels/types, validated time controls, server-owned
+  clock state, lifecycle terminal fields, history summaries, and replay positions/moves.
+- Focused proof added in `tests/GameApiTest.php` for lifecycle/action envelopes, draw action
+  ordering and claim handling, authenticated owner-scoped history/open/replay reads, owner
+  isolation, guest rejection, and replay response shape. `scripts/dast.sh` now drives an
+  authenticated timed HTTP journey and verifies malformed JSON, methods, auth, and owner boundaries.
+- Validation passed: focused `./scripts/test.sh`; `composer typecheck`; `./scripts/dast.sh`;
+  requested fast gate `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`;
+  final `./scripts/check.sh`.
+- Handoff: all Sprint 3 chunks are now marked passing. Post-sprint hooks can proceed with review,
+  documentation consistency checks, and final validation; PGN, frontend polish, and engine work
+  remain intentionally outside this sprint.
