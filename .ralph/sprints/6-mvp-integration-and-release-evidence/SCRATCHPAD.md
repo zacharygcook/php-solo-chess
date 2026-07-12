@@ -135,3 +135,24 @@
   worktree for that commit to produce the local archive, notes, checksums, and manifest without
   publishing anything. Then allow post-sprint hooks to perform final review, docs, and full
   validation.
+
+## 2026-07-12 — Post-sprint review complete
+
+- Reviewed commit range `79f6f024597cd646222476bf04015ca082d42346..b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c`
+  against `SPEC.md`, the sprint plan, chunks, scratchpad, manifest, validation logs, and adjacent
+  API/rules/frontend contracts.
+- No source, test, or product documentation fixes were applied during review.
+- Durable discovery: the chunk validation logs and earlier scratchpad entries cite 114 tests, but a
+  clean detached worktree at endpoint commit `b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c` runs 113
+  tests. The active checkout had unrelated dirty product/runtime work during sprint validation, so
+  chunk-time test counts were not an exact representation of the committed endpoint.
+- Mitigation: clean endpoint validation passed independently. `composer install --no-interaction`
+  succeeded in `/tmp/php-solo-chess-review.DpO8cz`; the fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with seed
+  `741636049`, 113 tests, PHPStan clean, and complexity within the method ceiling.
+- Final package proof: `RELEASE_OUTPUT_DIR=/tmp/php-solo-chess-review-release ./scripts/package-release.sh 0.1.0`
+  passed from the clean endpoint worktree, including full `./scripts/check.sh`, test seed
+  `1884833730`, coverage seed `409209182`, 83.49% backend line coverage, idempotent SQLite setup,
+  browser smoke, and release artifacts for commit `b4eaf95c449c4aa94c622e875c8a7d3e040b0a0c`.
+- Residual risk: post-sprint hook state in `manifest.json` remains pending and was not rewritten by
+  hand; active checkout dirty work outside this sprint remains untouched.
