@@ -82,7 +82,7 @@ function authServiceTestSubject(): array
     DatabaseSchema::initialize($pdo);
     $users = new UserRepository($pdo);
 
-    return [new AuthService($users), $users];
+    return [new AuthService($users, ['cost' => 4]), $users];
 }
 
 /** @param Closure(): mixed $action */

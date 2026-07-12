@@ -52,7 +52,7 @@
     {
       "id": 4,
       "title": "Add session-backed account HTTP contracts",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Register, login, logout, and current-user endpoints enforce methods and stable JSON envelopes",
         "Successful authentication rotates the PHP session identifier and logout clears only authentication context",

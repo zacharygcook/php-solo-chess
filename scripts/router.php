@@ -19,7 +19,7 @@ if ($requestPath === '/frontend' || str_starts_with($requestPath, '/frontend/'))
     }
 }
 
-if (preg_match('#^/backend/public/api/[a-z][a-z0-9-]*\.php$#', $requestPath)) {
+if (preg_match('#^/backend/public/api/(?:[a-z][a-z0-9-]*/)?[a-z][a-z0-9-]*\.php$#', $requestPath)) {
     $resolved = realpath($root . $requestPath);
     $apiRoot = realpath($root . '/backend/public/api');
     if ($resolved !== false && $apiRoot !== false && str_starts_with($resolved, $apiRoot)) {

@@ -14,7 +14,17 @@ final class AuthService
     private const MIN_PASSWORD_LENGTH = 8;
     private const MAX_DISPLAY_NAME_LENGTH = 80;
 
-    public function __construct(private UserRepository $users) {}
+    private UserRepository $users;
+
+    /** @var array<string, mixed> */
+    private array $passwordHashOptions;
+
+    /** @param array<string, mixed> $passwordHashOptions */
+    public function __construct(UserRepository $users, array $passwordHashOptions = [])
+    {
+        $this->users = $users;
+        $this->passwordHashOptions = $passwordHashOptions;
+    }
 
     public function register(string $username, string $displayName, string $password): AuthenticatedUser
     {
@@ -35,7 +45,7 @@ final class AuthService
                 $username,
                 $normalizedUsername,
                 $displayName,
-                password_hash($password, PASSWORD_DEFAULT),
+                password_hash($password, PASSWORD_DEFAULT, $this->passwordHashOptions),
             );
         } catch (PDOException $error) {
             if ((string) $error->getCode() === '23000') {

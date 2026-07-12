@@ -30,6 +30,7 @@ foreach ($manifest['endpoints'] as $endpoint) {
         throw new RuntimeException("Endpoint method drift for {$relativePhpPath}: expected {$expectedMethod}");
     }
 
+    $responseSchema = $endpoint['response_schema'] ?? 'GameResponse';
     $operation = [
         'summary' => $endpoint['summary'],
         'operationId' => $endpoint['method'] . ucfirst(pathinfo($endpoint['path'], PATHINFO_FILENAME)),
@@ -38,7 +39,7 @@ foreach ($manifest['endpoints'] as $endpoint) {
                 'description' => 'JSON result',
                 'content' => [
                     'application/json' => [
-                        'schema' => ['$ref' => '#/components/schemas/GameResponse'],
+                        'schema' => ['$ref' => '#/components/schemas/' . $responseSchema],
                     ],
                 ],
             ],
@@ -102,6 +103,50 @@ $openApi = [
                 'properties' => ['fen' => ['type' => 'string', 'minLength' => 1]],
                 'additionalProperties' => false,
             ],
+            'AuthRegisterRequest' => [
+                'type' => 'object',
+                'required' => ['username', 'displayName', 'password'],
+                'properties' => [
+                    'username' => ['type' => 'string', 'minLength' => 3, 'maxLength' => 32],
+                    'displayName' => ['type' => 'string', 'minLength' => 1, 'maxLength' => 80],
+                    'password' => ['type' => 'string', 'minLength' => 8],
+                ],
+                'additionalProperties' => false,
+            ],
+            'AuthLoginRequest' => [
+                'type' => 'object',
+                'required' => ['username', 'password'],
+                'properties' => [
+                    'username' => ['type' => 'string', 'minLength' => 3, 'maxLength' => 32],
+                    'password' => ['type' => 'string', 'minLength' => 8],
+                ],
+                'additionalProperties' => false,
+            ],
+            'AuthUser' => [
+                'type' => 'object',
+                'required' => ['id', 'username', 'displayName', 'createdAt', 'updatedAt'],
+                'properties' => [
+                    'id' => ['type' => 'integer', 'minimum' => 1],
+                    'username' => ['type' => 'string'],
+                    'displayName' => ['type' => 'string'],
+                    'createdAt' => ['type' => 'string'],
+                    'updatedAt' => ['type' => 'string'],
+                ],
+                'additionalProperties' => false,
+            ],
+            'AuthState' => [
+                'type' => 'object',
+                'required' => ['user'],
+                'properties' => [
+                    'user' => [
+                        'anyOf' => [
+                            ['$ref' => '#/components/schemas/AuthUser'],
+                            ['type' => 'null'],
+                        ],
+                    ],
+                ],
+                'additionalProperties' => false,
+            ],
             'GameState' => [
                 'type' => 'object',
                 'required' => ['board', 'moveHistory', 'activeColor'],
@@ -120,6 +165,15 @@ $openApi = [
                     'success' => ['type' => 'boolean'],
                     'message' => ['type' => ['string', 'null']],
                     'state' => ['$ref' => '#/components/schemas/GameState'],
+                ],
+            ],
+            'AuthResponse' => [
+                'type' => 'object',
+                'required' => ['success', 'message', 'state'],
+                'properties' => [
+                    'success' => ['type' => 'boolean'],
+                    'message' => ['type' => 'string'],
+                    'state' => ['$ref' => '#/components/schemas/AuthState'],
                 ],
             ],
             'ErrorResponse' => [

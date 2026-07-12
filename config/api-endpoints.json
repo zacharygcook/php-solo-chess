@@ -7,6 +7,36 @@
       "success_status": 200
     },
     {
+      "path": "/backend/public/api/auth/register.php",
+      "method": "post",
+      "summary": "Register a local user and authenticate the session",
+      "success_status": 201,
+      "request_schema": "AuthRegisterRequest",
+      "response_schema": "AuthResponse"
+    },
+    {
+      "path": "/backend/public/api/auth/login.php",
+      "method": "post",
+      "summary": "Authenticate the session as an existing local user",
+      "success_status": 200,
+      "request_schema": "AuthLoginRequest",
+      "response_schema": "AuthResponse"
+    },
+    {
+      "path": "/backend/public/api/auth/logout.php",
+      "method": "post",
+      "summary": "Clear the authenticated user from the current session",
+      "success_status": 200,
+      "response_schema": "AuthResponse"
+    },
+    {
+      "path": "/backend/public/api/auth/user.php",
+      "method": "get",
+      "summary": "Load the authenticated user for the current session",
+      "success_status": 200,
+      "response_schema": "AuthResponse"
+    },
+    {
       "path": "/backend/public/api/move.php",
       "method": "post",
       "summary": "Submit one move for the active player",

@@ -234,3 +234,43 @@
     authentication; clear only authentication context on logout; update API docs/probes as required.
     Do not add game persistence, clocks, roles, email, remote services, or frontend expansion in
     chunk 4.
+
+## 2026-07-11 — Chunk 4 complete: session-backed account HTTP contracts
+
+- Decisions:
+  - Added `AuthSessionService` to keep registration/login/logout/current-user behavior behind a
+    service and keep controllers focused on request/response contracts.
+  - Extended `SessionStore` with a separate authenticated-user key so logout clears only local
+    identity state and leaves the active chess session untouched.
+  - Added `RepositoryFactory` as the default SQLite wiring point for auth endpoints; it initializes
+    the idempotent schema and honors `SOLO_CHESS_DATABASE_PATH` so dynamic probes use an isolated
+    temporary database.
+  - Added register, login, logout, and current-user endpoints under `/backend/public/api/auth/` with
+    method checks, safe JSON envelopes, malformed JSON handling for credential endpoints, session ID
+    rotation on successful authentication, and no password hash exposure.
+  - Kept password hashing production defaults intact while allowing tests to inject a low bcrypt
+    cost to preserve the repository's two-second unit-test budget.
+- Failed approaches / corrections:
+  - The first unit-suite run passed behaviorally but exceeded the time budget because repeated
+    default password hashing pushed the suite to roughly 2.5 seconds; fixed by injecting test-only
+    hash options instead of weakening production hashing.
+  - PHPStan flagged auth endpoint payload variables as possibly undefined because it cannot infer
+    that `JsonResponse::send()` exits after malformed JSON; initialized the payload before the
+    guarded decode path.
+- Validation evidence:
+  - Focused suite after correction: `./scripts/test.sh` passed with 65 tests, 0 failures in about
+    171 ms.
+  - `composer typecheck` passed with no PHPStan errors.
+  - `composer format:check` passed.
+  - `php scripts/check-architecture.php` passed.
+  - `php scripts/generate-api-docs.php --check` passed.
+  - `./scripts/dast.sh` passed, including auth method checks, malformed auth JSON, registration,
+    current-user lookup, logout, safe user envelopes, and game-session preservation after logout.
+  - Required fast gate:
+    `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with 65 tests,
+    0 failures; PHPStan reported no errors; complexity budget passed.
+- Next handoff:
+  - Continue with chunk 5 only. Persist logged-in users' canonical game state and ordered moves after
+    accepted transitions, enforce owner isolation on reload/mutation, and keep guest games on the
+    existing session-only path. Do not add clocks, roles, email, remote services, or frontend
+    expansion in chunk 5.

@@ -28,4 +28,16 @@ final class AuthenticatedUser
             $user->updatedAt,
         );
     }
+
+    /** @return array{id: int, username: string, displayName: string, createdAt: string, updatedAt: string} */
+    public function toPublicArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'username' => $this->username,
+            'displayName' => $this->displayName,
+            'createdAt' => $this->createdAt,
+            'updatedAt' => $this->updatedAt,
+        ];
+    }
 }
