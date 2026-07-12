@@ -69,3 +69,33 @@
     `password_hash()`/`password_verify()`, and return safe identity data without exposing
     `passwordHash`. Do not add HTTP endpoints, sessions, email, roles, clocks, or frontend work in
     chunk 3.
+
+## Ralph validation feedback — chunk 2, iteration 2
+
+- Result: configured chunk validation failed
+- Log: `/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-2.log`
+- The chunk was reset to `passes: false`; inspect the log and repair before claiming completion again.
+
+## 2026-07-11 — Chunk 2 revalidated after Ralph reset
+
+- Decisions:
+  - Inspected the reset validation log before changing sprint state. The failure occurred after
+    `./scripts/test.sh` passed; `composer typecheck` hit PHPStan's default 128 MB process limit while
+    parsing internal stubs.
+  - Rechecked the already committed repository implementation in `a09fbcb` against chunk 2 criteria:
+    repositories keep PDO isolated, use prepared statements, store typed row/data objects, enforce
+    owner-scoped game reads, and wrap canonical game plus ordered move replacement in one
+    transaction.
+  - Made no product-code changes in this repair pass because the exact required fast gate now passes.
+    The only sprint-state change is restoring chunk 2 `passes` to `true`.
+- Failed approaches / corrections:
+  - Did not raise PHPStan memory or alter validation commands because the failure did not reproduce
+    on the required command.
+- Validation evidence:
+  - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+- Next handoff:
+  - Continue with chunk 3 only. Implement registration/authentication services on top of
+    `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
+    `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
+    endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
