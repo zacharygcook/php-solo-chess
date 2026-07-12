@@ -136,3 +136,28 @@
 - Hook-state note: Sprint 4 manifest showed `phase: chunks_done` with hooks pending and no hook marker
   files while this review hook was running. Do not hand-create those markers; the Ralph hook runner
   should own final marker and manifest reconciliation.
+
+## 2026-07-12T14:44:33Z — Documentation reconciliation
+
+- Updated canonical repository documentation made stale or incomplete by Sprint 4:
+  `README.md`, `docs/ARCHITECTURE.md`, `docs/RUNBOOKS.md`, and
+  `RALPH_DOGFOOD_SCORECARD.md`.
+- Decision: keep frontend validation guidance in the existing quick-QA, architecture validation, and
+  local runbook pages instead of creating a Sprint 4-specific documentation page. The new direct
+  browser-smoke command is now discoverable from `README.md`, and browser-smoke failure triage lives
+  with the other local recovery procedures.
+- Decision: leave generated API docs untouched because Sprint 4 consumed the Sprint 3 account,
+  lifecycle, history, and replay API contracts without adding backend endpoints. `docs/API.md` and
+  `docs/openapi.json` remain owned by `config/api-endpoints.json` and
+  `scripts/generate-api-docs.php`.
+- Updated the dogfood scorecard for Sprint 4's review-found account-state divergence that passed the
+  chunk and browser-smoke gates, and for the new browser smoke coverage delivered by the sprint.
+- Dead end avoided: no parallel documentation hierarchy was created; sprint-local evidence stays in
+  this scratchpad.
+- Validation evidence:
+  - `php scripts/generate-api-docs.php --check` passed.
+  - `./scripts/check-agent-docs.sh` passed.
+  - `git diff --check` passed.
+  - `./scripts/check.sh` passed all 25 steps, including browser smoke coverage. The unit-test phase
+    used seed `1609535738`, the coverage phase used seed `1074551143`, both ran 96 tests with 0
+    failures, and browser smoke passed.

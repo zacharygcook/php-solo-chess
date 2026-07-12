@@ -1,0 +1,146 @@
+{
+  "sprint": "4-accessible-local-game-table",
+  "start_commit": "acd64ee4e5f04d8f952c13632c8724c70a32275f",
+  "started_at": "2026-07-12T13:56:18Z",
+  "end_commit": "e189c0ad83a0ab2bb4f1bfdfa704f8441349c411",
+  "completed_at": "2026-07-12T14:37:10Z",
+  "iterations": 5,
+  "agent_turns": [
+    {
+      "chunk_id": 1,
+      "iteration": 1,
+      "started_at": "2026-07-12T13:56:18Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 2,
+      "started_at": "2026-07-12T14:03:05Z"
+    },
+    {
+      "chunk_id": 3,
+      "iteration": 3,
+      "started_at": "2026-07-12T14:12:56Z"
+    },
+    {
+      "chunk_id": 4,
+      "iteration": 4,
+      "started_at": "2026-07-12T14:21:49Z"
+    },
+    {
+      "chunk_id": 5,
+      "iteration": 5,
+      "started_at": "2026-07-12T14:28:54Z"
+    }
+  ],
+  "commits": [
+    {
+      "hash": "b602cfc09244834e996a4123e6cb480aca8b3e34",
+      "message": "Replace jQuery frontend boundary",
+      "chunk_id": 1,
+      "iteration": 1
+    },
+    {
+      "hash": "9f8ac9ceb8f38c878e2927f990a60350b9520615",
+      "message": "Build account history frontend",
+      "chunk_id": 2,
+      "iteration": 2
+    },
+    {
+      "hash": "0583350010f0f2d7d0c0365ba9522bc86f3b40e7",
+      "message": "Implement accessible board interactions",
+      "chunk_id": 3,
+      "iteration": 3
+    },
+    {
+      "hash": "218932dae565933a8dab59ffa0ab2bd17e149f1b",
+      "message": "Present clocks and lifecycle controls",
+      "chunk_id": 4,
+      "iteration": 4
+    },
+    {
+      "hash": "e189c0ad83a0ab2bb4f1bfdfa704f8441349c411",
+      "message": "Add local sound and browser smoke coverage",
+      "chunk_id": 5,
+      "iteration": 5
+    }
+  ],
+  "validation": {
+    "chunk_attempts": [
+      {
+        "chunk_id": 1,
+        "iteration": 1,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T14:02:59Z",
+        "completed_at": "2026-07-12T14:03:03Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/4-accessible-local-game-table/run-20260712-085618/chunk-1-validation-1.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 2,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T14:12:50Z",
+        "completed_at": "2026-07-12T14:12:54Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/4-accessible-local-game-table/run-20260712-085618/chunk-2-validation-2.log"
+      },
+      {
+        "chunk_id": 3,
+        "iteration": 3,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T14:21:42Z",
+        "completed_at": "2026-07-12T14:21:47Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/4-accessible-local-game-table/run-20260712-085618/chunk-3-validation-3.log"
+      },
+      {
+        "chunk_id": 4,
+        "iteration": 4,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T14:28:47Z",
+        "completed_at": "2026-07-12T14:28:52Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/4-accessible-local-game-table/run-20260712-085618/chunk-4-validation-4.log"
+      },
+      {
+        "chunk_id": 5,
+        "iteration": 5,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T14:37:05Z",
+        "completed_at": "2026-07-12T14:37:09Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/4-accessible-local-game-table/run-20260712-085618/chunk-5-validation-5.log"
+      }
+    ]
+  },
+  "phase": "hooks_done",
+  "hooks": {
+    "review": {
+      "status": "done",
+      "completed_at": "2026-07-12T14:52:55Z",
+      "reason": null
+    },
+    "documentation": {
+      "status": "done",
+      "completed_at": "2026-07-12T14:52:55Z",
+      "reason": null
+    },
+    "validation": {
+      "status": "done",
+      "completed_at": "2026-07-12T14:52:55Z",
+      "reason": null,
+      "phases": {
+        "sprint": {
+          "status": "done",
+          "reason": null,
+          "completed_at": "2026-07-12T14:52:54Z"
+        },
+        "e2e": {
+          "status": "skipped",
+          "reason": "not_configured",
+          "completed_at": "2026-07-12T14:52:54Z"
+        }
+      }
+    }
+  }
+}
