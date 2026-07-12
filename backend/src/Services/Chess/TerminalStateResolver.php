@@ -28,6 +28,24 @@ final class TerminalStateResolver
     }
 
     /**
+     * @param array<int, array<int, string|null>> $board
+     */
+    public function canColorLegallyWin(array $board, string $color): bool
+    {
+        $pieces = $this->remainingPieces($board, $color);
+
+        if ($pieces === []) {
+            return false;
+        }
+
+        if (count($pieces) === 1) {
+            return !in_array($pieces[0]['piece'][1], ['b', 'n'], true);
+        }
+
+        return !$this->hasOnlySameColorBishops($pieces);
+    }
+
+    /**
      * @param array<string, mixed> $state
      * @return array<string, mixed>
      */
@@ -38,6 +56,7 @@ final class TerminalStateResolver
         $state['terminationReason'] = null;
         $state['drawClaims'] = [];
         $state['availableActions'] = [];
+        $state['drawOffer'] = null;
 
         return $state;
     }
@@ -99,12 +118,16 @@ final class TerminalStateResolver
      * @param array<int, array<int, string|null>> $board
      * @return list<array{piece: string, squareColor: int}>
      */
-    private function remainingPieces(array $board): array
+    private function remainingPieces(array $board, ?string $color = null): array
     {
         $pieces = [];
+        $prefix = $color === null ? null : ($color === 'white' ? 'w' : 'b');
         foreach ($board as $row => $squares) {
             foreach ($squares as $col => $piece) {
                 if ($piece === null || $piece[1] === 'k') {
+                    continue;
+                }
+                if ($prefix !== null && $piece[0] !== $prefix) {
                     continue;
                 }
                 $pieces[] = [

@@ -47,3 +47,24 @@
 - Handoff: next chunk is chunk 3, complete game-ending actions. Reuse `GameClock` for timeout
   detection but keep timeout result classification and finished-game immutability in the terminal
   transition work; chunk 2 intentionally does not end games when clocks reach zero.
+
+## 2026-07-11 23:16 CDT — Chunk 3 complete
+
+- Implemented application-level terminal actions through `GameService`: resignation, draw offer,
+  draw acceptance, draw claim, and abandonment. Accepted transitions now set canonical
+  `gameStatus`, `result`, `terminationReason`, clear legal/actions/draw-offer state, and persist
+  through the existing session/authenticated persistence path.
+- Added timeout resolution before state views, moves, and actions. Timed-out clocks are persisted at
+  zero, the non-flagging side wins when it has mating material, and timeout is recorded as a draw
+  when the non-flagging side cannot legally win.
+- Preserved finished-game immutability by rejecting later moves/actions without saving rejection
+  markers and by keeping finished states at empty `legalMoves` during canonical reload.
+- Focused proof added in `tests/GameLifecycleTest.php` and `tests/GameClockTest.php` for resignation,
+  agreed draws, draw-claim authorization, abandonment, timeout loss, timeout draw, invalid action
+  ordering, and no late clock/move mutation.
+- Validation passed: focused `./scripts/test.sh`; requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`; final
+  `./scripts/check.sh`.
+- Handoff: next chunk is chunk 4, persist transitions and expose history/replay services. Reuse the
+  new terminal action methods as the canonical transition surface; HTTP endpoints remain deferred to
+  chunk 5.

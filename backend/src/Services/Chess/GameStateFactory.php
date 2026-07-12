@@ -34,6 +34,7 @@ final class GameStateFactory
             'terminationReason' => null,
             'drawClaims' => [],
             'availableActions' => [],
+            'drawOffer' => null,
             'lastMessage' => 'Session ready. Implement chess logic inside GameService.',
         ];
 
@@ -80,6 +81,7 @@ final class GameStateFactory
         $state['terminationReason'] = is_string($state['terminationReason'] ?? null) ? $state['terminationReason'] : null;
         $state['drawClaims'] = is_array($state['drawClaims'] ?? null) ? $state['drawClaims'] : [];
         $state['availableActions'] = is_array($state['availableActions'] ?? null) ? $state['availableActions'] : [];
+        $state['drawOffer'] = is_array($state['drawOffer'] ?? null) ? $state['drawOffer'] : null;
 
         return $state;
     }

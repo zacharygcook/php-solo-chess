@@ -89,23 +89,60 @@ return static function (TestHarness $tests): void {
         $tests->assertSame('black', $accepted['clockState']['activeColor']);
     });
 
-    $tests->test('clock views clamp elapsed time at zero until timeout termination is implemented', function () use ($tests): void {
+    $tests->test('timeout before a late move records a loss without applying increment or board mutation', function () use ($tests): void {
         $_SESSION = [];
         $time = new DeterministicClock(4_000_000);
-        $game = new GameService(new SessionStore(), currentTimeMilliseconds: $time);
+        $store = new SessionStore();
+        $game = new GameService($store, currentTimeMilliseconds: $time);
 
         $game->createGame(['timeControl' => ['kind' => 'custom', 'baseMinutes' => 1, 'incrementSeconds' => 3]]);
         $time->advance(70_000);
 
         $view = $game->getSessionState();
-        $accepted = $game->submitMove(['from' => 'e2', 'to' => 'e4']);
+        $lateMove = $game->submitMove(['from' => 'e2', 'to' => 'e4']);
 
+        $tests->assertSame('finished', $view['gameStatus']);
+        $tests->assertSame('0-1', $view['result']);
+        $tests->assertSame('timeout', $view['terminationReason']);
         $tests->assertSame(0, $view['clockState']['whiteRemainingMilliseconds']);
-        $tests->assertSame(3_000, $accepted['clockState']['whiteRemainingMilliseconds']);
-        $tests->assertSame('active', $accepted['gameStatus']);
-        $tests->assertSame(null, $accepted['terminationReason']);
+        $tests->assertSame(false, $lateMove['isValidMove']);
+        $tests->assertSame('Game is already finished.', $lateMove['lastMessage']);
+        $tests->assertSame(0, $lateMove['clockState']['whiteRemainingMilliseconds']);
+        $tests->assertSame([], $lateMove['moveHistory']);
+        $tests->assertSame('wp', $lateMove['board'][6][4]);
+        $tests->assertSame($view, $store->getState());
+    });
+
+    $tests->test('timeout is a draw when the non flagging side cannot legally win', function () use ($tests): void {
+        $_SESSION = [];
+        $time = new DeterministicClock(5_000_000);
+        $store = new SessionStore();
+        $game = new GameService($store, currentTimeMilliseconds: $time);
+        $state = $game->createGame(['timeControl' => ['kind' => 'custom', 'baseMinutes' => 1, 'incrementSeconds' => 0]]);
+        $state['board'] = clockBoardWithMaterialForOnlyWhite();
+        $store->saveState($state);
+
+        $time->advance(61_000);
+        $view = $game->getSessionState();
+
+        $tests->assertSame('finished', $view['gameStatus']);
+        $tests->assertSame('1/2-1/2', $view['result']);
+        $tests->assertSame('timeout', $view['terminationReason']);
+        $tests->assertSame(0, $view['clockState']['whiteRemainingMilliseconds']);
+        $tests->assertSame('Draw by timeout.', $view['lastMessage']);
     });
 };
+
+/** @return array<int, array<int, string|null>> */
+function clockBoardWithMaterialForOnlyWhite(): array
+{
+    $board = array_fill(0, 8, array_fill(0, 8, null));
+    $board[0][4] = 'bk';
+    $board[7][4] = 'wk';
+    $board[7][0] = 'wq';
+
+    return $board;
+}
 
 final class DeterministicClock
 {

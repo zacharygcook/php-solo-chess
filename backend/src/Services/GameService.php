@@ -55,7 +55,7 @@ final class GameService
     /** @return array<string, mixed> */
     public function getSessionState(): array
     {
-        return $this->clock->withCurrentView($this->loadCanonicalState());
+        return $this->clock->withCurrentView($this->resolveTimeout($this->loadCanonicalState()));
     }
 
     /** @return array<string, mixed> */
@@ -84,7 +84,7 @@ final class GameService
      */
     public function submitMove(array $payload): array
     {
-        $state = $this->loadCanonicalState();
+        $state = $this->resolveTimeout($this->loadCanonicalState());
         $from = Coordinate::fromAlgebraic($payload['from'] ?? null);
         if ($from === null) {
             $message = empty($payload['from']) ? "Couldn't find a 'from' coordinate" : "Not a valid 'from' option";
@@ -119,6 +119,125 @@ final class GameService
     public function resetGame(): array
     {
         return $this->createGame([]);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function resignGame(array $payload): array
+    {
+        $state = $this->activeActionState();
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->rejectAction($state, 'Game is already finished.');
+        }
+
+        $actorColor = $this->actorColor($payload);
+        if ($actorColor === null) {
+            return $this->rejectAction($state, 'Choose white or black for this action.');
+        }
+
+        $winner = self::opponent($actorColor);
+
+        return $this->saveTransition($this->finishWithWinner(
+            $state,
+            $winner,
+            'resignation',
+            'Resignation. ' . ucfirst($winner) . ' wins.',
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function offerDraw(array $payload): array
+    {
+        $state = $this->activeActionState();
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->rejectAction($state, 'Game is already finished.');
+        }
+
+        $actorColor = $this->actorColor($payload);
+        if ($actorColor === null) {
+            return $this->rejectAction($state, 'Choose white or black for this action.');
+        }
+        if ($actorColor !== ($state['activeColor'] ?? null)) {
+            return $this->rejectAction($state, 'Only the side to move may offer a draw.');
+        }
+
+        $state['drawOffer'] = ['offeredBy' => $actorColor];
+        $state['lastMessage'] = 'Draw offered by ' . ucfirst($actorColor) . '.';
+
+        return $this->saveTransition($state);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function acceptDraw(array $payload): array
+    {
+        $state = $this->activeActionState();
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->rejectAction($state, 'Game is already finished.');
+        }
+
+        $actorColor = $this->actorColor($payload);
+        if ($actorColor === null) {
+            return $this->rejectAction($state, 'Choose white or black for this action.');
+        }
+
+        $offeredBy = $this->drawOfferedBy($state);
+        if ($offeredBy === null) {
+            return $this->rejectAction($state, 'No draw offer is available to accept.');
+        }
+        if ($offeredBy === $actorColor) {
+            return $this->rejectAction($state, 'Only the opponent may accept a draw offer.');
+        }
+
+        return $this->saveTransition($this->finishAsDraw($state, 'agreedDraw', 'Draw agreed.'));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function claimDraw(array $payload): array
+    {
+        $state = $this->activeActionState();
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->rejectAction($state, 'Game is already finished.');
+        }
+
+        $actorColor = $this->actorColor($payload);
+        if ($actorColor !== ($state['activeColor'] ?? null)) {
+            return $this->rejectAction($state, 'Only the side to move may claim a draw.');
+        }
+
+        $claim = $this->claimFromPayload($state, $payload);
+        if ($claim === null) {
+            return $this->rejectAction($state, 'No valid draw claim is available.');
+        }
+
+        return $this->saveTransition($this->finishAsDraw($state, $claim, $this->drawClaimMessage($claim)));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function abandonGame(array $payload): array
+    {
+        $state = $this->activeActionState();
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return $this->rejectAction($state, 'Game is already finished.');
+        }
+        if ($this->actorColor($payload) === null) {
+            return $this->rejectAction($state, 'Choose white or black for this action.');
+        }
+
+        return $this->saveTransition($this->finishWithoutResult($state, 'abandoned', 'Game abandoned.'));
     }
 
     /**
@@ -373,10 +492,170 @@ final class GameService
      * @param array<string, mixed> $state
      * @return array<string, mixed>
      */
+    private function rejectAction(array $state, string $message): array
+    {
+        $state['lastMessage'] = $message;
+        $state['isValidAction'] = false;
+
+        return $this->clock->withCurrentView($state);
+    }
+
+    /** @return array<string, mixed> */
+    private function activeActionState(): array
+    {
+        return $this->resolveTimeout($this->loadCanonicalState());
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function resolveTimeout(array $state): array
+    {
+        $flaggedColor = $this->clock->timedOutColor($state);
+        if ($flaggedColor === null) {
+            return $state;
+        }
+
+        $state = $this->clock->withTimedOutClock($state, $flaggedColor);
+        $winner = self::opponent($flaggedColor);
+        if (!$this->terminalStateResolver->canColorLegallyWin($state['board'], $winner)) {
+            return $this->saveTransition($this->finishAsDraw($state, 'timeout', 'Draw by timeout.'));
+        }
+
+        return $this->saveTransition($this->finishWithWinner(
+            $state,
+            $winner,
+            'timeout',
+            ucfirst($winner) . ' wins on time.',
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function actorColor(array $payload): ?string
+    {
+        $actorColor = $payload['actorColor'] ?? null;
+
+        return in_array($actorColor, ['white', 'black'], true) ? $actorColor : null;
+    }
+
+    /** @param array<string, mixed> $state */
+    private function drawOfferedBy(array $state): ?string
+    {
+        $offer = $state['drawOffer'] ?? null;
+        $offeredBy = is_array($offer) ? ($offer['offeredBy'] ?? null) : null;
+
+        return in_array($offeredBy, ['white', 'black'], true) ? $offeredBy : null;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @param array<string, mixed> $payload
+     */
+    private function claimFromPayload(array $state, array $payload): ?string
+    {
+        if (!in_array('claimDraw', $state['availableActions'] ?? [], true)) {
+            return null;
+        }
+
+        $claims = array_values(array_filter(
+            $state['drawClaims'] ?? [],
+            static fn(mixed $claim): bool => is_string($claim),
+        ));
+        $requested = $payload['claim'] ?? null;
+
+        return is_string($requested) && in_array($requested, $claims, true)
+            ? $requested
+            : ($claims[0] ?? null);
+    }
+
+    private function drawClaimMessage(string $claim): string
+    {
+        return match ($claim) {
+            'fiftyMoveRule' => 'Draw claimed by fifty-move rule.',
+            'threefoldRepetition' => 'Draw claimed by threefold repetition.',
+            default => 'Draw claimed.',
+        };
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function finishWithWinner(array $state, string $winner, string $reason, string $message): array
+    {
+        $state['result'] = $winner === 'white' ? '1-0' : '0-1';
+
+        return $this->finish($state, $reason, $message);
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function finishAsDraw(array $state, string $reason, string $message): array
+    {
+        $state['result'] = '1/2-1/2';
+
+        return $this->finish($state, $reason, $message);
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function finishWithoutResult(array $state, string $reason, string $message): array
+    {
+        $state['result'] = '*';
+
+        return $this->finish($state, $reason, $message);
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function finish(array $state, string $reason, string $message): array
+    {
+        $state['gameStatus'] = 'finished';
+        $state['terminationReason'] = $reason;
+        $state['drawClaims'] = [];
+        $state['availableActions'] = [];
+        $state['drawOffer'] = null;
+        $state['legalMoves'] = [];
+        $state['lastMessage'] = $message;
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    private function saveTransition(array $state): array
+    {
+        $this->store->saveState($state);
+        $this->persistence?->saveStateForAuthenticatedUser($state);
+
+        return $state;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
     private function withLegalMoves(array $state): array
     {
-        $state['legalMoves'] = $this->legalMoveGenerator->generate($state);
         $state['fen'] = $this->notationFormatter->fen($state);
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            $state['legalMoves'] = [];
+
+            return $state;
+        }
+
+        $state['legalMoves'] = $this->legalMoveGenerator->generate($state);
 
         return $state;
     }

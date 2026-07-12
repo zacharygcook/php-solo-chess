@@ -114,6 +114,96 @@ return static function (TestHarness $tests): void {
         $tests->assertSame($state['timeControl'], json_decode((string) $record->timeControlJson, true));
         $tests->assertSame($state['clockState'], json_decode((string) $record->clockStateJson, true));
     });
+
+    $tests->test('resignation records a winner and finished games reject later actions without mutation', function () use ($tests): void {
+        $_SESSION = [];
+        $store = new SessionStore();
+        $game = new GameService($store);
+        $game->createGame([]);
+
+        $finished = $game->resignGame(['actorColor' => 'white']);
+
+        $tests->assertSame('finished', $finished['gameStatus']);
+        $tests->assertSame('0-1', $finished['result']);
+        $tests->assertSame('resignation', $finished['terminationReason']);
+        $tests->assertSame([], $finished['legalMoves']);
+        $tests->assertSame('Resignation. Black wins.', $finished['lastMessage']);
+        $tests->assertSame($finished, unserialize(serialize($finished)));
+
+        $afterMove = $game->submitMove(['from' => 'e2', 'to' => 'e4']);
+        $afterAction = $game->resignGame(['actorColor' => 'black']);
+
+        $tests->assertSame(false, $afterMove['isValidMove']);
+        $tests->assertSame('Game is already finished.', $afterMove['lastMessage']);
+        $tests->assertSame(false, $afterAction['isValidAction']);
+        $tests->assertSame('Game is already finished.', $afterAction['lastMessage']);
+        $tests->assertSame($finished, $store->getState());
+    });
+
+    $tests->test('draw offers can only be accepted by the opponent in order', function () use ($tests): void {
+        $_SESSION = [];
+        $game = new GameService(new SessionStore());
+        $game->createGame([]);
+
+        $missingOffer = $game->acceptDraw(['actorColor' => 'black']);
+        $offered = $game->offerDraw(['actorColor' => 'white']);
+        $selfAccepted = $game->acceptDraw(['actorColor' => 'white']);
+        $accepted = $game->acceptDraw(['actorColor' => 'black']);
+
+        $tests->assertSame(false, $missingOffer['isValidAction']);
+        $tests->assertSame('No draw offer is available to accept.', $missingOffer['lastMessage']);
+        $tests->assertSame('active', $offered['gameStatus']);
+        $tests->assertSame(['offeredBy' => 'white'], $offered['drawOffer']);
+        $tests->assertSame('Draw offered by White.', $offered['lastMessage']);
+        $tests->assertSame(false, $selfAccepted['isValidAction']);
+        $tests->assertSame('Only the opponent may accept a draw offer.', $selfAccepted['lastMessage']);
+        $tests->assertSame('finished', $accepted['gameStatus']);
+        $tests->assertSame('1/2-1/2', $accepted['result']);
+        $tests->assertSame('agreedDraw', $accepted['terminationReason']);
+        $tests->assertSame(null, $accepted['drawOffer']);
+        $tests->assertSame('Draw agreed.', $accepted['lastMessage']);
+    });
+
+    $tests->test('valid draw claims finish the game while invalid claim attempts do not mutate state', function () use ($tests): void {
+        $_SESSION = [];
+        $store = new SessionStore();
+        $game = new GameService($store);
+        $state = $game->createGame([]);
+        $state['drawClaims'] = ['fiftyMoveRule'];
+        $state['availableActions'] = ['claimDraw'];
+        $store->saveState($state);
+
+        $wrongSide = $game->claimDraw(['actorColor' => 'black', 'claim' => 'fiftyMoveRule']);
+        $tests->assertSame(false, $wrongSide['isValidAction']);
+        $tests->assertSame('Only the side to move may claim a draw.', $wrongSide['lastMessage']);
+        $tests->assertSame($state, $store->getState());
+
+        $finished = $game->claimDraw(['actorColor' => 'white', 'claim' => 'fiftyMoveRule']);
+        $tests->assertSame('finished', $finished['gameStatus']);
+        $tests->assertSame('1/2-1/2', $finished['result']);
+        $tests->assertSame('fiftyMoveRule', $finished['terminationReason']);
+        $tests->assertSame([], $finished['drawClaims']);
+        $tests->assertSame([], $finished['availableActions']);
+        $tests->assertSame('Draw claimed by fifty-move rule.', $finished['lastMessage']);
+    });
+
+    $tests->test('abandonment finishes the game without changing board turn or history', function () use ($tests): void {
+        $_SESSION = [];
+        $store = new SessionStore();
+        $game = new GameService($store);
+        $before = $game->createGame([]);
+
+        $finished = $game->abandonGame(['actorColor' => 'white']);
+
+        $tests->assertSame('finished', $finished['gameStatus']);
+        $tests->assertSame('*', $finished['result']);
+        $tests->assertSame('abandoned', $finished['terminationReason']);
+        $tests->assertSame('Game abandoned.', $finished['lastMessage']);
+        $tests->assertSame($before['board'], $finished['board']);
+        $tests->assertSame($before['activeColor'], $finished['activeColor']);
+        $tests->assertSame($before['moveHistory'], $finished['moveHistory']);
+        $tests->assertSame([], $finished['legalMoves']);
+    });
 };
 
 /** @param array<string, mixed> $payload */

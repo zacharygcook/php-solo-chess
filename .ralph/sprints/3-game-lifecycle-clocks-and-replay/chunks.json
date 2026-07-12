@@ -35,7 +35,7 @@
     {
       "id": 3,
       "title": "Add complete game-ending actions",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Resignation, accepted draw offers, valid draw claims, abandonment, and timeout set canonical result and termination fields",
         "Timeout records a draw when the opponent cannot legally win and a loss otherwise",

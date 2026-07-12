@@ -75,6 +75,48 @@ final class GameClock
         return $state;
     }
 
+    /** @param array<string, mixed> $state */
+    public function timedOutColor(array $state): ?string
+    {
+        if (($state['gameStatus'] ?? 'active') === 'finished') {
+            return null;
+        }
+
+        $clock = $this->timedClock($state);
+        if ($clock === null) {
+            return null;
+        }
+
+        $activeColor = $this->activeColor($clock);
+        $remaining = $clock[$this->remainingKey($activeColor)] ?? null;
+        $turnStartedAt = $clock['turnStartedAtMilliseconds'] ?? null;
+        if (!is_int($remaining) || !is_int($turnStartedAt)) {
+            return null;
+        }
+
+        return $this->remainingAfterElapsed($remaining, $turnStartedAt, ($this->currentTimeMilliseconds)()) === 0
+            ? $activeColor
+            : null;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     * @return array<string, mixed>
+     */
+    public function withTimedOutClock(array $state, string $color): array
+    {
+        $clock = $this->timedClock($state);
+        if ($clock === null) {
+            return $state;
+        }
+
+        $clock[$this->remainingKey($color)] = 0;
+        $clock['turnStartedAtMilliseconds'] = ($this->currentTimeMilliseconds)();
+        $state['clockState'] = $clock;
+
+        return $state;
+    }
+
     /**
      * @param array<string, mixed> $state
      * @return array<string, mixed>
