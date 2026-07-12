@@ -20,7 +20,7 @@
     {
       "id": 2,
       "title": "Prove the complete untimed saved-game journey",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "A deterministic test registers/logs in, creates and plays an untimed game, persists every accepted move, and reaches a terminal result",
         "History and replay show the same labels, ordered moves, result, termination reason, and final FEN",
