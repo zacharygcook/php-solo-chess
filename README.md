@@ -9,6 +9,7 @@ Requirements:
 
 - PHP 8.1 or newer
 - Composer 2 for development checks
+- Chrome or Chromium for browser smoke coverage
 - A modern browser
 
 Install the pinned, free development formatter after cloning:
@@ -127,6 +128,8 @@ appear in [`TECH_DEBT.md`](TECH_DEBT.md), runs the unit suite, starts an isolate
 a session, and plays `e2` to `e4` through the real API.
 It also probes HTTP method abuse, malformed JSON, response content types, and sensitive repository
 paths against the allowlist router.
+The final smoke pass starts an isolated local server and drives Chrome/Chromium through guest play,
+account registration/login, timed status, saved-game replay, responsive layout, and sound toggling.
 
 For a short manual pass:
 

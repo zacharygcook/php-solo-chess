@@ -89,3 +89,31 @@
 - Handoff: continue with chunk 5, local optional sound feedback and repository-owned browser smoke
   coverage. Existing unrelated Sprint 3 dirty files and runtime manifest state remain outside this
   chunk.
+
+## 2026-07-12T14:35:41Z — Chunk 5 complete
+
+- Added local optional sound feedback with `frontend/assets/js/audio.js` and four small local WAV
+  assets for move, capture, check, and game-end cues. The sound toggle persists through
+  `localStorage` and audio failures are swallowed so browser audio policy or missing playback support
+  cannot block play.
+- Wired accepted move/action responses to non-blocking feedback after canonical server state renders:
+  game end takes precedence, then check, capture, and ordinary move. Illegal responses and review-mode
+  interactions do not play sounds or mutate the board.
+- Added brief board-panel feedback classes with reduced-motion handling; the animation does not delay
+  persistence, hide the final position, or disable controls.
+- Added `scripts/browser-smoke.sh`, a dependency-free Chrome/Chromium smoke runner using the DevTools
+  protocol. It exercises guest play, sound toggling and persisted preference, account
+  registration/logout/login, timed clock status, saved-game replay, and mobile layout without adding
+  npm packages.
+- Updated `scripts/check.sh` to fetch the local audio/module assets and run browser smoke coverage as
+  step 25, and documented the Chrome/Chromium smoke requirement in `README.md`.
+- Dead end: the first fast-gate attempt failed only because the new frontend contract test expected
+  different comment casing in `audio.js`; corrected the assertion and reran the gate.
+- Validation evidence: `node --check frontend/assets/js/audio.js`, `node --check
+  frontend/assets/js/app.js`, `bash -n scripts/browser-smoke.sh`, `php -l
+  tests/FrontendContractTest.php`, `./scripts/browser-smoke.sh 18181`, `./scripts/lint.sh`,
+  `composer format:check`, `./scripts/test.sh && composer typecheck &&
+  ./scripts/check-complexity.sh`, and `./scripts/check.sh` all passed. The requested fast gate passed
+  with 95 tests, PHPStan clean, and the complexity budget clean.
+- Handoff: all Sprint 4 chunks now pass. Existing unrelated Sprint 3/domain dirty files and runtime
+  config/manifest state were preserved outside this chunk.

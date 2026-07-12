@@ -75,7 +75,7 @@
     {
       "id": 5,
       "title": "Add local sound feedback and browser smoke coverage",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Local lightweight sounds distinguish move, capture, check, and game end and fail safely when audio is unavailable",
         "One obvious sound control persists its preference in browser storage",

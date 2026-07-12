@@ -1,13 +1,15 @@
 import { createApiClient } from './api.js';
+import { createAudioFeedback } from './audio.js';
 import { boardFromFen, findKingSquare, getPieceAt, pieceLabel, renderBoard } from './board.js';
 import { createUiState } from './state.js';
 
 const api = createApiClient(document.body.dataset.apiBase);
+const audioFeedback = createAudioFeedback({ basePath: 'assets/audio' });
 const uiState = createUiState();
 const elements = {};
 let pendingPromotionMove = null;
 let clockIntervalId = null;
-let soundEnabled = false;
+let feedbackTimeoutId = null;
 
 const TERMINAL_COPY = {
     checkmate: ['Checkmate', 'The king is trapped and the result is final.'],
@@ -33,6 +35,7 @@ function init() {
 
 function cacheDom() {
     elements.board = document.querySelector('#chessBoard');
+    elements.boardPanel = document.querySelector('.board-panel');
     elements.history = document.querySelector('#moveHistory');
     elements.status = document.querySelector('#statusMessage');
     elements.activeColor = document.querySelector('#activeColor');
@@ -172,10 +175,12 @@ async function submitGameAction(action) {
     }
 
     setActionMessage(`${actionLabel(action)} request sent...`);
+    const previousState = uiState.gameState;
 
     try {
         const response = await actionRequest(action, payload);
         applyState(response);
+        playStateFeedback(previousState, response.state, response.success ? 'action' : null);
         setActionMessage(response.message || `${actionLabel(action)} complete.`);
     } catch (_error) {
         setActionMessage(`${actionLabel(action)} request failed.`);
@@ -259,11 +264,13 @@ async function submitMove(payload) {
     }
 
     setStatus(`Submitting move ${payload.from} to ${payload.to}...`);
+    const previousState = uiState.gameState;
 
     try {
         const response = await api.submitMove(payload);
         uiState.clearSelection();
         applyState(response);
+        playStateFeedback(previousState, response.state, response.success ? 'move' : null);
     } catch (_error) {
         setStatus('Move request failed.');
     } finally {
@@ -785,8 +792,8 @@ function renderActionControls() {
     elements.acceptDraw.disabled = !canAcceptDraw;
     elements.claimDraw.disabled = !canClaimDraw;
     elements.soundToggle.disabled = false;
-    elements.soundToggle.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
-    elements.soundToggle.textContent = soundEnabled ? 'Sound on' : 'Sound off';
+    elements.soundToggle.setAttribute('aria-pressed', audioFeedback.isEnabled() ? 'true' : 'false');
+    elements.soundToggle.textContent = audioFeedback.isEnabled() ? 'Sound on' : 'Sound off';
 
     elements.resign.textContent = active ? `Resign ${capitalize(state.activeColor || 'side')}` : 'Resign';
     elements.offerDraw.textContent = active ? `Offer draw as ${capitalize(state.activeColor || 'side')}` : 'Offer draw';
@@ -970,9 +977,74 @@ function actionLabel(action) {
 }
 
 function toggleSound() {
-    soundEnabled = !soundEnabled;
+    const enabled = audioFeedback.toggle();
     renderActionControls();
-    setActionMessage(soundEnabled ? 'Sound enabled.' : 'Sound disabled.');
+    setActionMessage(enabled ? 'Sound enabled.' : 'Sound disabled.');
+}
+
+function playStateFeedback(previousState, nextState, source) {
+    if (!nextState || !source) {
+        return;
+    }
+
+    const kind = feedbackKind(previousState, nextState, source);
+    if (!kind) {
+        return;
+    }
+
+    audioFeedback.play(kind);
+    flashBoardFeedback(kind);
+}
+
+function feedbackKind(previousState, nextState, source) {
+    if (nextState.gameStatus === 'finished' && previousState?.gameStatus !== 'finished') {
+        return 'gameEnd';
+    }
+    if (source !== 'move') {
+        return null;
+    }
+    if (nextState.kingInCheck) {
+        return 'check';
+    }
+    if (capturedPieceCount(nextState) > capturedPieceCount(previousState)) {
+        return 'capture';
+    }
+    if ((nextState.moveHistory?.length || 0) > (previousState?.moveHistory?.length || 0)) {
+        return 'move';
+    }
+
+    return null;
+}
+
+function capturedPieceCount(state) {
+    return (state?.capturedWhite?.length || 0) + (state?.capturedBlack?.length || 0);
+}
+
+function flashBoardFeedback(kind) {
+    if (!elements.boardPanel) {
+        return;
+    }
+
+    if (feedbackTimeoutId !== null) {
+        window.clearTimeout(feedbackTimeoutId);
+    }
+
+    elements.boardPanel.classList.remove('feedback-move', 'feedback-capture', 'feedback-check', 'feedback-game-end');
+    elements.boardPanel.classList.add('feedback-active', feedbackClass(kind));
+    feedbackTimeoutId = window.setTimeout(() => {
+        elements.boardPanel.classList.remove(
+            'feedback-active',
+            'feedback-move',
+            'feedback-capture',
+            'feedback-check',
+            'feedback-game-end',
+        );
+        feedbackTimeoutId = null;
+    }, 420);
+}
+
+function feedbackClass(kind) {
+    return kind === 'gameEnd' ? 'feedback-game-end' : `feedback-${kind}`;
 }
 
 function terminalLabel(state) {

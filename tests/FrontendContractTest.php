@@ -165,4 +165,45 @@ return static function (TestHarness $tests): void {
         $tests->assertTrue(str_contains($css, '.clock-row,'), 'Mobile layout must stack the clock row.');
         $tests->assertTrue(!str_contains($app, 'alert('), 'Lifecycle feedback must not use page-level alerts.');
     });
+
+    $tests->test('frontend sound feedback uses local optional assets and browser smoke coverage', function () use ($tests, $root): void {
+        $html = file_get_contents($root . '/frontend/index.html');
+        $app = file_get_contents($root . '/frontend/assets/js/app.js');
+        $audio = file_get_contents($root . '/frontend/assets/js/audio.js');
+        $css = file_get_contents($root . '/frontend/assets/css/styles.css');
+        $smoke = file_get_contents($root . '/scripts/browser-smoke.sh');
+        $check = file_get_contents($root . '/scripts/check.sh');
+        if ($html === false || $app === false || $audio === false || $css === false || $smoke === false || $check === false) {
+            throw new RuntimeException('Unable to read frontend sound or smoke files.');
+        }
+
+        foreach (['move.wav', 'capture.wav', 'check.wav', 'game-end.wav'] as $asset) {
+            $path = $root . '/frontend/assets/audio/' . $asset;
+            $tests->assertTrue(is_file($path), "Missing local sound asset: {$asset}.");
+            $tests->assertTrue(filesize($path) !== false && filesize($path) < 12_000, "Sound asset is too large: {$asset}.");
+        }
+
+        foreach (['./audio.js', 'createAudioFeedback', 'playStateFeedback', 'feedbackKind', 'capturedPieceCount'] as $needle) {
+            $tests->assertTrue(str_contains($app, $needle), "Missing sound feedback wiring: {$needle}.");
+        }
+
+        foreach (['soloChess.soundEnabled', 'localStorage', 'AudioCtor', 'result.catch', 'sound is optional feedback'] as $needle) {
+            $tests->assertTrue(str_contains($audio, $needle), "Missing optional audio behavior: {$needle}.");
+        }
+
+        foreach (['.feedback-move', '.feedback-capture', '.feedback-check', '.feedback-game-end', 'prefers-reduced-motion'] as $selector) {
+            $tests->assertTrue(str_contains($css, $selector), "Missing sound feedback style: {$selector}.");
+        }
+
+        foreach (['#quickGuestButton', '#registerForm', '#loginForm', '#replayControls', '#soundToggleButton'] as $selector) {
+            $tests->assertTrue(str_contains($smoke, $selector), "Browser smoke must exercise selector: {$selector}.");
+        }
+
+        foreach (['timed game status', 'saved replay mode', 'mobile layout without horizontal overflow'] as $coverage) {
+            $tests->assertTrue(str_contains($smoke, $coverage), "Browser smoke must cover: {$coverage}.");
+        }
+
+        $tests->assertTrue(str_contains($check, 'scripts/browser-smoke.sh'), 'Canonical check must run browser smoke coverage.');
+        $tests->assertTrue(str_contains($html, 'aria-pressed="false">Sound off'), 'Sound control must remain obvious and accessible.');
+    });
 };
