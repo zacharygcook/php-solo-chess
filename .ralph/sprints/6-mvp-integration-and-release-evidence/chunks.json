@@ -36,7 +36,7 @@
     {
       "id": 3,
       "title": "Prove the complete timed-game journey",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "A deterministic test creates a timed game and proves debit, increment, turn ownership, and refresh persistence",
         "Timeout produces the correct win or cannot-win draw and freezes subsequent moves and clock changes",

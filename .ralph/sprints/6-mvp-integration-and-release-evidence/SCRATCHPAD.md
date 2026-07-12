@@ -58,3 +58,27 @@
 - Next handoff: start chunk 3 by adding a deterministic timed journey proving debit, increment,
   refresh persistence, timeout result/immutability, and saved history/replay/PGN agreement without
   wall-clock sleeps.
+
+## 2026-07-12 — Chunk 3 complete
+
+- Completed chunk 3 only: added `tests/TimedJourneyTest.php`, a deterministic controller/service
+  journey that registers an owner, creates a custom 1+3 timed Ada-vs-Byron game, proves accepted-move
+  debit and increment, proves refresh clock projection does not persist a debit, records a timeout
+  without sleeps, rejects a late move without mutating FEN/history/clocks, and verifies saved
+  history, replay clock snapshots, PGN export, and PGN verifier agreement from canonical records.
+- Updated `docs/MVP_ACCEPTANCE.md` so the clocks journey is now covered by executable evidence while
+  the browser-only MVP gap remains assigned to chunk 4.
+- Decision: keep timeout as the representative timed terminal result. PGN export is asserted from the
+  saved canonical game record, and `PgnVerifier` is used for coordinate/final-FEN/result-token
+  agreement; elapsed server time itself is intentionally not reconstructed by coordinate replay.
+- Out of scope: no optional engine review, tag, push, upload, CI, hosted service, dependency, or
+  production account was introduced.
+- Validation evidence: baseline requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed before edits
+  with seed `303564568`, 112 tests, PHPStan clean, and complexity within the method ceiling.
+  Focused post-edit replay `TEST_SEED=1 ./scripts/test.sh` passed with 113 tests. Final fast gate
+  passed with seed `1124221032`, 113 tests, PHPStan clean, and complexity within the method ceiling.
+- Next handoff: start chunk 4 by hardening repository-owned browser smoke and clean-clone/recovery
+  evidence for drag/drop, keyboard movement, promotion, clocks, sound, terminal feedback, replay,
+  representative mobile/laptop layouts, malformed input, unauthorized access, stale session/database,
+  and optional audio failure behavior.
