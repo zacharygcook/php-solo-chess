@@ -4,6 +4,7 @@
     "Controllers": ["Http", "Services"],
     "Services": ["Services"],
     "Http": ["Http"],
-    "Observability": ["Observability"]
+    "Observability": ["Observability"],
+    "Persistence": ["Persistence"]
   }
 }

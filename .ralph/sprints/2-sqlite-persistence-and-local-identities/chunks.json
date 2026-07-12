@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Create deterministic SQLite schema setup",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "A repository-owned command creates the users, games, and moves schema through PDO SQLite",
         "Schema setup is deterministic and idempotent against a fresh or already initialized database",

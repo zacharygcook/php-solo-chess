@@ -1,5 +1,10 @@
 # Runtime data and logs
 /backend/storage/sessions/
+/backend/storage/*.sqlite
+/backend/storage/*.sqlite-journal
+/backend/storage/*.sqlite-shm
+/backend/storage/*.sqlite-wal
+/backend/storage/database/
 /.ralph/logs/
 *.log
 
