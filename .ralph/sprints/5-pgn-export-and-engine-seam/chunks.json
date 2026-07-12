@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Generate canonical PGN",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "PGN generation consumes canonical game and ordered move records rather than browser text",
         "Event, Site, Date, Round, White, Black, Result, and TimeControl headers are valid and populated when known",
