@@ -19,7 +19,7 @@
     {
       "id": 2,
       "title": "Implement server-authoritative clocks",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Clock calculations use server timestamps, persisted remaining time, active color, and increment rather than browser intervals",
         "Accepted moves debit elapsed time and apply increment exactly once while rejected moves do neither",

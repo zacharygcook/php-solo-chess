@@ -27,3 +27,23 @@
   `./scripts/check.sh`.
 - Handoff: next chunk is chunk 2, server-authoritative clock debiting. Reuse the existing
   `clockState` fields and injected time pattern; do not add timeout termination until chunk 3.
+
+## 2026-07-11 23:10 CDT — Chunk 2 complete
+
+- Implemented `GameClock` as the server-owned clock accounting boundary with an injected
+  deterministic millisecond source shared by `GameService` and `GameLifecycleService`.
+- Accepted timed moves now debit elapsed time from the moving side, apply increment exactly once,
+  advance the active clock timestamp to the next side, snapshot both remaining clocks onto the move
+  history, and persist those nullable clock values into move rows.
+- `GameService::getSessionState()` now returns a projected active-clock view while keeping canonical
+  stored clock state unchanged, so refresh/reload cannot pause, reset, or double-debit the active
+  clock; rejected moves return a projected view but do not save clock mutations.
+- Focused proof added in `tests/GameClockTest.php` for both colors, increments, rejected moves,
+  refresh projection, canonical store immutability, and overrun clamping while timeout termination
+  remains deferred.
+- Validation passed: baseline `./scripts/check.sh`; focused `./scripts/test.sh`; requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`; final
+  `./scripts/check.sh`.
+- Handoff: next chunk is chunk 3, complete game-ending actions. Reuse `GameClock` for timeout
+  detection but keep timeout result classification and finished-game immutability in the terminal
+  transition work; chunk 2 intentionally does not end games when clocks reach zero.

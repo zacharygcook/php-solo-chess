@@ -156,6 +156,8 @@ final class GamePersistenceService
                 coordinate: $coordinate,
                 san: $san,
                 positionAfterFen: $fen,
+                whiteClockMs: self::optionalInt($entry, 'whiteClockMilliseconds'),
+                blackClockMs: self::optionalInt($entry, 'blackClockMilliseconds'),
             );
         }
 
@@ -243,5 +245,13 @@ final class GamePersistenceService
         $value = $values[$key] ?? null;
 
         return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    /** @param array<string, mixed> $values */
+    private static function optionalInt(array $values, string $key): ?int
+    {
+        $value = $values[$key] ?? null;
+
+        return is_int($value) ? $value : null;
     }
 }

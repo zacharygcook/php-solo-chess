@@ -24,11 +24,16 @@ final class GameService
     private TerminalStateResolver $terminalStateResolver;
     private NotationFormatter $notationFormatter;
     private GameLifecycleService $lifecycle;
+    private GameClock $clock;
+    /** @var callable(): int */
+    private $currentTimeMilliseconds;
 
     public function __construct(
         private SessionStore $store,
         private ?GamePersistenceService $persistence = null,
+        ?callable $currentTimeMilliseconds = null,
     ) {
+        $this->currentTimeMilliseconds = $currentTimeMilliseconds ?? static fn(): int => (int) floor(microtime(true) * 1_000);
         $this->stateFactory = new GameStateFactory();
         $this->movement = new PieceMovement();
         $this->positionAnalyzer = new PositionAnalyzer($this->movement);
@@ -36,7 +41,8 @@ final class GameService
         $this->legalMoveGenerator = new LegalMoveGenerator($this->movement, $this->positionAnalyzer, $this->castlingResolver);
         $this->terminalStateResolver = new TerminalStateResolver();
         $this->notationFormatter = new NotationFormatter();
-        $this->lifecycle = new GameLifecycleService($this->stateFactory);
+        $this->lifecycle = new GameLifecycleService($this->stateFactory, $this->currentTimeMilliseconds);
+        $this->clock = new GameClock($this->currentTimeMilliseconds);
     }
 
     public static function default(): self
@@ -48,6 +54,12 @@ final class GameService
 
     /** @return array<string, mixed> */
     public function getSessionState(): array
+    {
+        return $this->clock->withCurrentView($this->loadCanonicalState());
+    }
+
+    /** @return array<string, mixed> */
+    private function loadCanonicalState(): array
     {
         $storedState = $this->store->getState();
         $state = $this->stateFactory->normalize($storedState);
@@ -72,7 +84,7 @@ final class GameService
      */
     public function submitMove(array $payload): array
     {
-        $state = $this->getSessionState();
+        $state = $this->loadCanonicalState();
         $from = Coordinate::fromAlgebraic($payload['from'] ?? null);
         if ($from === null) {
             $message = empty($payload['from']) ? "Couldn't find a 'from' coordinate" : "Not a valid 'from' option";
@@ -98,7 +110,7 @@ final class GameService
         $promotion = isset($payload['promotion']) && is_string($payload['promotion'])
             ? $payload['promotion']
             : null;
-        $move = new Move($from, $to, $piece, $promotion, time());
+        $move = new Move($from, $to, $piece, $promotion, (int) floor(($this->currentTimeMilliseconds)() / 1_000));
 
         return $this->applyMove($state, $move);
     }
@@ -166,6 +178,7 @@ final class GameService
         $before = $state;
         $state['moveHistory'][] = $move->toHistoryRecord();
         $state['activeColor'] = self::opponent($movingColor);
+        $state = $this->clock->recordAcceptedMove($state, $movingColor, $state['activeColor']);
         $state = $this->updateRuleState($state, $move, $movingColor, $capturedPiece);
         $inCheck = $this->positionAnalyzer->isKingInCheck($candidate, $state['activeColor']);
         $state['kingInCheck'] = $inCheck ? $state['activeColor'] : null;
@@ -174,6 +187,7 @@ final class GameService
         $state = $this->terminalStateResolver->resolveAfterMove($state);
         $state['fen'] = $this->notationFormatter->fen($state);
         $state = $this->withMoveNotation($state, $before, $move, $capturedPiece !== null, $castle !== null);
+        $state = $this->clock->withLatestMoveClockSnapshot($state);
         unset($state['isValidMove']);
         $this->store->saveState($state);
         $this->persistence?->saveStateForAuthenticatedUser($state);
@@ -352,7 +366,7 @@ final class GameService
         $state['lastMessage'] = $message;
         $state['isValidMove'] = false;
 
-        return $state;
+        return $this->clock->withCurrentView($state);
     }
 
     /**
