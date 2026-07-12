@@ -129,3 +129,35 @@
     `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
     `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
     endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
+
+## Ralph validation feedback — chunk 2, iteration 4
+
+- Result: configured chunk validation failed
+- Log: `/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/2-sqlite-persistence-and-local-identities/run-20260711-194658/chunk-2-validation-4.log`
+- The chunk was reset to `passes: false`; inspect the log and repair before claiming completion again.
+
+## 2026-07-11 — Chunk 2 revalidated after third Ralph reset
+
+- Decisions:
+  - Treated chunk 2 as the next incomplete sequential chunk because Ralph reset only its `passes`
+    flag after the repository implementation had already been committed and revalidated.
+  - Inspected the iteration 4 validation log before changing sprint state. The failure again occurred
+    after `./scripts/test.sh` passed; `composer typecheck` exhausted PHPStan's default 128 MB child
+    process memory while parsing internal stubs.
+  - Rechecked the current repository implementation against chunk 2 criteria: user, game, and move
+    SQL stays behind repositories; writes use prepared statements; owner-scoped game reads are
+    enforced; foreign-key and uniqueness failures surface predictably; and canonical state plus
+    ordered moves are replaced inside one transaction.
+  - Made no product-code or tooling changes because the exact required fast gate passed in this
+    environment; the only sprint-state change is restoring chunk 2 `passes` to `true`.
+- Failed approaches / corrections:
+  - Did not raise PHPStan memory settings or alter the validation command because the requested gate
+    passed without reproducing the Ralph subprocess failure.
+- Validation evidence:
+  - Required fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+- Next handoff:
+  - Continue with chunk 3 only. Implement registration/authentication services on top of
+    `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
+    `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
+    endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
