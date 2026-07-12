@@ -15,6 +15,7 @@ $lock = json_decode((string) file_get_contents($root . '/composer.lock'), true, 
 $bootstrap = (string) file_get_contents($root . '/backend/src/bootstrap.php');
 $response = (string) file_get_contents($root . '/backend/src/Http/JsonResponse.php');
 $frontend = (string) file_get_contents($root . '/frontend/index.html');
+$hasExternalFrontendScript = preg_match('/<script\b[^>]*\bsrc=["\']https?:\/\//i', $frontend) === 1;
 $apiFiles = glob($root . '/backend/public/api/*.php') ?: [];
 $advisories = $audit['advisories'] ?? [];
 $abandoned = $audit['abandoned'] ?? [];
@@ -64,11 +65,11 @@ $findings = [
             : 'No explicit SameSite or HttpOnly parameters; risk is limited by the local-only HTTP runtime.',
     ],
     [
-        'severity' => str_contains($frontend, 'integrity=') ? 'PASS' : 'MEDIUM',
-        'control' => 'CDN script integrity',
-        'evidence' => str_contains($frontend, 'integrity=')
-            ? 'External frontend script has a subresource-integrity attribute.'
-            : 'Pinned jQuery is loaded from a CDN without subresource integrity.',
+        'severity' => !$hasExternalFrontendScript || str_contains($frontend, 'integrity=') ? 'PASS' : 'MEDIUM',
+        'control' => 'External frontend script integrity',
+        'evidence' => !$hasExternalFrontendScript
+            ? 'No external frontend script is loaded.'
+            : 'External frontend script has a subresource-integrity attribute.',
     ],
 ];
 
@@ -77,7 +78,7 @@ $lines = [
     '',
     '- Generated: ' . gmdate('c'),
     '- Commit: `' . trim((string) shell_exec('git -C ' . escapeshellarg($root) . ' rev-parse HEAD')) . '`',
-    '- Scope: repository source, API entry points, session bootstrap, frontend CDN, Composer lock, and local secret scan',
+    '- Scope: repository source, API entry points, session bootstrap, frontend scripts, Composer lock, and local secret scan',
     '',
     '## Findings',
     '',

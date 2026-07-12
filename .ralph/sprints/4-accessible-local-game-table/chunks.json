@@ -3,7 +3,7 @@
     {
       "id": 1,
       "title": "Replace jQuery with a vanilla client boundary",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "The frontend has no jQuery runtime dependency or CDN requirement",
         "Small vanilla modules separate API requests, local UI state, and rendering without a build step",

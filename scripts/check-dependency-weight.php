@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-if ($argc !== 2 || !is_file($argv[1])) {
-    fwrite(STDERR, "Usage: php scripts/check-dependency-weight.php <downloaded-runtime-asset>\n");
+if ($argc !== 1) {
+    fwrite(STDERR, "Usage: php scripts/check-dependency-weight.php\n");
     exit(12);
 }
 
@@ -38,12 +38,6 @@ foreach ($direct as $packageName) {
     if (count($closure) > $budgets['maximum_transitive_packages_per_direct_dependency']) {
         $errors[] = "{$packageName} exceeds the transitive dependency budget.";
     }
-}
-
-$runtimeBytes = filesize($argv[1]);
-printf(" - jquery runtime asset: %d bytes\n", $runtimeBytes);
-if ($runtimeBytes === false || $runtimeBytes > $budgets['maximum_runtime_asset_bytes']) {
-    $errors[] = 'jQuery runtime asset exceeds its byte budget.';
 }
 
 if ($errors !== []) {

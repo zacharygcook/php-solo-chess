@@ -25,8 +25,8 @@ Symptoms: an unstyled board, asset 404s, or “Failed to reach backend session e
 2. Confirm the browser URL and API share one origin. The repository root must be PHP's document root.
 3. Request `/frontend/assets/css/styles.css` and `/backend/public/api/session.php` on that origin.
 4. Run `./scripts/check.sh`, which verifies both frontend URL forms, assets, cookies, and a move.
-5. If only the UI script fails while offline, check whether `code.jquery.com` is reachable. Backend
-   unit tests remain usable without it; do not replace the dependency with an unreviewed package.
+5. If only a UI module fails, request `/frontend/assets/js/app.js` and the imported module path named
+   by the browser console on the same local origin; do not add an unreviewed package as a shortcut.
 
 ## Session or local persistence state is stale or corrupt
 

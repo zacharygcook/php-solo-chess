@@ -38,5 +38,5 @@ if ($errors !== []) {
 printf(
     "Dependency usage passed for %d Composer tool(s) and %d runtime dependency/dependencies.\n",
     count($usage['composer_dev']),
-    count($usage['runtime_cdn']),
+    count($usage['runtime_cdn'] ?? []),
 );

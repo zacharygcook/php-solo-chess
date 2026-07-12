@@ -1,6 +1,6 @@
 # Architecture
 
-PHP Solo Chess is one local web application with a static jQuery frontend and a PHP backend. Guest
+PHP Solo Chess is one local web application with a static vanilla JavaScript frontend and a PHP backend. Guest
 games stay PHP-session backed. Authenticated local users also use SQLite persistence for the current
 owned game and ordered move records. There is no build step, dependency container, background worker,
 or deployment service.
@@ -45,8 +45,9 @@ paths, while serving the root without the router exposes sensitive project files
 
 ## Component responsibilities
 
-- `frontend/index.html`, `frontend/assets/css/`, and `frontend/assets/js/app.js` render state, collect
-  moves, and display backend messages. They do not decide whether a chess move is legal.
+- `frontend/index.html`, `frontend/assets/css/`, and `frontend/assets/js/` render state, collect
+  moves, and display backend messages through small API, UI-state, and board-rendering modules. They
+  do not decide whether a chess move is legal.
 - `backend/public/api/` contains thin HTTP entry points. Each endpoint checks its method, decodes
   input where needed, and delegates immediately.
 - `backend/src/Controllers/GameController.php` translates service results into the stable JSON
@@ -124,11 +125,9 @@ then rely on the existing finished-game guard to reject later moves.
 
 ## External systems
 
-The sole external runtime resource is pinned jQuery from `code.jquery.com`. The application has no
-remote accounts, analytics, hosted persistence, paid services, or CI. Local accounts and saved games
-stay in the ignored SQLite database under `backend/storage/` unless `SOLO_CHESS_DATABASE_PATH`
-points a process at another SQLite file. Losing internet access prevents the current frontend script
-from loading, but does not affect backend rules tests.
+The application has no external runtime resource, remote accounts, analytics, hosted persistence,
+paid services, or CI. Local accounts and saved games stay in the ignored SQLite database under
+`backend/storage/` unless `SOLO_CHESS_DATABASE_PATH` points a process at another SQLite file.
 
 Every API request receives a safe request ID. `RequestLogger` returns it as `X-Request-ID` and emits
 an allowlist-only JSON completion record to PHP's local error log so a failed response can be matched

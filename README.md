@@ -10,7 +10,6 @@ Requirements:
 - PHP 8.1 or newer
 - Composer 2 for development checks
 - A modern browser
-- Internet access while the frontend still loads jQuery from its CDN
 
 Install the pinned, free development formatter after cloning:
 
@@ -54,14 +53,14 @@ never raise it merely to clear validation.
 JavaScript. The current 33% duplicated-line ceiling exposes heavy legacy repetition and blocks any
 increase; lower it alongside test-backed extraction.
 `./scripts/check-dependency-weight.sh` attributes transitive Composer package counts to each direct
-tool and measures the downloaded jQuery bytes against explicit budgets.
+tool against explicit budgets.
 `config/dependency-usage.json` maps every direct tool and runtime dependency to executable source
 evidence; the canonical check rejects unregistered or disconnected dependencies.
 
 Direct dependencies follow the 30-day adoption rule in [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md)
 and `config/dependency-policy.json`; the canonical check rejects unapproved or too-new pins.
 Run `./scripts/dependency-updates.sh` monthly during active work for a local proposal report covering
-Composer tools and the jQuery CDN pin; it never edits dependencies or opens automated PRs.
+Composer tools; it never edits dependencies or opens automated PRs.
 The application currently needs no secrets; [`SECURITY.md`](SECURITY.md) documents local handling,
 reporting, and response, while `.env.example` is the safe inventory of required variable names.
 Generate a readable local assessment with `./scripts/security-review.sh`; reports stay ignored under

@@ -3,11 +3,5 @@
     "friendsofphp/php-cs-fixer": [{"path": "scripts/format.sh", "contains": "vendor/bin/php-cs-fixer"}],
     "phpmd/phpmd": [{"path": "scripts/check-complexity.sh", "contains": "vendor/bin/phpmd"}],
     "phpstan/phpstan": [{"path": "composer.json", "contains": "phpstan analyse"}]
-  },
-  "runtime_cdn": {
-    "jquery": [
-      {"path": "frontend/index.html", "contains": "jquery-3.7.1.min.js"},
-      {"path": "frontend/assets/js/app.js", "contains": "(function ($)"}
-    ]
   }
 }
