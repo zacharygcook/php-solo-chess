@@ -58,6 +58,32 @@ return static function (TestHarness $tests): void {
         $tests->assertTrue(str_contains($api, 'httpStatus: response.status'), 'Non-2xx validation messages must remain visible.');
     });
 
+    $tests->test('frontend auth validation failures preserve current account state', function () use ($tests, $root): void {
+        $app = file_get_contents($root . '/frontend/assets/js/app.js');
+        if ($app === false) {
+            throw new RuntimeException('Unable to read frontend app module.');
+        }
+
+        foreach (['submitLogin', 'submitRegistration'] as $functionName) {
+            $start = strpos($app, "async function {$functionName}()");
+            if ($start === false) {
+                throw new RuntimeException("Unable to locate {$functionName}.");
+            }
+
+            $functionBody = substr($app, $start, 900);
+            $responsePosition = strpos($functionBody, 'const response = await api.');
+            $successPosition = strpos($functionBody, 'if (response.success) {');
+            $applyPosition = strpos($functionBody, 'applyUser(response);');
+
+            $tests->assertTrue($responsePosition !== false, "{$functionName} must read the auth response.");
+            $tests->assertTrue($successPosition !== false, "{$functionName} must branch on success.");
+            $tests->assertTrue(
+                $applyPosition !== false && $successPosition !== false && $applyPosition > $successPosition,
+                "{$functionName} must not clear the visible account on failed auth validation.",
+            );
+        }
+    });
+
     $tests->test('frontend keeps replay read only and renders server supplied fen positions', function () use ($tests, $root): void {
         $app = file_get_contents($root . '/frontend/assets/js/app.js');
         $board = file_get_contents($root . '/frontend/assets/js/board.js');

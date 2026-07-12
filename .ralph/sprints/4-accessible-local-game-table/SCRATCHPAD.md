@@ -117,3 +117,22 @@
   with 95 tests, PHPStan clean, and the complexity budget clean.
 - Handoff: all Sprint 4 chunks now pass. Existing unrelated Sprint 3/domain dirty files and runtime
   config/manifest state were preserved outside this chunk.
+
+## 2026-07-12T14:40:14Z — Post-sprint review
+
+- Reviewed the implementation plan, chunks, prompt, relevant specs, `SCRATCHPAD.md`, manifest,
+  orchestrator logs, validation logs, and the commit range
+  `acd64ee4e5f04d8f952c13632c8724c70a32275f..e189c0ad83a0ab2bb4f1bfdfa704f8441349c411`.
+- Found and fixed a frontend account-state divergence: failed login or registration responses include
+  `state.user: null`, but the backend does not clear the existing authenticated session on failed
+  credentials. The UI now applies user state only after successful login/registration, preserving the
+  current visible account on validation failure.
+- Added `frontend auth validation failures preserve current account state` to
+  `tests/FrontendContractTest.php` as a regression check.
+- Validation evidence after the review fix: `node --check frontend/assets/js/app.js`, `php -l
+  tests/FrontendContractTest.php`, `./scripts/test.sh && composer typecheck &&
+  ./scripts/check-complexity.sh`, `composer format:check`, and `./scripts/check.sh` all passed. The
+  canonical check passed all 25 steps including browser smoke coverage.
+- Hook-state note: Sprint 4 manifest showed `phase: chunks_done` with hooks pending and no hook marker
+  files while this review hook was running. Do not hand-create those markers; the Ralph hook runner
+  should own final marker and manifest reconciliation.

@@ -321,9 +321,9 @@ async function submitLogin() {
 
     try {
         const response = await api.loginUser(formFields(elements.loginForm, ['username', 'password']));
-        applyUser(response);
         setAuthMessage(response.message || 'Login complete.');
         if (response.success) {
+            applyUser(response);
             elements.loginForm.reset();
             await refreshHistory();
         }
@@ -339,9 +339,9 @@ async function submitRegistration() {
         const response = await api.registerUser(
             formFields(elements.registerForm, ['username', 'displayName', 'password']),
         );
-        applyUser(response);
         setAuthMessage(response.message || 'Registration complete.');
         if (response.success) {
+            applyUser(response);
             elements.registerForm.reset();
             await refreshHistory();
         }
