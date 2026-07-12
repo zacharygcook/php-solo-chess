@@ -1,0 +1,142 @@
+{
+  "sprint": "5-pgn-export-and-engine-seam",
+  "start_commit": "7d814bc99b12bd64384f1b6b50ab56fdf0a92965",
+  "started_at": "2026-07-12T15:20:07Z",
+  "end_commit": "faf7d8509e599f666db4185d5e41b09ecb474307",
+  "completed_at": "2026-07-12T15:58:39Z",
+  "iterations": 5,
+  "agent_turns": [
+    {
+      "chunk_id": 1,
+      "iteration": 1,
+      "started_at": "2026-07-12T15:20:07Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 2,
+      "started_at": "2026-07-12T15:25:03Z"
+    },
+    {
+      "chunk_id": 3,
+      "iteration": 3,
+      "started_at": "2026-07-12T15:36:25Z"
+    },
+    {
+      "chunk_id": 4,
+      "iteration": 4,
+      "started_at": "2026-07-12T15:45:42Z"
+    },
+    {
+      "chunk_id": 5,
+      "iteration": 5,
+      "started_at": "2026-07-12T15:51:19Z"
+    }
+  ],
+  "commits": [
+    {
+      "hash": "0e19ac9f26e0b62bc6b4a9d979f15c59c1d8ec22",
+      "message": "Add canonical PGN exporter",
+      "chunk_id": 1,
+      "iteration": 1
+    },
+    {
+      "hash": "7f703f6e5f1f98c6292ad0aead03e057c359eb05",
+      "message": "Verify PGN replay against canonical state",
+      "chunk_id": 2,
+      "iteration": 2
+    },
+    {
+      "hash": "77198043bbcc16a930efbe8176b3d8edea7ca3d0",
+      "message": "Add authorized PGN downloads",
+      "chunk_id": 3,
+      "iteration": 3
+    },
+    {
+      "hash": "a9118d214c76189680d5021494f339b2470411d9",
+      "message": "Add future engine adapter seam",
+      "chunk_id": 4,
+      "iteration": 4
+    },
+    {
+      "hash": "faf7d8509e599f666db4185d5e41b09ecb474307",
+      "message": "Complete PGN export boundary docs",
+      "chunk_id": 5,
+      "iteration": 5
+    }
+  ],
+  "validation": {
+    "chunk_attempts": [
+      {
+        "chunk_id": 1,
+        "iteration": 1,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T15:24:57Z",
+        "completed_at": "2026-07-12T15:25:01Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/5-pgn-export-and-engine-seam/run-20260712-102007/chunk-1-validation-1.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 2,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T15:36:17Z",
+        "completed_at": "2026-07-12T15:36:22Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/5-pgn-export-and-engine-seam/run-20260712-102007/chunk-2-validation-2.log"
+      },
+      {
+        "chunk_id": 3,
+        "iteration": 3,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T15:45:34Z",
+        "completed_at": "2026-07-12T15:45:40Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/5-pgn-export-and-engine-seam/run-20260712-102007/chunk-3-validation-3.log"
+      },
+      {
+        "chunk_id": 4,
+        "iteration": 4,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T15:51:12Z",
+        "completed_at": "2026-07-12T15:51:16Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/5-pgn-export-and-engine-seam/run-20260712-102007/chunk-4-validation-4.log"
+      },
+      {
+        "chunk_id": 5,
+        "iteration": 5,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T15:58:33Z",
+        "completed_at": "2026-07-12T15:58:39Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/5-pgn-export-and-engine-seam/run-20260712-102007/chunk-5-validation-5.log"
+      }
+    ]
+  },
+  "phase": "chunks_done",
+  "hooks": {
+    "review": {
+      "status": "done",
+      "completed_at": "2026-07-12T16:01:12Z",
+      "reason": null
+    },
+    "documentation": {
+      "status": "pending",
+      "completed_at": null,
+      "reason": null
+    },
+    "validation": {
+      "status": "pending",
+      "completed_at": null,
+      "reason": null,
+      "phases": {
+        "sprint": {
+          "status": "pending"
+        },
+        "e2e": {
+          "status": "pending"
+        }
+      }
+    }
+  }
+}
