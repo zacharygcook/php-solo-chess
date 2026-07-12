@@ -1,0 +1,95 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Build the executable MVP acceptance matrix",
+      "passes": false,
+      "acceptance_criteria": [
+        "Every required SPEC acceptance criterion maps to current executable tests, commands, and manual evidence",
+        "Any uncovered requirement becomes a scoped test/product gap in this sprint rather than an unsupported completion claim",
+        "Out-of-scope and optional engine-review work is clearly separated from required MVP gaps",
+        "The matrix is concise, reviewable, and links to stable repository artifacts"
+      ],
+      "artifacts": [
+        "docs/MVP_ACCEPTANCE.md",
+        "SPEC.md",
+        "tests/",
+        "scripts/check.sh"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Prove the complete untimed saved-game journey",
+      "passes": false,
+      "acceptance_criteria": [
+        "A deterministic test registers/logs in, creates and plays an untimed game, persists every accepted move, and reaches a terminal result",
+        "History and replay show the same labels, ordered moves, result, termination reason, and final FEN",
+        "Downloaded PGN reproduces the same moves, result, and final position",
+        "Account switching proves owner isolation throughout history, replay, and export"
+      ],
+      "artifacts": [
+        "tests/UntimedJourneyTest.php",
+        "scripts/integration-test.sh",
+        "scripts/check.sh"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Prove the complete timed-game journey",
+      "passes": false,
+      "acceptance_criteria": [
+        "A deterministic test creates a timed game and proves debit, increment, turn ownership, and refresh persistence",
+        "Timeout produces the correct win or cannot-win draw and freezes subsequent moves and clock changes",
+        "Saved history, replay, UI state, and PGN agree on time control, result, and termination reason",
+        "No test relies on wall-clock sleeps or nondeterministic timing"
+      ],
+      "artifacts": [
+        "tests/TimedJourneyTest.php",
+        "scripts/integration-test.sh",
+        "scripts/check.sh"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Harden browser clean-clone and recovery evidence",
+      "passes": false,
+      "acceptance_criteria": [
+        "Repository-owned browser smoke covers drag/drop, click/tap, keyboard movement, promotion, clocks, sound, terminal feedback, replay, and representative mobile/laptop layouts",
+        "A clean clone can install locked development tools, initialize SQLite idempotently, start with one documented command, and run the complete local gate",
+        "Malformed input, unauthorized access, stale session/database, and unavailable optional audio fail safely with documented recovery",
+        "The canonical check remains deterministic, local-only, and free of production accounts or hosted services"
+      ],
+      "artifacts": [
+        "scripts/browser-smoke.sh",
+        "scripts/check.sh",
+        "scripts/dev.sh",
+        "README.md",
+        "docs/RUNBOOKS.md",
+        ".devcontainer/"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Reconcile documentation and package MVP release evidence",
+      "passes": false,
+      "acceptance_criteria": [
+        "Architecture, API, runbooks, README, debt ledger, acceptance matrix, and Ralph scorecard match the final required MVP",
+        "Generated documentation checks and all quality/security/dependency ratchets pass without weakened thresholds",
+        "A local release candidate packages the exact clean commit with notes, checksums, and manifest and excludes runtime user data",
+        "The full ./scripts/check.sh gate passes from the final clean state and optional engine review remains explicitly deferred"
+      ],
+      "artifacts": [
+        "README.md",
+        "docs/ARCHITECTURE.md",
+        "docs/API.md",
+        "docs/openapi.json",
+        "docs/RUNBOOKS.md",
+        "docs/MVP_ACCEPTANCE.md",
+        "TECH_DEBT.md",
+        "RALPH_DOGFOOD_SCORECARD.md",
+        "scripts/package-release.sh",
+        "scripts/check.sh"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Create deterministic SQLite schema setup",
+      "passes": false,
+      "acceptance_criteria": [
+        "A repository-owned command creates the users, games, and moves schema through PDO SQLite",
+        "Schema setup is deterministic and idempotent against a fresh or already initialized database",
+        "Database files and SQLite journal artifacts are ignored while schema definitions remain reviewable",
+        "Focused tests use isolated temporary databases and leave no repository state behind"
+      ],
+      "artifacts": [
+        "backend/src/Persistence/",
+        "scripts/setup-database.php",
+        "tests/DatabaseTest.php",
+        ".gitignore"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Build typed user and game repositories",
+      "passes": false,
+      "acceptance_criteria": [
+        "User, game, and move persistence is isolated behind repository classes with parameterized queries",
+        "Game and ordered move writes are transaction-safe and reload the same canonical state",
+        "Duplicate usernames and invalid foreign-key relationships fail predictably without partial writes",
+        "Repository tests cover create, read, list, update, and rollback behavior"
+      ],
+      "artifacts": [
+        "backend/src/Repositories/",
+        "backend/src/Persistence/",
+        "tests/RepositoryTest.php"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Implement local registration and authentication services",
+      "passes": false,
+      "acceptance_criteria": [
+        "Registration validates username, display name, and password and enforces normalized username uniqueness",
+        "Passwords are stored only through PHP password_hash and verified through password_verify",
+        "Authentication results expose safe user identity data and never return password hashes",
+        "Focused tests cover valid registration/login and duplicate, invalid, and wrong-password paths"
+      ],
+      "artifacts": [
+        "backend/src/Services/AuthService.php",
+        "backend/src/Repositories/UserRepository.php",
+        "tests/AuthServiceTest.php"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Add session-backed account HTTP contracts",
+      "passes": false,
+      "acceptance_criteria": [
+        "Register, login, logout, and current-user endpoints enforce methods and stable JSON envelopes",
+        "Successful authentication rotates the PHP session identifier and logout clears only authentication context",
+        "Responses never expose hashes, raw passwords, SQL details, or other users' data",
+        "API documentation and dynamic probes cover method, malformed-input, and session-transition behavior"
+      ],
+      "artifacts": [
+        "backend/public/api/auth/",
+        "backend/src/Controllers/AuthController.php",
+        "backend/src/Services/SessionStore.php",
+        "config/api-endpoints.json",
+        "docs/API.md",
+        "docs/openapi.json",
+        "tests/AuthControllerTest.php",
+        "scripts/dast.sh"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Persist owned canonical games without breaking guest play",
+      "passes": false,
+      "acceptance_criteria": [
+        "A logged-in owner can save and reload canonical game state plus ordered move records without notation or FEN drift",
+        "Ownership checks prevent one local user from loading or mutating another user's games",
+        "Guest games remain session-backed and do not create durable account-owned records",
+        "Accepted durable writes are atomic and focused integration tests cover save, reload, isolation, and guest behavior"
+      ],
+      "artifacts": [
+        "backend/src/Repositories/GameRepository.php",
+        "backend/src/Repositories/MoveRepository.php",
+        "backend/src/Services/GamePersistenceService.php",
+        "tests/GamePersistenceTest.php",
+        "docs/ARCHITECTURE.md"
+      ]
+    }
+  ]
+}

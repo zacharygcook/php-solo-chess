@@ -1,0 +1,95 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Replace jQuery with a vanilla client boundary",
+      "passes": false,
+      "acceptance_criteria": [
+        "The frontend has no jQuery runtime dependency or CDN requirement",
+        "Small vanilla modules separate API requests, local UI state, and rendering without a build step",
+        "Existing board loading and move submission behavior remains functional through the stable API envelope",
+        "Dependency policy, usage, security, and documentation records remove jQuery consistently"
+      ],
+      "artifacts": [
+        "frontend/index.html",
+        "frontend/assets/js/",
+        "config/dependency-policy.json",
+        "config/dependency-usage.json",
+        "config/dependency-weight.json",
+        "README.md",
+        "docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Build account game creation and history views",
+      "passes": false,
+      "acceptance_criteria": [
+        "A guest can start an untimed game quickly with sensible default labels",
+        "Registration, login, logout, account switching, preset/custom time controls, and validation feedback are usable without page-level alerts",
+        "Logged-in users can list and open only their personal saved games",
+        "Replay navigation steps through immutable saved positions while clearly separating review from the live game"
+      ],
+      "artifacts": [
+        "frontend/index.html",
+        "frontend/assets/js/",
+        "frontend/assets/css/styles.css",
+        "tests/FrontendContractTest.php"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Implement accessible board interaction and state cues",
+      "passes": false,
+      "acceptance_criteria": [
+        "Pieces move through drag/drop and click/tap source-destination interaction with keyboard-operable equivalents",
+        "Selection and legal destinations use server-provided data and promotion offers all four orthodox choices",
+        "Active side, last move, checked king, captures, orientation, and final position are visually and semantically distinct",
+        "Illegal attempts preserve the rendered canonical position and explain rejection non-disruptively"
+      ],
+      "artifacts": [
+        "frontend/index.html",
+        "frontend/assets/js/board.js",
+        "frontend/assets/js/app.js",
+        "frontend/assets/css/styles.css",
+        "tests/FrontendContractTest.php"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Present clocks controls and responsive terminal feedback",
+      "passes": false,
+      "acceptance_criteria": [
+        "Both clocks display server-owned state and the active clock advances visually without becoming authoritative",
+        "New game, reset/abandon, resign, draw offer/accept/claim, sound, and orientation controls reflect their allowed states",
+        "Checkmate, stalemate, timeout, resignation, agreed draw, and other draws receive distinct concise feedback",
+        "The board, controls, history, and status remain usable at representative laptop and mobile viewport sizes"
+      ],
+      "artifacts": [
+        "frontend/index.html",
+        "frontend/assets/js/",
+        "frontend/assets/css/styles.css",
+        "tests/FrontendContractTest.php"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Add local sound feedback and browser smoke coverage",
+      "passes": false,
+      "acceptance_criteria": [
+        "Local lightweight sounds distinguish move, capture, check, and game end and fail safely when audio is unavailable",
+        "One obvious sound control persists its preference in browser storage",
+        "Animation and sound never delay persistence, hide the final position, or block immediate controls",
+        "Repository-owned browser smoke coverage exercises guest play, account navigation, timed status, replay, responsive layout, and sound toggling"
+      ],
+      "artifacts": [
+        "frontend/assets/audio/",
+        "frontend/assets/js/audio.js",
+        "frontend/assets/css/styles.css",
+        "scripts/browser-smoke.sh",
+        "scripts/check.sh",
+        "README.md"
+      ]
+    }
+  ]
+}

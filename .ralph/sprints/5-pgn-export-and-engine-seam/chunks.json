@@ -1,0 +1,90 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Generate canonical PGN",
+      "passes": false,
+      "acceptance_criteria": [
+        "PGN generation consumes canonical game and ordered move records rather than browser text",
+        "Event, Site, Date, Round, White, Black, Result, and TimeControl headers are valid and populated when known",
+        "Movetext uses canonical SAN for captures, checks, mates, castling, and promotion with the correct final result token",
+        "Focused tests cover untimed/timed, incomplete/completed, special-move, and escaped-header cases"
+      ],
+      "artifacts": [
+        "backend/src/Services/PgnExporter.php",
+        "tests/PgnExporterTest.php"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Verify PGN reproduces canonical games",
+      "passes": false,
+      "acceptance_criteria": [
+        "Repository-owned verification replays exported moves through the authoritative coordinate move path",
+        "Representative exports reproduce the saved final FEN, result, and move count",
+        "Corrupt or inconsistent canonical records fail export verification with actionable errors",
+        "Tests cover ordinary games, castling, en passant, promotion, checkmate, and drawn results"
+      ],
+      "artifacts": [
+        "backend/src/Services/PgnExporter.php",
+        "backend/src/Services/PgnVerifier.php",
+        "tests/PgnExporterTest.php"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Expose authorized PGN downloads",
+      "passes": false,
+      "acceptance_criteria": [
+        "Completed or saved games download as valid .pgn responses with safe deterministic filenames",
+        "Owned games require the active owner and cannot be exported by another local user",
+        "Guest game export uses only the active guest session and leaks no durable records",
+        "The browser exposes a clear download action and endpoint tests cover headers, content, ownership, and missing games"
+      ],
+      "artifacts": [
+        "backend/public/api/games/export.php",
+        "backend/src/Controllers/PgnController.php",
+        "frontend/assets/js/",
+        "frontend/index.html",
+        "tests/PgnControllerTest.php"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Define and prove the future-engine adapter seam",
+      "passes": false,
+      "acceptance_criteria": [
+        "An engine request contains canonical FEN plus stable game context and returns a stable coordinate move proposal",
+        "A deterministic fake adapter can propose a move without importing HTTP, persistence, or UI concerns",
+        "Human and fake-engine proposals pass through the identical authoritative legal-move application path",
+        "Illegal adapter proposals are rejected without mutation and participant type can identify future engine seats"
+      ],
+      "artifacts": [
+        "backend/src/Engine/EngineAdapter.php",
+        "backend/src/Engine/EngineRequest.php",
+        "backend/src/Engine/FakeEngineAdapter.php",
+        "tests/EngineAdapterTest.php",
+        "backend/src/Services/GameLifecycleService.php"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Document and integrate export and engine boundaries",
+      "passes": false,
+      "acceptance_criteria": [
+        "Generated API documentation includes the PGN download contract and content type",
+        "Architecture documentation identifies PGN and engine adapters as canonical-state consumers",
+        "Integration tests complete and export representative saved games without final-position divergence",
+        "No engine binary, model, analysis process, difficulty system, or runtime dependency is added"
+      ],
+      "artifacts": [
+        "config/api-endpoints.json",
+        "docs/API.md",
+        "docs/openapi.json",
+        "docs/ARCHITECTURE.md",
+        "tests/PgnIntegrationTest.php",
+        "scripts/check.sh"
+      ]
+    }
+  ]
+}

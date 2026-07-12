@@ -1,0 +1,93 @@
+{
+  "chunks": [
+    {
+      "id": 1,
+      "title": "Model game creation and time controls",
+      "passes": false,
+      "acceptance_criteria": [
+        "New games accept untimed play, required presets, or validated custom base and increment values",
+        "White and Black labels receive sensible defaults and participant types are stored without changing rules behavior",
+        "Game creation initializes canonical board, lifecycle, clock, ownership, and persistence state consistently",
+        "Focused tests cover valid presets/custom games and malformed or out-of-range inputs"
+      ],
+      "artifacts": [
+        "backend/src/Services/GameLifecycleService.php",
+        "backend/src/Services/TimeControl.php",
+        "tests/GameLifecycleTest.php"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Implement server-authoritative clocks",
+      "passes": false,
+      "acceptance_criteria": [
+        "Clock calculations use server timestamps, persisted remaining time, active color, and increment rather than browser intervals",
+        "Accepted moves debit elapsed time and apply increment exactly once while rejected moves do neither",
+        "Refreshing or reloading a game cannot pause, reset, or double-debit the active clock",
+        "Tests use an injected deterministic clock and cover both colors, increments, refresh, and boundary timing"
+      ],
+      "artifacts": [
+        "backend/src/Services/GameClock.php",
+        "backend/src/Services/GameLifecycleService.php",
+        "tests/GameClockTest.php"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Add complete game-ending actions",
+      "passes": false,
+      "acceptance_criteria": [
+        "Resignation, accepted draw offers, valid draw claims, abandonment, and timeout set canonical result and termination fields",
+        "Timeout records a draw when the opponent cannot legally win and a loss otherwise",
+        "Finished games reject moves, actions, and clock mutations without changing saved state",
+        "Focused positive and negative tests cover authorization, action ordering, and every termination path"
+      ],
+      "artifacts": [
+        "backend/src/Services/GameLifecycleService.php",
+        "backend/src/Services/GameClock.php",
+        "backend/src/Services/Chess/TerminalStateResolver.php",
+        "tests/GameLifecycleTest.php",
+        "tests/GameClockTest.php"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Persist transitions and expose history replay services",
+      "passes": false,
+      "acceptance_criteria": [
+        "Every accepted owned-game move or lifecycle transition is saved atomically with clock and terminal metadata",
+        "Personal history lists required date, result, labels, time control, and completion reason fields for only the active owner",
+        "Opening a saved game returns canonical final state and ordered immutable replay positions",
+        "Stepping through replay data cannot mutate the saved game or active session game"
+      ],
+      "artifacts": [
+        "backend/src/Services/GameLifecycleService.php",
+        "backend/src/Services/GameHistoryService.php",
+        "backend/src/Repositories/GameRepository.php",
+        "backend/src/Repositories/MoveRepository.php",
+        "tests/GameHistoryTest.php"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Publish lifecycle history and replay APIs",
+      "passes": false,
+      "acceptance_criteria": [
+        "HTTP contracts cover new game, move, resign, draw offer/accept/claim, abandon, history, saved-game open, and replay data",
+        "Controllers enforce method, input, authentication, and ownership boundaries with stable JSON envelopes",
+        "Generated API documentation describes clock, participant, lifecycle, history, and replay state",
+        "Integration tests cover representative untimed and timed API journeys including persistence across sessions"
+      ],
+      "artifacts": [
+        "backend/public/api/games/",
+        "backend/src/Controllers/GameController.php",
+        "backend/src/Controllers/GameHistoryController.php",
+        "config/api-endpoints.json",
+        "docs/API.md",
+        "docs/openapi.json",
+        "tests/GameApiTest.php",
+        "scripts/dast.sh"
+      ]
+    }
+  ]
+}

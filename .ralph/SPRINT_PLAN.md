@@ -1,7 +1,8 @@
 # Ralph Sprint Plan — PHP Solo Chess MVP
 
-This plan decomposes `SPEC.md` in dependency order. Only Sprint 1 is instantiated under
-`.ralph/sprints/`; later entries are planning commitments, not executable sprint folders.
+This plan decomposes `SPEC.md` in dependency order. Sprints 1–6 are instantiated under
+`.ralph/sprints/`; only the sprint named by `CURRENT_SPRINT` is active. Preparing a folder does not
+authorize or start autonomous execution.
 
 | Sprint | Goal | Depends on |
 | --- | --- | --- |
