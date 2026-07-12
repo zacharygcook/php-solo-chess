@@ -194,3 +194,43 @@
     `UserRepository`, normalize usernames before repository calls, use `password_hash()` and
     `password_verify()`, and expose safe identity results without password hashes. Do not add HTTP
     endpoints, sessions, email, roles, clocks, or frontend work in chunk 3.
+
+## 2026-07-11 — Chunk 3 complete: local registration and authentication services
+
+- Decisions:
+  - Added `SoloChess\Services\AuthService` on top of `UserRepository`; controllers and sessions remain
+    untouched for the next chunk.
+  - Added `AuthenticatedUser` as the service-facing safe identity shape so successful registration
+    and login never expose `passwordHash`.
+  - Normalized usernames with trimmed lowercase ASCII before repository lookups, accepted only
+    3-32 character local usernames containing letters, numbers, hyphens, or underscores, and trimmed
+    display names before storage.
+  - Used PHP `password_hash()` for registration and `password_verify()` for authentication. Wrong
+    passwords, missing users, and invalid login usernames all return `null` without distinguishing
+    which credential failed.
+  - Mapped duplicate normalized usernames to a service-level validation error instead of exposing
+    SQLite/PDO detail.
+- Failed approaches / corrections:
+  - First required fast-gate run failed in PHPStan after tests passed. The reported identifiers were
+    `identical.alwaysFalse` for checking `password_hash()` against `false` and
+    `notIdentical.alwaysFalse` for re-querying a username inside the duplicate catch after PHPStan
+    remembered the earlier null result. Fetched the PHPStan identifier docs, then removed the
+    unreachable hash check and converted caught duplicate insert failures directly to the safe
+    service-level error.
+- Validation evidence:
+  - Baseline before edits: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+    passed with 53 tests, 0 failures; PHPStan reported no errors; complexity budget passed.
+  - Focused suite after implementation: `./scripts/test.sh` passed with 58 tests, 0 failures.
+  - First required fast gate after implementation failed at `composer typecheck` with the two
+    PHPStan always-false comparisons listed above.
+  - Required fast gate after correction:
+    `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with 58 tests,
+    0 failures; PHPStan reported no errors; complexity budget passed.
+  - Full project gate: `./scripts/check.sh` passed, including formatting, architecture, PHPStan,
+    tests, coverage, API smoke, and dynamic security probes.
+- Next handoff:
+  - Continue with chunk 4 only. Add session-backed register, login, logout, and current-user HTTP
+    contracts on top of `AuthService`; rotate the PHP session identifier on successful
+    authentication; clear only authentication context on logout; update API docs/probes as required.
+    Do not add game persistence, clocks, roles, email, remote services, or frontend expansion in
+    chunk 4.
