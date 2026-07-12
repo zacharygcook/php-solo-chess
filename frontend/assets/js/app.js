@@ -1,10 +1,11 @@
 import { createApiClient } from './api.js';
-import { boardFromFen, getPieceAt, renderBoard } from './board.js';
+import { boardFromFen, findKingSquare, getPieceAt, pieceLabel, renderBoard } from './board.js';
 import { createUiState } from './state.js';
 
 const api = createApiClient(document.body.dataset.apiBase);
 const uiState = createUiState();
 const elements = {};
+let pendingPromotionMove = null;
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -22,6 +23,13 @@ function cacheDom() {
     elements.status = document.querySelector('#statusMessage');
     elements.activeColor = document.querySelector('#activeColor');
     elements.activeMoveLabel = document.querySelector('#activeMoveLabel');
+    elements.boardOrientation = document.querySelector('#boardOrientation');
+    elements.flipBoard = document.querySelector('#flipBoardButton');
+    elements.capturedWhite = document.querySelector('#capturedWhite');
+    elements.capturedBlack = document.querySelector('#capturedBlack');
+    elements.promotionPanel = document.querySelector('#promotionPanel');
+    elements.promotionChoices = document.querySelector('#promotionChoices');
+    elements.promotionCancel = document.querySelector('#promotionCancelButton');
     elements.accountBadge = document.querySelector('#accountBadge');
     elements.accountSummary = document.querySelector('#accountSummary');
     elements.refresh = document.querySelector('#refreshButton');
@@ -52,6 +60,9 @@ function cacheDom() {
 function bindEvents() {
     elements.refresh.addEventListener('click', loadState);
     elements.reset.addEventListener('click', resetGame);
+    elements.flipBoard.addEventListener('click', flipBoard);
+    elements.promotionChoices.addEventListener('click', handlePromotionChoice);
+    elements.promotionCancel.addEventListener('click', cancelPromotion);
     elements.quickGuest.addEventListener('click', startQuickGuestGame);
     elements.newGameForm.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -140,31 +151,50 @@ function handleSquareAction(coord) {
     const selection = uiState.selection;
 
     if (!selection.from) {
-        if (!piece) {
-            flashSelectionError('Select a square with a piece.');
+        if (!canSelectSource(coord, piece, gameState)) {
             return;
         }
         uiState.setSelection({ from: coord, to: null });
     } else if (selection.from === coord) {
         uiState.clearSelection();
     } else {
-        uiState.setSelection({ from: selection.from, to: coord });
-        submitMove();
+        attemptMove(selection.from, coord);
     }
 
     renderCurrentBoard();
 }
 
-async function submitMove() {
-    const selection = uiState.selection;
-    if (!selection.from || !selection.to) {
+function handleSquareDrop(from, to) {
+    if (uiState.isReviewing) {
+        setStatus('Review mode is read-only. Return to the live board to move.');
         return;
     }
 
-    const payload = {
-        from: selection.from,
-        to: selection.to,
-    };
+    if (!uiState.gameState) {
+        return;
+    }
+
+    uiState.setSelection({ from, to: null });
+    attemptMove(from, to);
+    renderCurrentBoard();
+}
+
+function attemptMove(from, to) {
+    const gameState = uiState.gameState;
+    const piece = getPieceAt(gameState?.board || [], from);
+    if (needsPromotionChoice(piece, to)) {
+        pendingPromotionMove = { from, to };
+        renderPromotionPanel(from, to);
+        return;
+    }
+
+    submitMove({ from, to });
+}
+
+async function submitMove(payload) {
+    if (!payload.from || !payload.to) {
+        return;
+    }
 
     setStatus(`Submitting move ${payload.from} to ${payload.to}...`);
 
@@ -175,6 +205,8 @@ async function submitMove() {
     } catch (_error) {
         setStatus('Move request failed.');
     } finally {
+        pendingPromotionMove = null;
+        hidePromotionPanel();
         uiState.clearSelection();
     }
 }
@@ -328,6 +360,7 @@ function applyState(response) {
     const active = (response.state.activeColor || '').toUpperCase();
     elements.activeColor.textContent = active ? `${active} to move` : '-';
     elements.activeMoveLabel.textContent = active || '-';
+    renderBoardStatus();
 }
 
 function applyUser(response) {
@@ -346,13 +379,27 @@ function renderCurrentBoard() {
     if (uiState.isReviewing) {
         const position = currentReplayPosition();
         const replayBoard = boardFromFen(position?.fen);
-        renderBoard(elements.board, replayBoard, { from: null, to: null }, handleSquareAction);
+        renderBoard(elements.board, replayBoard, { from: null, to: null }, handleSquareAction, {
+            orientation: uiState.orientation,
+            lastMove: replayLastMove(),
+            gameStatus: 'review',
+            onDrop: handleSquareDrop,
+        });
     } else {
         const gameState = uiState.gameState;
-        renderBoard(elements.board, gameState?.board || [], uiState.selection, handleSquareAction);
+        renderBoard(elements.board, gameState?.board || [], uiState.selection, handleSquareAction, {
+            orientation: uiState.orientation,
+            legalMoves: gameState?.legalMoves || {},
+            lastMove: lastMove(gameState),
+            checkedKing: checkedKing(gameState),
+            gameStatus: gameState?.gameStatus || 'active',
+            onDrop: handleSquareDrop,
+        });
     }
 
     renderReviewBanner();
+    renderCaptures();
+    renderBoardStatus();
     handleResize();
 }
 
@@ -475,6 +522,62 @@ function flashSelectionError(message) {
     }, 2000);
 }
 
+function flipBoard() {
+    uiState.flipOrientation();
+    renderCurrentBoard();
+}
+
+function canSelectSource(coord, piece, gameState) {
+    if (!piece) {
+        flashSelectionError('Select a square with a piece.');
+        return false;
+    }
+    if (gameState.gameStatus === 'finished') {
+        flashSelectionError('Game is finished. The final position is locked.');
+        return false;
+    }
+    if (!Array.isArray(gameState.legalMoves?.[coord]) || gameState.legalMoves[coord].length === 0) {
+        flashSelectionError(`No server legal moves are available from ${coord}.`);
+        return false;
+    }
+
+    return true;
+}
+
+function needsPromotionChoice(piece, to) {
+    return piece?.[1] === 'p' && (to[1] === '8' || to[1] === '1');
+}
+
+function renderPromotionPanel(from, to) {
+    elements.promotionPanel.hidden = false;
+    elements.promotionPanel.querySelector('strong').textContent = `Promote ${from} to ${to}`;
+    elements.promotionChoices.querySelector('button').focus();
+}
+
+function hidePromotionPanel() {
+    elements.promotionPanel.hidden = true;
+}
+
+function handlePromotionChoice(event) {
+    const button = event.target.closest('button[data-promotion]');
+    if (!button || !pendingPromotionMove) {
+        return;
+    }
+
+    submitMove({
+        ...pendingPromotionMove,
+        promotion: button.dataset.promotion,
+    });
+}
+
+function cancelPromotion() {
+    pendingPromotionMove = null;
+    hidePromotionPanel();
+    uiState.clearSelection();
+    renderCurrentBoard();
+    setStatus('Promotion cancelled.');
+}
+
 function configuredGamePayload() {
     const timeKind = new FormData(elements.newGameForm).get('timeKind') || 'untimed';
     const payload = {
@@ -528,6 +631,67 @@ function currentReplayPosition() {
     return replay?.positions[replay.index] || null;
 }
 
+function lastMove(gameState) {
+    const history = gameState?.moveHistory || [];
+
+    return history[history.length - 1] || null;
+}
+
+function replayLastMove() {
+    const replay = uiState.replay;
+    if (!replay || replay.index <= 0) {
+        return null;
+    }
+
+    return replay.moves[replay.index - 1] || null;
+}
+
+function checkedKing(gameState) {
+    if (!gameState?.kingInCheck) {
+        return null;
+    }
+
+    return findKingSquare(gameState.board || [], gameState.kingInCheck);
+}
+
+function renderCaptures() {
+    const state = uiState.gameState;
+    renderCaptureList(elements.capturedWhite, state?.capturedWhite || []);
+    renderCaptureList(elements.capturedBlack, state?.capturedBlack || []);
+}
+
+function renderCaptureList(element, pieces) {
+    element.replaceChildren();
+    if (pieces.length === 0) {
+        element.textContent = 'None';
+        return;
+    }
+
+    pieces.forEach((piece) => {
+        const item = document.createElement('span');
+        item.className = 'captured-piece';
+        item.textContent = pieceLabel(piece);
+        element.append(item);
+    });
+}
+
+function renderBoardStatus() {
+    elements.boardOrientation.textContent = `${uiState.orientation[0].toUpperCase() + uiState.orientation.slice(1)} at bottom`;
+
+    const state = uiState.gameState;
+    elements.activeColor.classList.toggle('terminal', state?.gameStatus === 'finished');
+    if (state?.gameStatus === 'finished') {
+        elements.activeColor.textContent = terminalLabel(state);
+    }
+}
+
+function terminalLabel(state) {
+    const reason = state.terminationReason ? ` by ${splitWords(state.terminationReason)}` : '';
+    const result = state.result ? ` (${state.result})` : '';
+
+    return `Finished${result}${reason}`;
+}
+
 function moveLabel(move) {
     if (move.san) {
         return move.san;
@@ -562,6 +726,10 @@ function formatDate(value) {
         hour: '2-digit',
         minute: '2-digit',
     });
+}
+
+function splitWords(value) {
+    return value.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
 }
 
 function handleResize() {

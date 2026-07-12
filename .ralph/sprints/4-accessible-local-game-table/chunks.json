@@ -40,7 +40,7 @@
     {
       "id": 3,
       "title": "Implement accessible board interaction and state cues",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Pieces move through drag/drop and click/tap source-destination interaction with keyboard-operable equivalents",
         "Selection and legal destinations use server-provided data and promotion offers all four orthodox choices",

@@ -23,14 +23,35 @@
     <main class="app-shell">
         <section class="board-panel">
             <div class="board-meta">
-                <span>Active move:</span>
-                <strong id="activeMoveLabel">--</strong>
+                <span>Active move: <strong id="activeMoveLabel">--</strong></span>
+                <span id="boardOrientation">White at bottom</span>
+                <button id="flipBoardButton" type="button" class="secondary compact-button">Flip board</button>
             </div>
             <div class="review-banner" id="reviewBanner" hidden>
                 <strong id="reviewTitle">Review mode</strong>
                 <span id="reviewStepLabel">Step --</span>
             </div>
             <div id="chessBoard" class="chess-board" role="grid" aria-label="Chess board"></div>
+            <div class="capture-row" aria-label="Captured pieces">
+                <div>
+                    <span>White captured</span>
+                    <p id="capturedWhite" class="capture-list">None</p>
+                </div>
+                <div>
+                    <span>Black captured</span>
+                    <p id="capturedBlack" class="capture-list">None</p>
+                </div>
+            </div>
+            <div id="promotionPanel" class="promotion-panel" role="dialog" aria-live="polite" hidden>
+                <strong>Promote pawn</strong>
+                <div id="promotionChoices" class="promotion-choices">
+                    <button type="button" data-promotion="queen">Queen</button>
+                    <button type="button" data-promotion="rook">Rook</button>
+                    <button type="button" data-promotion="bishop">Bishop</button>
+                    <button type="button" data-promotion="knight">Knight</button>
+                </div>
+                <button id="promotionCancelButton" type="button" class="secondary compact-button">Cancel</button>
+            </div>
         </section>
 
         <aside class="sidebar">

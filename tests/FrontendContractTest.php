@@ -67,4 +67,37 @@ return static function (TestHarness $tests): void {
         $tests->assertTrue(str_contains($board, 'export function boardFromFen'), 'Board renderer must support replay FEN positions.');
         $tests->assertTrue(!str_contains($app, 'alert('), 'Validation feedback must not use page-level alerts.');
     });
+
+    $tests->test('frontend exposes accessible board movement cues without deciding legality', function () use ($tests, $root): void {
+        $html = file_get_contents($root . '/frontend/index.html');
+        $app = file_get_contents($root . '/frontend/assets/js/app.js');
+        $board = file_get_contents($root . '/frontend/assets/js/board.js');
+        $state = file_get_contents($root . '/frontend/assets/js/state.js');
+        $css = file_get_contents($root . '/frontend/assets/css/styles.css');
+        if ($html === false || $app === false || $board === false || $state === false || $css === false) {
+            throw new RuntimeException('Unable to read frontend board movement files.');
+        }
+
+        foreach (['flipBoardButton', 'promotionPanel', 'capturedWhite', 'capturedBlack'] as $id) {
+            $tests->assertTrue(str_contains($html, 'id="' . $id . '"'), "Missing board interaction control: {$id}.");
+        }
+
+        foreach (['queen', 'rook', 'bishop', 'knight'] as $promotion) {
+            $tests->assertTrue(str_contains($html, 'data-promotion="' . $promotion . '"'), "Missing promotion choice: {$promotion}.");
+        }
+
+        foreach (['dragstart', 'dragover', 'drop', 'aria-label', 'legalMoves', 'checkedKing', 'lastMove'] as $needle) {
+            $tests->assertTrue(str_contains($board, $needle), "Missing board cue wiring: {$needle}.");
+        }
+
+        $tests->assertTrue(str_contains($app, 'promotion: button.dataset.promotion'), 'Promotion choice must be submitted as move intent.');
+        $tests->assertTrue(str_contains($app, 'No server legal moves are available'), 'Illegal selection feedback must stay non-disruptive.');
+        $tests->assertTrue(str_contains($state, 'flipOrientation'), 'UI state must track board orientation locally.');
+
+        foreach (['.legal-source', '.target', '.last-move', '.checked-king', '.capture-target', '.final-position'] as $selector) {
+            $tests->assertTrue(str_contains($css, $selector), "Missing visual state selector: {$selector}.");
+        }
+
+        $tests->assertTrue(!str_contains($app, 'alert('), 'Illegal move feedback must not use page-level alerts.');
+    });
 };

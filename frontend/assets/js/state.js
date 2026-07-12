@@ -3,6 +3,7 @@ export function createUiState() {
     let user = null;
     let selection = { from: null, to: null };
     let replay = null;
+    let orientation = 'white';
 
     return {
         get gameState() {
@@ -16,6 +17,9 @@ export function createUiState() {
         },
         get replay() {
             return replay;
+        },
+        get orientation() {
+            return orientation;
         },
         get isReviewing() {
             return replay !== null;
@@ -31,6 +35,9 @@ export function createUiState() {
         },
         clearSelection() {
             selection = { from: null, to: null };
+        },
+        flipOrientation() {
+            orientation = orientation === 'white' ? 'black' : 'white';
         },
         startReplay(nextReplay, game, index) {
             const positions = Array.isArray(nextReplay?.positions) ? nextReplay.positions : [];

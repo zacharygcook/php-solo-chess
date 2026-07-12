@@ -49,3 +49,23 @@
   passed with 92 tests, PHPStan clean, and complexity budget clean.
 - Handoff: continue with chunk 3, accessible board interaction and state cues. Existing unrelated
   Sprint 3 dirty files remain outside this chunk.
+
+## 2026-07-12T14:20:26Z — Chunk 3 complete
+
+- Added board render options for local orientation, server-supplied legal source/destination hints,
+  last-move markers, checked-king highlighting, final-position styling, accessible square labels, and
+  native drag/drop. Click/tap plus Enter/Space movement remains in the same intent path.
+- Added a board orientation toggle, captured-piece summaries, and an inline promotion chooser with
+  queen, rook, bishop, and knight. Promotion is submitted as move intent; PHP still accepts or rejects
+  the canonical move.
+- Illegal source selections and review-mode attempts now report through existing live status text
+  without alerts. Illegal source/destination submissions still re-render the backend response state so
+  the browser does not mutate the board optimistically.
+- Added frontend contract coverage for drag/drop wiring, server `legalMoves` cues, promotion choices,
+  orientation state, visual cue selectors, and non-disruptive feedback.
+- Validation evidence: pre-change
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed with 92 tests;
+  after changes `./scripts/lint.sh`, `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh`
+  passed with 93 tests, `composer format:check` passed, and `./scripts/check.sh` passed.
+- Handoff: continue with chunk 4, clock/control/terminal feedback and responsive polish. Existing
+  unrelated Sprint 3 dirty files and runtime manifest state remain outside this chunk.
