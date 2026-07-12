@@ -210,6 +210,65 @@ async function main() {
             && document.querySelector('#activeColor')?.textContent.includes('WHITE')
     `);
 
+    const recoveryProbe = await evaluate(page, `
+        (async () => {
+            const history = await fetch('/backend/public/api/games/history.php');
+            const malformed = await fetch('/backend/public/api/games/new.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{not-json',
+            });
+            const malformedBody = await malformed.json();
+
+            return {
+                historyStatus: history.status,
+                malformedStatus: malformed.status,
+                malformedSuccess: malformedBody.success,
+            };
+        })()
+    `);
+    if (
+        recoveryProbe.historyStatus !== 401
+        || recoveryProbe.malformedStatus !== 400
+        || recoveryProbe.malformedSuccess !== false
+    ) {
+        throw new Error(`Unexpected browser recovery probe: ${JSON.stringify(recoveryProbe)}`);
+    }
+
+    const optionalAudioProbe = await evaluate(page, `
+        (async () => {
+            const module = await import('./assets/js/audio.js');
+            class MissingAudio {
+                constructor() {
+                    this.preload = '';
+                    this.volume = 0;
+                    this.currentTime = 0;
+                }
+                load() {
+                    throw new Error('Audio unavailable');
+                }
+                play() {
+                    return Promise.reject(new Error('Audio unavailable'));
+                }
+            }
+            const feedback = module.createAudioFeedback({
+                storage: {
+                    getItem() {
+                        return 'true';
+                    },
+                    setItem() {},
+                },
+                AudioCtor: MissingAudio,
+            });
+            feedback.play('move');
+
+            return feedback.isEnabled();
+        })()
+    `);
+    if (optionalAudioProbe !== true) {
+        throw new Error('Optional audio failure probe disabled sound unexpectedly.');
+    }
+
     await click(page, '#soundToggleButton');
     await waitUntil(page, 'persisted sound toggle', `
         localStorage.getItem('soloChess.soundEnabled') === 'true'
@@ -221,11 +280,39 @@ async function main() {
         document.querySelector('#activeColor')?.textContent.includes('WHITE')
             && document.querySelector('#whiteClockTime')?.textContent === 'Untimed'
     `);
-    await click(page, '[data-coord="e2"]');
-    await click(page, '[data-coord="e4"]');
-    await waitUntil(page, 'guest move through board UI', `
+
+    await dragMove(page, 'a2', 'a4');
+    await waitUntil(page, 'guest drag move through board UI', `
         document.querySelector('#activeColor')?.textContent.includes('BLACK')
             && document.querySelectorAll('#moveHistory li').length >= 1
+            && document.querySelector('[data-coord="a4"] img[alt="white Pawn"]')
+    `);
+    await keyboardMove(page, 'h7', 'h5');
+    await waitUntil(page, 'guest keyboard move through board UI', `
+        document.querySelector('#activeColor')?.textContent.includes('WHITE')
+            && document.querySelectorAll('#moveHistory li').length >= 2
+            && document.querySelector('[data-coord="h5"] img[alt="black Pawn"]')
+    `);
+
+    await clickMove(page, 'a4', 'a5');
+    await clickMove(page, 'h5', 'h4');
+    await clickMove(page, 'a5', 'a6');
+    await clickMove(page, 'h4', 'h3');
+    await clickMove(page, 'a6', 'b7');
+    await clickMove(page, 'h3', 'g2');
+    await click(page, '[data-coord="b7"]');
+    await click(page, '[data-coord="a8"]');
+    await waitUntil(page, 'promotion dialog visible', `
+        !document.querySelector('#promotionPanel')?.hidden
+            && document.querySelector('#promotionPanel')?.textContent.includes('Promote b7 to a8')
+    `);
+    await click(page, '#promotionChoices button[data-promotion="queen"]');
+    await waitUntil(page, 'promotion capture accepted through board UI', `
+        document.querySelector('#activeColor')?.textContent.includes('BLACK')
+            && document.querySelector('[data-coord="a8"] img[alt="white Queen"]')
+            && document.querySelectorAll('#moveHistory li').length >= 9
+            && !document.querySelector('#capturedWhite')?.textContent.includes('None')
+            && !document.querySelector('#capturedBlack')?.textContent.includes('None')
     `);
 
     const username = `smoke${Date.now()}`;
@@ -315,6 +402,86 @@ async function main() {
     `);
 
     page.close();
+}
+
+async function clickMove(page, from, to) {
+    const previousMoveCount = await evaluate(page, 'document.querySelectorAll("#moveHistory li").length');
+    await click(page, `[data-coord="${from}"]`);
+    await waitUntil(page, `legal destination ${from} to ${to}`, `
+        document.querySelector('[data-coord="${to}"]')?.classList.contains('target')
+    `);
+    await click(page, `[data-coord="${to}"]`);
+    await waitUntil(page, `accepted move ${from} to ${to}`, `
+        document.querySelectorAll('#moveHistory li').length === ${previousMoveCount + 1}
+    `);
+}
+
+async function keyboardMove(page, from, to) {
+    const previousMoveCount = await evaluate(page, 'document.querySelectorAll("#moveHistory li").length');
+    await keyActivate(page, `[data-coord="${from}"]`);
+    await waitUntil(page, `keyboard legal destination ${from} to ${to}`, `
+        document.querySelector('[data-coord="${to}"]')?.classList.contains('target')
+    `);
+    await keyActivate(page, `[data-coord="${to}"]`);
+    await waitUntil(page, `accepted keyboard move ${from} to ${to}`, `
+        document.querySelectorAll('#moveHistory li').length === ${previousMoveCount + 1}
+    `);
+}
+
+async function keyActivate(page, selector) {
+    await evaluate(page, `
+        (() => {
+            const element = document.querySelector(${JSON.stringify(selector)});
+            if (!element) {
+                throw new Error('Missing selector: ${selector}');
+            }
+            element.focus();
+            element.dispatchEvent(new KeyboardEvent('keydown', {
+                key: 'Enter',
+                bubbles: true,
+                cancelable: true,
+            }));
+            return true;
+        })()
+    `);
+}
+
+async function dragMove(page, from, to) {
+    const previousMoveCount = await evaluate(page, 'document.querySelectorAll("#moveHistory li").length');
+    await evaluate(page, `
+        (() => {
+            const source = document.querySelector('[data-coord="${from}"]');
+            const target = document.querySelector('[data-coord="${to}"]');
+            if (!source || !target) {
+                throw new Error('Missing drag source or target.');
+            }
+            const dataTransfer = new DataTransfer();
+            source.dispatchEvent(new DragEvent('dragstart', {
+                bubbles: true,
+                cancelable: true,
+                dataTransfer,
+            }));
+            target.dispatchEvent(new DragEvent('dragover', {
+                bubbles: true,
+                cancelable: true,
+                dataTransfer,
+            }));
+            target.dispatchEvent(new DragEvent('drop', {
+                bubbles: true,
+                cancelable: true,
+                dataTransfer,
+            }));
+            source.dispatchEvent(new DragEvent('dragend', {
+                bubbles: true,
+                cancelable: true,
+                dataTransfer,
+            }));
+            return true;
+        })()
+    `);
+    await waitUntil(page, `accepted drag move ${from} to ${to}`, `
+        document.querySelectorAll('#moveHistory li').length === ${previousMoveCount + 1}
+    `);
 }
 
 async function click(page, selector) {

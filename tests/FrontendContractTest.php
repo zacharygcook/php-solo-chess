@@ -228,7 +228,15 @@ return static function (TestHarness $tests): void {
             $tests->assertTrue(str_contains($smoke, $selector), "Browser smoke must exercise selector: {$selector}.");
         }
 
-        foreach (['timed game status', 'saved replay mode', 'mobile layout without horizontal overflow'] as $coverage) {
+        foreach ([
+            'browser recovery probe',
+            'guest drag move through board UI',
+            'guest keyboard move through board UI',
+            'promotion capture accepted through board UI',
+            'timed game status',
+            'saved replay mode',
+            'mobile layout without horizontal overflow',
+        ] as $coverage) {
             $tests->assertTrue(str_contains($smoke, $coverage), "Browser smoke must cover: {$coverage}.");
         }
 

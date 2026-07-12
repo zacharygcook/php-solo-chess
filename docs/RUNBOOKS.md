@@ -68,6 +68,21 @@ downloaded movetext/result does not match the saved game.
    before it is cleaned up, then reproduce with `./scripts/dev.sh 8090`.
 6. Fix the capability or product defect; never weaken a threshold merely to unblock a commit.
 
+## Clean-clone validation fails during setup
+
+Symptoms: `./scripts/check.sh` fails before the local server starts, SQLite setup is not
+idempotent, or the cloned workspace cannot install or run the locked development tools.
+
+1. Run `composer install` from the repository root and keep the full Composer output.
+2. Run `php scripts/setup-database.php /tmp/solo-chess-check.sqlite` twice; both runs should report
+   a ready SQLite database without changing tracked files.
+3. Run `./scripts/dev.sh 8090` and open the printed `/frontend/` URL.
+4. Run `./scripts/check.sh` again. It performs its own temporary SQLite setup, dynamic security
+   probes, isolated server smoke, and browser smoke without using production accounts or hosted
+   services.
+5. If the failure depends on old local state, follow the session or persistence recovery runbook
+   above rather than deleting unrelated user data.
+
 ## Local pre-commit hook is missing
 
 1. Run `./scripts/install-hooks.sh`.

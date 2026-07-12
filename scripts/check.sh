@@ -27,70 +27,74 @@ case "$PORT" in
   ''|*[!0-9]*) echo "Port must be a number: $PORT" >&2; exit 14 ;;
 esac
 
-echo "[1/25] Validating agent documentation"
+echo "[1/26] Validating agent documentation"
 "$ROOT/scripts/check-agent-docs.sh"
 
-echo "[2/25] Rejecting oversized repository files"
+echo "[2/26] Rejecting oversized repository files"
 "$ROOT/scripts/check-large-files.sh"
 
-echo "[3/25] Checking technical-debt tracking"
+echo "[3/26] Checking technical-debt tracking"
 "$ROOT/scripts/check-tech-debt.sh"
 
-echo "[4/25] Scanning for committed secrets"
+echo "[4/26] Scanning for committed secrets"
 "$ROOT/scripts/check-secrets.sh"
 
-echo "[5/25] Checking dependency policy"
+echo "[5/26] Checking dependency policy"
 php "$ROOT/scripts/check-dependencies.php"
 
-echo "[6/25] Measuring dependency weight"
+echo "[6/26] Measuring dependency weight"
 "$ROOT/scripts/check-dependency-weight.sh"
 
-echo "[7/25] Detecting unused direct dependencies"
+echo "[7/26] Detecting unused direct dependencies"
 php "$ROOT/scripts/check-unused-dependencies.php"
 
-echo "[8/25] Generating local security review"
+echo "[8/26] Generating local security review"
 "$ROOT/scripts/security-review.sh" "$TEMP_DIR/security-review.md"
 
-echo "[9/25] Running dynamic security probes"
+echo "[9/26] Running dynamic security probes"
 "$ROOT/scripts/dast.sh"
 
-echo "[10/25] Validating generated API documentation"
+echo "[10/26] Validating generated API documentation"
 php "$ROOT/scripts/generate-api-docs.php" --check
 
-echo "[11/25] Generating release notes from Git history"
+echo "[11/26] Generating release notes from Git history"
 php "$ROOT/scripts/generate-release-notes.php" --to=HEAD --output="$TEMP_DIR/release-notes.md"
 
-echo "[12/25] Linting PHP and JavaScript source"
+echo "[12/26] Linting PHP and JavaScript source"
 "$ROOT/scripts/lint.sh"
 
-echo "[13/25] Enforcing source naming conventions"
+echo "[13/26] Enforcing source naming conventions"
 php "$ROOT/scripts/check-naming.php"
 
-echo "[14/25] Enforcing architecture layer boundaries"
+echo "[14/26] Enforcing architecture layer boundaries"
 php "$ROOT/scripts/check-architecture.php"
 
-echo "[15/25] Enforcing cyclomatic-complexity budget"
+echo "[15/26] Enforcing cyclomatic-complexity budget"
 "$ROOT/scripts/check-complexity.sh"
 
-echo "[16/25] Enforcing duplicate-code budget"
+echo "[16/26] Enforcing duplicate-code budget"
 php "$ROOT/scripts/check-duplication.php" --check
 
-echo "[17/25] Generating code-quality snapshot"
+echo "[17/26] Generating code-quality snapshot"
 "$ROOT/scripts/generate-quality-report.sh" "$TEMP_DIR/code-quality.md"
 
-echo "[18/25] Checking deterministic formatting"
+echo "[18/26] Checking deterministic formatting"
 "$ROOT/scripts/format.sh" --check
 
-echo "[19/25] Type-checking PHP"
+echo "[19/26] Type-checking PHP"
 composer --working-dir="$ROOT" typecheck
 
-echo "[20/25] Running rules-engine unit tests"
+echo "[20/26] Running rules-engine unit tests"
 "$ROOT/scripts/test.sh"
 
-echo "[21/25] Enforcing backend line coverage"
+echo "[21/26] Enforcing backend line coverage"
 composer --working-dir="$ROOT" coverage:check
 
-echo "[22/25] Starting isolated server"
+echo "[22/26] Proving SQLite setup is idempotent"
+php "$ROOT/scripts/setup-database.php" "$TEMP_DIR/solo-chess.sqlite" >/dev/null
+php "$ROOT/scripts/setup-database.php" "$TEMP_DIR/solo-chess.sqlite" >/dev/null
+
+echo "[23/26] Starting isolated server"
 php -S "127.0.0.1:$PORT" -t "$ROOT" "$ROOT/scripts/router.php" >"$TEMP_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -111,7 +115,7 @@ if [[ "$SERVER_READY" != "true" ]]; then
 fi
 
 jq -e '.success == true and .state.activeColor == "white" and (.state.board | length) == 8' "$SESSION_JSON" >/dev/null
-echo "[23/25] Loading both frontend URL forms and browser assets"
+echo "[24/26] Loading both frontend URL forms and browser assets"
 curl -fsS "http://127.0.0.1:$PORT/frontend" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/css/styles.css" >/dev/null
@@ -120,12 +124,12 @@ curl -fsS "http://127.0.0.1:$PORT/frontend/assets/js/audio.js" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/img/black-king.svg" >/dev/null
 curl -fsS "http://127.0.0.1:$PORT/frontend/assets/audio/move.wav" >/dev/null
 
-echo "[24/25] Playing e2 to e4 through the API"
+echo "[25/26] Playing e2 to e4 through the API"
 curl -fsS -b "$TEMP_DIR/cookies.txt" -H 'Content-Type: application/json' \
   -d '{"from":"e2","to":"e4"}' "http://127.0.0.1:$PORT/backend/public/api/move.php" \
   | jq -e '.success == true and .state.activeColor == "black" and .state.board[4][4] == "wp"' >/dev/null
 
-echo "[25/25] Running browser smoke coverage"
+echo "[26/26] Running browser smoke coverage"
 "$ROOT/scripts/browser-smoke.sh" "$((PORT + 1))"
 
 echo "Baseline check passed."

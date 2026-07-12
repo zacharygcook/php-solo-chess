@@ -194,6 +194,28 @@ return static function (TestHarness $tests): void {
         $tests->assertSame('wn', $friendly['board'][2][4]);
     });
 
+    $tests->test('accepted captures update captured piece lists by moving color', function () use ($tests): void {
+        $whiteBoard = emptyBoardWithKings();
+        $whiteBoard[7][4] = null;
+        $whiteBoard[7][0] = 'wk';
+        $whiteBoard[7][7] = 'wr'; // h1
+        $whiteBoard[7][1] = 'bn'; // b1
+        $afterWhiteCapture = gameWithBoard($whiteBoard)->submitMove(['from' => 'h1', 'to' => 'b1']);
+
+        $tests->assertSame(['bn'], $afterWhiteCapture['capturedWhite']);
+        $tests->assertSame([], $afterWhiteCapture['capturedBlack']);
+        $tests->assertSame('wr', $afterWhiteCapture['board'][7][1]);
+
+        $blackBoard = emptyBoardWithKings();
+        $blackBoard[0][0] = 'bn'; // a8
+        $blackBoard[2][1] = 'wn'; // b6
+        $afterBlackCapture = gameWithBoard($blackBoard, 'black')->submitMove(['from' => 'a8', 'to' => 'b6']);
+
+        $tests->assertSame([], $afterBlackCapture['capturedWhite']);
+        $tests->assertSame(['wn'], $afterBlackCapture['capturedBlack']);
+        $tests->assertSame('bn', $afterBlackCapture['board'][2][1]);
+    });
+
     $tests->test('ordinary moves never capture the opponent king', function () use ($tests): void {
         $board = emptyBoardWithKings();
         $board[7][4] = null;

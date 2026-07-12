@@ -82,3 +82,32 @@
   evidence for drag/drop, keyboard movement, promotion, clocks, sound, terminal feedback, replay,
   representative mobile/laptop layouts, malformed input, unauthorized access, stale session/database,
   and optional audio failure behavior.
+
+## 2026-07-12 — Chunk 4 complete
+
+- Completed chunk 4 only: hardened `scripts/browser-smoke.sh` to prove browser recovery probes,
+  optional audio failure, drag/drop movement, keyboard movement, click/tap movement, legal target
+  highlighting, promotion choice, capture-list rendering, timed status, terminal feedback, saved
+  replay, login/logout, and mobile layout from a local isolated Chrome run.
+- Added `./scripts/check.sh` step 22 to run `scripts/setup-database.php` twice against a temporary
+  SQLite path, proving idempotent local setup inside the canonical gate without production accounts,
+  hosted services, tags, pushes, or uploads.
+- Added focused rules proof for captured-piece lists by moving color and fixed `GameService` to append
+  accepted captures to the capturing side's displayed list. This was required because the new browser
+  capture assertion exposed that captures were legal and notated but not reflected in UI state.
+- Updated `docs/MVP_ACCEPTANCE.md`, `docs/RUNBOOKS.md`, and `tests/FrontendContractTest.php` so the
+  new browser/recovery evidence is visible and guarded.
+- Failed approaches: the first browser promotion assertion timed out because captured-piece arrays
+  stayed empty after legal captures; a first black-capture test fixture used an illegal rook path
+  across its own king and was replaced with a legal knight capture.
+- Validation evidence: baseline requested fast gate
+  `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed before edits with
+  seed `1562234612`, 113 tests, PHPStan clean, and complexity within the method ceiling. Focused
+  pre-fix proof `TEST_SEED=1 ./scripts/test.sh` failed on the new captured-list test, then passed
+  after the fix with 114 tests. Direct `./scripts/browser-smoke.sh 18182` passed. Final requested
+  fast gate passed with seed `1254761798`, 114 tests, PHPStan clean, and complexity within the method
+  ceiling. Full `./scripts/check.sh` passed with unit seed `2070998779`, coverage seed `23277317`,
+  82.89% backend line coverage, idempotent SQLite setup, and browser smoke passed.
+- Next handoff: start chunk 5 by reconciling final architecture/API/runbooks/README/debt/scorecard
+  documentation, packaging a local release candidate, and proving the full final gate from the final
+  clean state. Optional engine-powered review remains out of scope.

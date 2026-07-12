@@ -52,7 +52,7 @@
     {
       "id": 4,
       "title": "Harden browser clean-clone and recovery evidence",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "Repository-owned browser smoke covers drag/drop, click/tap, keyboard movement, promotion, clocks, sound, terminal feedback, replay, and representative mobile/laptop layouts",
         "A clean clone can install locked development tools, initialize SQLite idempotently, start with one documented command, and run the complete local gate",

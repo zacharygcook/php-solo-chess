@@ -357,6 +357,10 @@ final class GameService
         $state['castlingRights'] = $this->updatedCastlingRights($state['castlingRights'], $move, $movingColor, $capturedPiece);
         $state['enPassantTarget'] = $this->enPassantTargetFor($move);
         $state['halfmoveClock'] = $move->piece[1] === 'p' || $capturedPiece !== null ? 0 : $state['halfmoveClock'] + 1;
+        if ($capturedPiece !== null) {
+            $captureList = $movingColor === 'white' ? 'capturedWhite' : 'capturedBlack';
+            $state[$captureList][] = $capturedPiece;
+        }
         if ($movingColor === 'black') {
             $state['fullmoveNumber']++;
         }
