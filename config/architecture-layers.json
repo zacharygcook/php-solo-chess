@@ -2,6 +2,7 @@
   "layers": {
     "Api": ["Controllers", "Http"],
     "Controllers": ["Http", "Services"],
+    "Engine": ["Engine"],
     "Services": ["Repositories", "Services"],
     "Http": ["Http"],
     "Observability": ["Observability"],

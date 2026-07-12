@@ -52,7 +52,7 @@
     {
       "id": 4,
       "title": "Define and prove the future-engine adapter seam",
-      "passes": false,
+      "passes": true,
       "acceptance_criteria": [
         "An engine request contains canonical FEN plus stable game context and returns a stable coordinate move proposal",
         "A deterministic fake adapter can propose a move without importing HTTP, persistence, or UI concerns",

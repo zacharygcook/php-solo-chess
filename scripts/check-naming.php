@@ -17,7 +17,7 @@ foreach ($iterator as $file) {
     $source = (string) file_get_contents($file->getPathname());
     $tokens = token_get_all($source);
     $namespace = '';
-    $className = null;
+    $declarationName = null;
 
     for ($index = 0, $count = count($tokens); $index < $count; $index++) {
         $token = $tokens[$index];
@@ -39,12 +39,12 @@ foreach ($iterator as $file) {
             $namespace = implode('', $parts);
         }
 
-        if ($token[0] === T_CLASS) {
+        if (in_array($token[0], [T_CLASS, T_INTERFACE], true)) {
             $name = nextNamedToken($tokens, $index);
             if ($name !== null) {
-                $className = $name;
+                $declarationName = $name;
                 if (!preg_match('/^[A-Z][A-Za-z0-9]*$/', $name)) {
-                    $errors[] = "Class must use PascalCase: {$file->getPathname()}:{$token[2]} {$name}";
+                    $errors[] = "Class/interface must use PascalCase: {$file->getPathname()}:{$token[2]} {$name}";
                 }
             }
         }
@@ -64,15 +64,15 @@ foreach ($iterator as $file) {
         }
     }
 
-    if ($className === null) {
+    if ($declarationName === null) {
         if ($file->getFilename() !== 'bootstrap.php') {
-            $errors[] = "Class source has no class declaration: {$file->getPathname()}";
+            $errors[] = "Class source has no class or interface declaration: {$file->getPathname()}";
         }
         continue;
     }
 
-    if ($file->getBasename('.php') !== $className) {
-        $errors[] = "Class filename must match {$className}: {$file->getPathname()}";
+    if ($file->getBasename('.php') !== $declarationName) {
+        $errors[] = "Class/interface filename must match {$declarationName}: {$file->getPathname()}";
     }
 
     $relativeDirectory = trim(substr($file->getPath(), strlen($sourceRoot)), DIRECTORY_SEPARATOR);

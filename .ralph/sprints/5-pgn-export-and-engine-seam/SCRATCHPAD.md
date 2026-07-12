@@ -95,3 +95,30 @@
 - Handoff: next incomplete chunk is chunk 4, `Define and prove the future-engine adapter seam`; keep
   the adapter deterministic, do not add an engine binary or opponent behavior, and route any proposed
   move through the existing authoritative move application path.
+
+## 2026-07-12 — Chunk 4 future-engine adapter seam complete
+
+- Implemented the passive `SoloChess\Engine` seam: `EngineAdapter` defines the proposal contract,
+  `EngineRequest` carries canonical FEN, active color, participants, legal moves, terminal metadata,
+  and stable context, `EngineMoveProposal` exposes coordinate move payloads, and
+  `FakeEngineAdapter` returns deterministic proposals without importing HTTP, persistence, UI, or a
+  real engine.
+- Proved proposed moves enter the same authoritative path as human moves by applying fake adapter
+  output through `GameService::submitMove()` and comparing the resulting board, turn, history, and
+  FEN with an identical direct human move.
+- Proved illegal fake-engine proposals are rejected without mutating board, active color, history, or
+  FEN, and that participant metadata can identify a future `engine` seat.
+- Decision: keep the engine namespace independent of service/repository concerns; orchestration code
+  may convert a proposal to the existing move payload, but the adapter itself cannot mutate state.
+- Dead end: the first full check rejected `EngineAdapter.php` because the naming checker only
+  recognized classes. Updated `scripts/check-naming.php` to allow interface declarations while
+  preserving PascalCase and filename checks.
+- Validation evidence:
+  - Baseline before edits: `./scripts/check.sh` passed.
+  - Focused proof: `./scripts/test.sh` passed with 110 tests.
+  - Fast gate: `./scripts/test.sh && composer typecheck && ./scripts/check-complexity.sh` passed.
+  - Formatting: `composer format:check` passed.
+  - Final validation: `./scripts/check.sh` passed, including architecture, coverage, and browser smoke.
+- Handoff: next incomplete chunk is chunk 5, `Document and integrate export and engine boundaries`;
+  update generated API/docs and integration evidence only, and continue to exclude real engine
+  binaries, analysis, opponent behavior, model downloads, and runtime dependencies.
