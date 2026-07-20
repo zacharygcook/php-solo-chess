@@ -26,6 +26,7 @@
 
 # Tool caches and temporary files
 /.cache/
+__pycache__/
 *.tmp
 *.swp
 *~

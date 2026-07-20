@@ -1,11 +1,29 @@
 {
   "version": 1,
   "skills": {
-    "ralph-workflows": {
+    "ralph-loop": {
       "source": "zacharygcook/zach-ralph-method",
       "sourceType": "github",
-      "skillPath": "skill/SKILL.md",
-      "computedHash": "abbfc708d48ad6ae060c4df40ade2ff7c08d385e7c8f67fad1d67b89d88830f4"
+      "skillPath": "skills/ralph-loop/SKILL.md",
+      "computedHash": "407dc703a7035b682b1a56d17e3c0d2a5e61d30cd7534bc9963973e23ae5475b"
+    },
+    "ralph-review": {
+      "source": "zacharygcook/zach-ralph-method",
+      "sourceType": "github",
+      "skillPath": "skills/ralph-review/SKILL.md",
+      "computedHash": "a6d88dd2399cb39489e0ee021e640b37a5364f9dc5efe87c159c0db6af43bfcf"
+    },
+    "ralph-sprint": {
+      "source": "zacharygcook/zach-ralph-method",
+      "sourceType": "github",
+      "skillPath": "skills/ralph-sprint/SKILL.md",
+      "computedHash": "3aa719e037546bda13268a2d0c4f3e50100fda874e7733fd3fd1ff74be31b1cf"
+    },
+    "ralph-status": {
+      "source": "zacharygcook/zach-ralph-method",
+      "sourceType": "github",
+      "skillPath": "skills/ralph-status/SKILL.md",
+      "computedHash": "287b85bff108654cfcff2a5d1072fdaf7dcf1b2849a8eb2f4ff962390db84675"
     }
   }
 }

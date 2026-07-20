@@ -1,24 +1,26 @@
 {
   "managed_files": {
-    "VERSION": "20c121886eb4f762044c6507745f6494525432ac22b41f5a73a8e5bf15b8b90e",
+    "VERSION": "a66780da23103beaf12432b418508966b31a2a3a787f9468a5b6cdaa8667c1ef",
+    "advance.py": "b82c8e662f4fd27d38bbd64b018806018c913268dd8f5ebbdf4857938c04593e",
     "format-codex-stream.py": "972a610b4c15206cd5d7510fdbecea21f132edca4d08002ded69218567190964",
     "format-stream.py": "fce8466b6143fb7909976234d7d1aa7ad719991fa432d47109cb726a5b2d1b88",
-    "hooks/document.sh": "8d2f8398bff0e40060accf30867320fd7015d1b7a138ce1f8096dc870b2a78d1",
+    "hooks/document.sh": "316c1b5a3ed744592e55bcff40766d90c2041717cc864f31b318a1dc34e70759",
     "hooks/post-sprint.sh": "1c8750e664bb3b8157c2b78f9dad1d0c8a0e170e6b8120825972617f5d9d3151",
-    "hooks/review.sh": "3dc35e071ab6062d3a057371496cecc38902e18b0b620084b77391abc87862fb",
+    "hooks/review.sh": "e04bbc2088d8be3f5f48b230bbc5b759c635720104b57cc5bcaa2bdefb689450",
     "hooks/test.sh": "33e942d2082e0f7a82ffb7ac0da15f7d29dd3cc66be488cc9e2f007e7adb6b89",
-    "lib/ralph-common.sh": "abfdb2621564b0e02c191b805c479b5453118407482711dca8748f49a2fdcfbf",
-    "loop.sh": "c1c37ee18743fcb8ca2eb06a9f9deff98a9a0c9144a3419cdd0ac0fcecd229f5",
+    "lib/ralph-common.sh": "6c61582dbe48362300362da08c487b30fd099449c1ff1c81b22336055f6f3a08",
+    "loop.sh": "923c8e889f2fb6a570362acc8e8ce364834143612c698aaa757df65602cd1898",
     "pretty-process-snapshots.py": "b7fb28f52c1afd9db0b082dabc0c1fbba7e8e494c5e2c220816b7d01a01e5ef1",
     "prompt.md.template": "48a6347abd4527ed4118b4b3665a8cfd5621f5bdda11df73f31d3829f6b57f71",
-    "prompts/document.md": "14876d41466bec36a5853f9243352fdc976fe902fe330b0c684395464083bc1a",
-    "prompts/review.md": "7871253b5f11b52539b767a4c1c7a36ce7eee7bb3b85d3cf91c10b5b830a12b8",
+    "prompts/document.md": "b5b4050c4c8c93b544c7756a37c4e35b6143ea3cb85ea1d24184601ea08ea731",
+    "prompts/review.md": "48f024ea98939a8fc4d6127db61c316c6ea667637c097ce2ba208b889fc6dc28",
     "prompts/test.md": "faf652af51b623b5e6085a50ee58621932a8cebb3b3d6d874d7725faa50e3bda",
-    "status.sh": "0d8935dc85f2edd8b1d10f7c572cc6724b7a46361d325c9cd6209717808954d1"
+    "status.sh": "ba257a4a609e35b19d1cb3e2c277479aa283be36234486adaefd772668e23d28"
   },
   "mode": "monorepo",
-  "previous_runtime_version": "0.6.1",
+  "previous_runtime_version": "0.6.4",
   "repositories": [],
-  "runtime_version": "0.6.4",
-  "schema_version": "1.0"
+  "runtime_version": "0.8.0",
+  "schema_version": "1.0",
+  "state_mode": "tracked"
 }

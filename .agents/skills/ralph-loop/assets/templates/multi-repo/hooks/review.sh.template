@@ -18,14 +18,20 @@ require_commands git jq || exit 12
 MANIFEST="$SPRINT_DIR/manifest.json"
 [[ -f "$MANIFEST" ]] || { echo "Missing manifest: $MANIFEST"; exit 14; }
 
-START_COMMIT=$(jq -r '.start_commit // empty' "$MANIFEST")
-END_COMMIT=$(jq -r '.end_commit // empty' "$MANIFEST")
-[[ -n "$START_COMMIT" && -n "$END_COMMIT" ]] || { echo "Manifest requires start_commit and end_commit"; exit 14; }
+REPOS="${RALPH_REPOS:-${REPOS:-}}"
+[[ -n "$REPOS" ]] || { echo "RALPH_REPOS is required"; exit 14; }
+RANGES=""
+for repo in $REPOS; do
+  START_COMMIT=$(jq -r --arg repo "$repo" '.repos[$repo].start_commit // empty' "$MANIFEST")
+  END_COMMIT=$(jq -r --arg repo "$repo" '.repos[$repo].end_commit // empty' "$MANIFEST")
+  [[ -n "$START_COMMIT" && -n "$END_COMMIT" ]] || { echo "Manifest requires commits for $repo"; exit 14; }
+  RANGES+="- $repo: $START_COMMIT..$END_COMMIT"$'\n'
+done
 
 PROMPT_FILE="${RALPH_HOOK_RUNTIME_DIR:-$SPRINT_DIR}/review.prompt.md"
 {
   cat "$RALPH_DIR/prompts/review.md"
-  printf '\n## Sprint context\n\n- Sprint directory: `%s`\n- Review range: `%s..%s`\n- Ralph state mode: `%s`\n' "$SPRINT_DIR" "$START_COMMIT" "$END_COMMIT" "${RALPH_STATE_MODE:-local}"
+  printf '\n## Multi-repository sprint context\n\n- Sprint directory: `%s`\n- Project root: `%s`\n- Ralph state mode: `%s`\n\n%s' "$SPRINT_DIR" "$PROJECT_ROOT" "${RALPH_STATE_MODE:-local}" "$RANGES"
 } > "$PROMPT_FILE"
 
 run_agent "${RALPH_REVIEW_AGENT:-${RALPH_AGENT:-}}" "$PROMPT_FILE" "$PROJECT_ROOT"

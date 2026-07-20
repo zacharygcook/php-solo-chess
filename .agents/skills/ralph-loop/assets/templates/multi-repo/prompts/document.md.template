@@ -9,6 +9,6 @@ Record what was updated in the sprint directory and append durable documentation
 ends to `SCRATCHPAD.md`. If no documentation change is warranted, record the evidence instead of
 manufacturing churn.
 
-If you change repository documentation, inspect status, stage only those paths, and create a
-descriptive scoped commit before exiting. When `RALPH_STATE_MODE=tracked`, include the documentation
-record and scratchpad artifacts; when it is `local`, never stage `.ralph/`.
+If you change documentation in a child repository, inspect its status, stage only your paths, and
+create a descriptive scoped commit there before exiting. The parent orchestrator owns `.ralph/`
+state; never mix it into a child-repository commit.
