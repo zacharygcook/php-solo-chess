@@ -33,16 +33,17 @@ final class TerminalStateResolver
     public function canColorLegallyWin(array $board, string $color): bool
     {
         $pieces = $this->remainingPieces($board, $color);
+        $opponentPieces = $this->remainingPieces($board, $color === 'white' ? 'black' : 'white');
 
         if ($pieces === []) {
             return false;
         }
 
         if (count($pieces) === 1) {
-            return !in_array($pieces[0]['piece'][1], ['b', 'n'], true);
+            return !in_array($pieces[0]['piece'][1], ['b', 'n'], true) || $opponentPieces !== [];
         }
 
-        return !$this->hasOnlySameColorBishops($pieces);
+        return !$this->hasOnlySameColorBishops($pieces) || $opponentPieces !== [];
     }
 
     /**

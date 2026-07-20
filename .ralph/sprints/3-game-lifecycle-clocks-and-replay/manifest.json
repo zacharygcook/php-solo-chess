@@ -1,0 +1,146 @@
+{
+  "sprint": "3-game-lifecycle-clocks-and-replay",
+  "start_commit": "71b47eaa1232c6e5b8cadc5c6f1a759ef5728b87",
+  "started_at": "2026-07-12T03:58:39Z",
+  "end_commit": "acd64ee4e5f04d8f952c13632c8724c70a32275f",
+  "completed_at": "2026-07-12T04:34:38Z",
+  "iterations": 5,
+  "agent_turns": [
+    {
+      "chunk_id": 1,
+      "iteration": 1,
+      "started_at": "2026-07-12T03:58:39Z"
+    },
+    {
+      "chunk_id": 2,
+      "iteration": 2,
+      "started_at": "2026-07-12T04:04:54Z"
+    },
+    {
+      "chunk_id": 3,
+      "iteration": 3,
+      "started_at": "2026-07-12T04:11:07Z"
+    },
+    {
+      "chunk_id": 4,
+      "iteration": 4,
+      "started_at": "2026-07-12T04:17:59Z"
+    },
+    {
+      "chunk_id": 5,
+      "iteration": 5,
+      "started_at": "2026-07-12T04:25:01Z"
+    }
+  ],
+  "commits": [
+    {
+      "hash": "cef30ad5d0ec140482b4723e29e48041597a5470",
+      "message": "Model game creation lifecycle",
+      "chunk_id": 1,
+      "iteration": 1
+    },
+    {
+      "hash": "1be52ee2c5fa09a45befd8a0df79be17fd9e4438",
+      "message": "Implement server-authoritative clocks",
+      "chunk_id": 2,
+      "iteration": 2
+    },
+    {
+      "hash": "ac1a2bfa43e6514bd68efce12ccc53d35be4de23",
+      "message": "Complete game-ending lifecycle actions",
+      "chunk_id": 3,
+      "iteration": 3
+    },
+    {
+      "hash": "c0da12decb4d1c731629fbe42599cad3f47834ec",
+      "message": "Expose saved game history replay services",
+      "chunk_id": 4,
+      "iteration": 4
+    },
+    {
+      "hash": "acd64ee4e5f04d8f952c13632c8724c70a32275f",
+      "message": "Publish lifecycle history replay APIs",
+      "chunk_id": 5,
+      "iteration": 5
+    }
+  ],
+  "validation": {
+    "chunk_attempts": [
+      {
+        "chunk_id": 1,
+        "iteration": 1,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T04:04:48Z",
+        "completed_at": "2026-07-12T04:04:52Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/3-game-lifecycle-clocks-and-replay/run-20260711-225839/chunk-1-validation-1.log"
+      },
+      {
+        "chunk_id": 2,
+        "iteration": 2,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T04:11:01Z",
+        "completed_at": "2026-07-12T04:11:05Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/3-game-lifecycle-clocks-and-replay/run-20260711-225839/chunk-2-validation-2.log"
+      },
+      {
+        "chunk_id": 3,
+        "iteration": 3,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T04:17:53Z",
+        "completed_at": "2026-07-12T04:17:57Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/3-game-lifecycle-clocks-and-replay/run-20260711-225839/chunk-3-validation-3.log"
+      },
+      {
+        "chunk_id": 4,
+        "iteration": 4,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T04:24:55Z",
+        "completed_at": "2026-07-12T04:24:59Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/3-game-lifecycle-clocks-and-replay/run-20260711-225839/chunk-4-validation-4.log"
+      },
+      {
+        "chunk_id": 5,
+        "iteration": 5,
+        "status": "passed",
+        "exit_code": 0,
+        "started_at": "2026-07-12T04:34:33Z",
+        "completed_at": "2026-07-12T04:34:38Z",
+        "log": "/Users/zachcook/Experimental/php-solo-chess/.ralph/logs/3-game-lifecycle-clocks-and-replay/run-20260711-225839/chunk-5-validation-5.log"
+      }
+    ]
+  },
+  "phase": "hooks_done",
+  "hooks": {
+    "review": {
+      "status": "done",
+      "completed_at": "2026-07-12T04:43:56Z",
+      "reason": null
+    },
+    "documentation": {
+      "status": "done",
+      "completed_at": "2026-07-12T04:43:56Z",
+      "reason": null
+    },
+    "validation": {
+      "status": "done",
+      "completed_at": "2026-07-12T04:43:56Z",
+      "reason": null,
+      "phases": {
+        "sprint": {
+          "status": "done",
+          "reason": null,
+          "completed_at": "2026-07-12T04:43:55Z"
+        },
+        "e2e": {
+          "status": "skipped",
+          "reason": "not_configured",
+          "completed_at": "2026-07-12T04:43:55Z"
+        }
+      }
+    }
+  }
+}

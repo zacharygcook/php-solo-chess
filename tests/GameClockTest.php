@@ -131,6 +131,25 @@ return static function (TestHarness $tests): void {
         $tests->assertSame(0, $view['clockState']['whiteRemainingMilliseconds']);
         $tests->assertSame('Draw by timeout.', $view['lastMessage']);
     });
+
+    $tests->test('timeout is a loss when flagged material leaves a legal mate possible', function () use ($tests): void {
+        $_SESSION = [];
+        $time = new DeterministicClock(6_000_000);
+        $store = new SessionStore();
+        $game = new GameService($store, currentTimeMilliseconds: $time);
+        $state = $game->createGame(['timeControl' => ['kind' => 'custom', 'baseMinutes' => 1, 'incrementSeconds' => 0]]);
+        $state['board'] = clockBoardWithBlackMinorAndWhiteBlocker();
+        $store->saveState($state);
+
+        $time->advance(61_000);
+        $view = $game->getSessionState();
+
+        $tests->assertSame('finished', $view['gameStatus']);
+        $tests->assertSame('0-1', $view['result']);
+        $tests->assertSame('timeout', $view['terminationReason']);
+        $tests->assertSame(0, $view['clockState']['whiteRemainingMilliseconds']);
+        $tests->assertSame('Black wins on time.', $view['lastMessage']);
+    });
 };
 
 /** @return array<int, array<int, string|null>> */
@@ -140,6 +159,18 @@ function clockBoardWithMaterialForOnlyWhite(): array
     $board[0][4] = 'bk';
     $board[7][4] = 'wk';
     $board[7][0] = 'wq';
+
+    return $board;
+}
+
+/** @return array<int, array<int, string|null>> */
+function clockBoardWithBlackMinorAndWhiteBlocker(): array
+{
+    $board = array_fill(0, 8, array_fill(0, 8, null));
+    $board[0][4] = 'bk';
+    $board[2][2] = 'bb';
+    $board[6][0] = 'wr';
+    $board[7][4] = 'wk';
 
     return $board;
 }

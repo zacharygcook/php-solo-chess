@@ -107,3 +107,43 @@
 - Handoff: all Sprint 3 chunks are now marked passing. Post-sprint hooks can proceed with review,
   documentation consistency checks, and final validation; PGN, frontend polish, and engine work
   remain intentionally outside this sprint.
+
+## 2026-07-11 23:38 CDT — Post-sprint review
+
+- Baseline `./scripts/check.sh` passed before review edits.
+- Found and fixed a timeout correctness gap: `canColorLegallyWin()` considered only the non-flagging
+  side's material, so it drew `K+minor` timeouts even when the flagging side still had non-king
+  material that can make a legal mate possible.
+- Added focused proof in `tests/GameClockTest.php` for a flagged White side with a remaining blocker
+  and Black bishop material; expected result is Black wins on time, not `1/2-1/2`.
+- Kept the fix scoped to `TerminalStateResolver::canColorLegallyWin()` and the focused clock test.
+- Validation after fix passed: `./scripts/test.sh`, `composer typecheck`,
+  `./scripts/check-complexity.sh`, `./scripts/test-flakiness.sh`, and final `./scripts/check.sh`.
+- Orchestration note: manifest hook state and hook marker files were still pending while this review
+  hook was running; recheck after hook completion/reconciliation.
+
+## 2026-07-11 23:42 CDT — Documentation reconciliation complete
+
+- Updated canonical repository documentation made stale or incomplete by Sprint 3:
+  `docs/ARCHITECTURE.md`.
+- Preserved the existing generated API documentation updates from the sprint; `docs/API.md` and
+  `docs/openapi.json` remained generated from `scripts/generate-api-docs.php` and
+  `config/api-endpoints.json`, and `php scripts/generate-api-docs.php --check` confirmed they were
+  current.
+- Decision: keep lifecycle, clock, and replay ownership documented in the existing architecture page
+  instead of creating a sprint-specific documentation page. The architecture now names
+  `GameLifecycleService`, `TimeControl`, `GameClock`, `GameHistoryService`, the `/api/games/`
+  endpoint family, and owner-scoped replay reads.
+- Decision: update the state lifecycle wording from future-tense terminal actions to implemented
+  behavior for resignation, draw offers/acceptance/claims, abandonment, timeout classification,
+  clock snapshots, completion timestamps, and read-only saved-game replay.
+- Dead end avoided: no README or runbook edit was made because Sprint 3 did not change startup,
+  recovery, or local persistence cleanup procedures beyond behavior already covered by generated API
+  docs and the architecture page.
+- Validation evidence:
+  - `php scripts/generate-api-docs.php --check` passed.
+  - `./scripts/check-agent-docs.sh` passed.
+  - `git diff --check` passed.
+  - `./scripts/check.sh` passed all 24 steps. The unit-test phase used seed `1456910218`, the
+    coverage phase used seed `2095011248`, both ran 89 tests with 0 failures, and the local
+    frontend/API smoke path completed.
