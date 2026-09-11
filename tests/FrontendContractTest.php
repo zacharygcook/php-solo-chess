@@ -128,7 +128,7 @@ return static function (TestHarness $tests): void {
         $tests->assertTrue(str_contains($app, 'No server legal moves are available'), 'Illegal selection feedback must stay non-disruptive.');
         $tests->assertTrue(str_contains($state, 'flipOrientation'), 'UI state must track board orientation locally.');
 
-        foreach (['.legal-source', '.target', '.last-move', '.checked-king', '.capture-target', '.final-position'] as $selector) {
+        foreach (['.target', '.last-move', '.checked-king', '.capture-target', '.final-position'] as $selector) {
             $tests->assertTrue(str_contains($css, $selector), "Missing visual state selector: {$selector}.");
         }
 

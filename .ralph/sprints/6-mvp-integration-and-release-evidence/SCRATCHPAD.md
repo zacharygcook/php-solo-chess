@@ -174,3 +174,31 @@
   the clean endpoint validation, which is already recorded in `REVIEW.md` and this scratchpad.
 - Sprint-state updates: marked only the documentation hook done in `manifest.json` and added the
   conventional `.hook-documentation.done` marker because `RALPH_STATE_MODE=tracked`.
+
+## 2026-09-10 — Local feedback: broken piece images
+
+- All 12 SVGs are tracked and serve successfully; relative piece URLs resolve to a missing `/assets/img/` path when visiting `/frontend`.
+- Changed piece URLs to `/frontend/assets/img/` and added browser checks for 32 decoded images at both frontend URL forms. Browser smoke and formatting passed.
+- Canonical check attempted before and after the fix; both stop at step 17 because host PHP lacks Xdebug. No coverage threshold was changed.
+
+## 2026-09-10 — Local feedback: remove movable-piece rings
+
+- Removed the legal-source class and its green ring styling at user request; selected-piece destination hints and drag eligibility remain functional. Updated the existing frontend contract to stop requiring the removed styling.
+- Validation: 114 tests passed and browser smoke passed. Canonical checks before and after stop at step 17 due to the previously documented missing host Xdebug extension.
+
+## 2026-09-10 — Local feedback: piece-only drag preview
+
+- Replaced the default square drag snapshot with a transparent canvas containing only the SVG piece at its displayed size, centered under the cursor. Hide only the source piece during dragging and restore it on drag end.
+- Browser smoke checks preview transparency, visible piece pixels, centered offsets, unchanged square opacity, source-piece hiding, drag-end cleanup, and an accepted drop. Browser smoke, 114 tests, formatting, and diff checks passed.
+- Canonical checks before and after again stop at missing Xdebug in step 17. No system configuration or validation thresholds changed.
+
+## 2026-09-10 — Follow-up: invisible native drag preview
+
+- User reported the detached canvas preview was invisible during actual dragging. Earlier synthetic tests only inspected the canvas argument and did not prove native preview rendering.
+- Replaced the native piece preview with a visible fixed-position SVG image overlay following document dragover coordinates. Suppress the native ghost; remove overlay and restore source piece on drop, drag end, or window blur.
+- Added real CDP mouse drag and cancelled-drop cleanup coverage alongside overlay visibility/position checks and accepted-drop smoke. Browser smoke, 114 tests, formatting, and diff checks passed. Canonical check remains blocked at step 17 by missing Xdebug.
+
+## 2026-09-10 — Commit validation
+
+- Built the repository-pinned Xdebug 3.5.3 under `/tmp/php-solo-chess-validation` and loaded it with a process-scoped PHP INI scan directory; system PHP configuration remains unchanged.
+- All 26 canonical checks passed, including coverage and real-mouse browser smoke. A transient Packagist HTTP 502 cleared on retry.

@@ -200,9 +200,16 @@ async function main() {
         deviceScaleFactor: 1,
         mobile: false,
     });
-    const loaded = page.waitForEvent('Page.loadEventFired', 10000);
-    await page.send('Page.navigate', { url: `${baseUrl}/frontend/` });
-    await loaded;
+    for (const frontendPath of ['/frontend', '/frontend/']) {
+        const loaded = page.waitForEvent('Page.loadEventFired', 10000);
+        await page.send('Page.navigate', { url: `${baseUrl}${frontendPath}` });
+        await loaded;
+        await waitUntil(page, `piece images loaded at ${frontendPath}`, `
+            document.querySelectorAll('#chessBoard img.piece').length === 32
+                && [...document.querySelectorAll('#chessBoard img.piece')]
+                    .every(image => image.complete && image.naturalWidth > 0)
+        `);
+    }
 
     await waitUntil(page, 'initial board render', `
         document.readyState === 'complete'
@@ -281,6 +288,7 @@ async function main() {
             && document.querySelector('#whiteClockTime')?.textContent === 'Untimed'
     `);
 
+    await checkNativeDragPreview(page, 'a2');
     await dragMove(page, 'a2', 'a4');
     await waitUntil(page, 'guest drag move through board UI', `
         document.querySelector('#activeColor')?.textContent.includes('BLACK')
@@ -446,6 +454,38 @@ async function keyActivate(page, selector) {
     `);
 }
 
+async function checkNativeDragPreview(page, from) {
+    const point = await evaluate(page, `
+        (() => {
+            const square = document.querySelector('[data-coord="${from}"]');
+            square.scrollIntoView({ block: 'center' });
+            const bounds = square.getBoundingClientRect();
+            return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+        })()
+    `);
+    await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', ...point });
+    await page.send('Input.dispatchMouseEvent', { type: 'mousePressed', button: 'left', clickCount: 1, ...point });
+    await page.send('Input.dispatchMouseEvent', {
+        type: 'mouseMoved', button: 'left', buttons: 1, x: point.x + 15, y: point.y - 15,
+    });
+    await page.send('Input.dispatchMouseEvent', {
+        type: 'mouseMoved', button: 'left', buttons: 1, x: point.x + 25, y: point.y - 25,
+    });
+    await waitUntil(page, 'visible piece during native mouse drag', `
+        (() => {
+            const preview = document.querySelector('.drag-preview');
+            return preview?.complete && preview.naturalWidth > 0
+                && getComputedStyle(preview).visibility === 'visible'
+                && preview.getBoundingClientRect().width > 0;
+        })()
+    `);
+    await page.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1, y: 1, buttons: 1 });
+    await page.send('Input.dispatchMouseEvent', { type: 'mouseReleased', button: 'left', clickCount: 1, x: 1, y: 1 });
+    await waitUntil(page, 'cancelled native drag cleanup', `
+        !document.querySelector('.drag-preview') && !document.querySelector('.square.dragging')
+    `);
+}
+
 async function dragMove(page, from, to) {
     const previousMoveCount = await evaluate(page, 'document.querySelectorAll("#moveHistory li").length');
     await evaluate(page, `
@@ -461,11 +501,25 @@ async function dragMove(page, from, to) {
                 cancelable: true,
                 dataTransfer,
             }));
+            if (!document.querySelector('.drag-preview') || getComputedStyle(source).opacity !== '1'
+                || getComputedStyle(source.querySelector('.piece')).visibility !== 'hidden') {
+                throw new Error('Dragging must hide only the source piece.');
+            }
             target.dispatchEvent(new DragEvent('dragover', {
+                clientX: 320,
+                clientY: 240,
                 bubbles: true,
                 cancelable: true,
                 dataTransfer,
             }));
+            const preview = document.querySelector('.drag-preview');
+            const bounds = preview.getBoundingClientRect();
+            if (!preview.complete || !preview.naturalWidth
+                || getComputedStyle(preview).visibility !== 'visible'
+                || Math.abs(bounds.x + bounds.width / 2 - 320) > 1
+                || Math.abs(bounds.y + bounds.height / 2 - 240) > 1) {
+                throw new Error('Visible piece overlay must follow the cursor.');
+            }
             target.dispatchEvent(new DragEvent('drop', {
                 bubbles: true,
                 cancelable: true,
@@ -476,6 +530,9 @@ async function dragMove(page, from, to) {
                 cancelable: true,
                 dataTransfer,
             }));
+            if (source.classList.contains('dragging') || document.querySelector('.drag-preview')) {
+                throw new Error('Ending a drag must restore the source piece.');
+            }
             return true;
         })()
     `);

@@ -42,6 +42,14 @@ product work itself ultimately succeeds.
 | 2026-07-12 | `5-pgn-export-and-engine-seam` | Medium | Full validation exposed a timing-sensitive engine seam test that compared wall-clock move-history timestamps, and PGN replay integration pushed Xdebug coverage-mode tests over the two-second budget. | Product setup | Injected a deterministic clock for the engine path comparison and kept heavyweight PGN replay matrices in the normal fast suite while skipping them only during coverage measurement. |
 | 2026-07-12 | `6-mvp-integration-and-release-evidence` | Info | The working checkout contained unrelated Ralph runtime and prior product edits, while release packaging intentionally requires a clean worktree. | Agent behavior | Kept chunk edits scoped and planned the package proof from a separate clean Git worktree after the chunk commit. |
 
+| 2026-09-10 | Local feedback | Medium | Browser smoke checked piece elements but missed broken image URLs at `/frontend` without a trailing slash. | Product setup | Made piece URLs root-absolute and verified all 32 images decode at both frontend URL forms in browser smoke. |
+
+| 2026-09-10 | Local feedback | Medium | Native dragging captured the whole square; synthetic move coverage missed the visual defect. | Product setup | Added a transparent piece-only preview and browser checks for preview pixels, centering, source visibility, and cleanup. |
+
+| 2026-09-10 | Local feedback | Medium | Detached canvas drag preview remained invisible for the user despite synthetic preview assertions passing. | Product setup | Replaced it with a DOM image overlay and added real mouse drag visibility and cancellation checks. |
+
+| 2026-09-10 | Local feedback | Info | Host PHP lacked Xdebug, blocking full validation and the pre-commit hook. | Project setup | Built pinned Xdebug in a temporary directory and loaded it only for validation; all 26 canonical checks passed. |
+
 Classifications: `runtime defect`, `skill guidance`, `project setup`, `chunk design`, `agent behavior`,
 or `expected product difficulty`.
 

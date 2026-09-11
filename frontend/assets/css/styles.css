@@ -265,20 +265,12 @@ textarea {
     outline-offset: -3px;
 }
 
-.square.legal-source::before,
 .square.target::before,
 .square.last-move::after,
 .square.checked-king::after {
     content: '';
     position: absolute;
     pointer-events: none;
-}
-
-.square.legal-source::before {
-    width: 26%;
-    height: 26%;
-    border: 2px solid rgba(47, 125, 97, 0.74);
-    border-radius: 999px;
 }
 
 .square.target::before {
@@ -318,8 +310,16 @@ textarea {
     filter: saturate(0.85);
 }
 
-.square.dragging {
-    opacity: 0.55;
+.square.dragging .piece {
+    visibility: hidden;
+}
+
+.drag-preview {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    object-fit: contain;
+    transform: translate(-50%, -50%);
 }
 
 .square.target,

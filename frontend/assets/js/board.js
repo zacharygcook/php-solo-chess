@@ -67,9 +67,6 @@ export function renderBoard(boardElement, board, selection, onSquareAction, opti
                 square.classList.add('capture-target');
             }
         }
-        if (isLegalSource(coord, options.legalMoves)) {
-            square.classList.add('legal-source');
-        }
         if (options.lastMove?.from === coord) {
             square.classList.add('last-move', 'last-move-from');
         }
@@ -109,7 +106,12 @@ export function renderBoard(boardElement, board, selection, onSquareAction, opti
             }
             event.dataTransfer.setData('text/plain', coord);
             event.dataTransfer.effectAllowed = 'move';
-            square.classList.add('dragging');
+            const piece = square.querySelector('img.piece');
+            if (!piece?.complete || !piece.naturalWidth) {
+                event.preventDefault();
+                return;
+            }
+            showDraggedPiece(square, piece, event);
         });
         square.addEventListener('dragend', () => {
             square.classList.remove('dragging');
@@ -130,6 +132,39 @@ export function renderBoard(boardElement, board, selection, onSquareAction, opti
 
         boardElement.append(square);
     });
+}
+
+function showDraggedPiece(square, piece, event) {
+    const bounds = piece.getBoundingClientRect();
+    const preview = piece.cloneNode();
+    preview.className = 'drag-preview';
+    preview.setAttribute('aria-hidden', 'true');
+    preview.style.width = `${bounds.width}px`;
+    preview.style.height = `${bounds.height}px`;
+    const move = (pointer) => {
+        preview.style.left = `${pointer.clientX}px`;
+        preview.style.top = `${pointer.clientY}px`;
+    };
+    move(event);
+    document.body.append(preview);
+    const empty = document.createElement('canvas');
+    empty.width = 1;
+    empty.height = 1;
+    event.dataTransfer.setDragImage(empty, 0, 0);
+    square.classList.add('dragging');
+
+    const cleanup = () => {
+        preview.remove();
+        square.classList.remove('dragging');
+        document.removeEventListener('dragover', move, true);
+        document.removeEventListener('drop', cleanup, true);
+        document.removeEventListener('dragend', cleanup, true);
+        window.removeEventListener('blur', cleanup);
+    };
+    document.addEventListener('dragover', move, true);
+    document.addEventListener('drop', cleanup, true);
+    document.addEventListener('dragend', cleanup, true);
+    window.addEventListener('blur', cleanup);
 }
 
 export function boardFromFen(fen) {
@@ -206,7 +241,7 @@ function createPieceElement(piece) {
 
     const image = document.createElement('img');
     image.className = 'piece';
-    image.src = `assets/img/${sprite}.svg`;
+    image.src = `/frontend/assets/img/${sprite}.svg`;
     image.alt = label;
     image.draggable = false;
 
